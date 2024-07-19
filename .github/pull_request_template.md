@@ -1,5 +1,5 @@
-## #️⃣연관된 이슈
-> #이슈번호
+## #️⃣Related Issue
+> #Issue Number
 
-## 📝작업 내용
-> 이번 이슈에서 작업한 내용
+## 📝Work Description
+> Description of the work done in this issue
