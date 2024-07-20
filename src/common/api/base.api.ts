@@ -1,6 +1,5 @@
-export default interface ApiResponse<T> {
+export interface BaseCode {
     success: boolean;
     statusCode: number;
     message: string;
-    data: T;
 }
