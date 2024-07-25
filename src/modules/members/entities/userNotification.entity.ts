@@ -1,5 +1,5 @@
 import { PrimaryGeneratedColumn, Column, Entity, OneToOne, JoinColumn} from 'typeorm';
-import { Member } from './index';
+import { Member } from '.';
 import { DefaultEntity } from 'src/common/default.entity';
 
 @Entity('알림')

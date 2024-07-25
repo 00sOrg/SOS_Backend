@@ -6,8 +6,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { DefaultEntity } from '../../../common/default.entity';
-import { Event, Comment } from '../../events/entities/index';
-import { MemberDetail, UserNotification, Favorite } from './index';
+import { Event, Comment } from '../../events/entities';
+import { MemberDetail, UserNotification, Favorite } from '.';
 
 @Entity('회원')
 export class Member extends DefaultEntity {
@@ -39,8 +39,9 @@ export class Member extends DefaultEntity {
   @OneToMany(() => Favorite, (favorite) => favorite.member)
   favorites: Favorite[];
 
-  @OneToMany(() => Favorite, (favorite) => favorite.favoriteMember)
-  favoritedBy: Favorite[];
+  // 보류 중
+  // @OneToMany(() => Favorite, (favorite) => favorite.favoriteMember)
+  // favoritedBy: Favorite[];
 
   @OneToMany(() => Event, (event) => event.member, {
     cascade: true,

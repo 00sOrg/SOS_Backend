@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Member } from '../../members/entities/index'; 
-import { Event } from './index';
+import { Member } from '../../members/entities'; 
+import { Event } from '.';
 import { DefaultEntity } from '../../../common/default.entity';
 
 @Entity('댓글')

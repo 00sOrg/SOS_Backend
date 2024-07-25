@@ -1,6 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
-import { Member } from '../../members/entities/index';
-import { Comment } from './index';
+import { Member } from '../../members/entities';
+import { Comment } from '.';
 import { DefaultEntity } from '../../../common/default.entity';
 
 @Entity('사건')
