@@ -5,7 +5,7 @@ import { DefaultEntity } from 'src/common/default.entity';
 @Entity()
 export class UserNotification extends DefaultEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
-  id: number;
+  private id: number;
 
   @OneToOne(() => Member, (member) => member.notification, {
     onDelete: 'CASCADE',

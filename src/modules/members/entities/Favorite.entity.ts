@@ -5,7 +5,7 @@ import { DefaultEntity } from '../../../common/default.entity';
 @Entity()
 export class Favorite extends DefaultEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
-  id: number;
+  private id: number;
 
   @ManyToOne(() => Member, (member) => member.favorites, {
     onDelete: 'CASCADE',
