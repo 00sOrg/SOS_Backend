@@ -3,19 +3,19 @@ import { Member } from '../../members/entities';
 import { Event } from '.';
 import { DefaultEntity } from '../../../common/default.entity';
 
-@Entity('댓글')
+@Entity()
 export class Comment extends DefaultEntity {
-  @PrimaryGeneratedColumn({ type: 'bigint', name: '댓글ID' })
-  commentId: number;
+  @PrimaryGeneratedColumn({ type: 'bigint' })
+  id: number;
 
   @ManyToOne(() => Event, (event) => event.comments, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: '사건ID' })
+  @JoinColumn()
   event: Event;
 
   @ManyToOne(() => Member, (member) => member.comments, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: '회원ID' })
+  @JoinColumn()
   member: Member;
 
-  @Column({ type: 'text', nullable: true, name: '댓글' })
+  @Column({ type: 'text', nullable: true })
   content: string;
 }

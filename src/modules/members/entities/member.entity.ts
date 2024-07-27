@@ -9,21 +9,21 @@ import { DefaultEntity } from '../../../common/default.entity';
 import { Event, Comment } from '../../events/entities';
 import { MemberDetail, UserNotification, Favorite } from '.';
 
-@Entity('회원')
+@Entity()
 export class Member extends DefaultEntity {
-  @PrimaryGeneratedColumn({ type: 'bigint', name: '회원ID' })
-  memberId: number;
+  @PrimaryGeneratedColumn({ type: 'bigint'})
+  id: number;
 
-  @Column({ type: 'varchar', length: 25, name: '이메일' })
+  @Column({ type: 'varchar', length: 25 })
   email: string;
 
-  @Column({ type: 'varchar', length: 20, name: '비밀번호' })
+  @Column({ type: 'varchar', length: 20 })
   password: string;
 
-  @Column({ type: 'varchar', length: 10, name: '이름' })
+  @Column({ type: 'varchar', length: 10 })
   name: string;
 
-  @Column({ type: 'varchar', length: 20, name: '닉네임' })
+  @Column({ type: 'varchar', length: 20 })
   nickname: string;
 
   @OneToOne(() => MemberDetail, (memberDetail) => memberDetail.member, {
@@ -52,22 +52,4 @@ export class Member extends DefaultEntity {
     cascade: true,
   })
   comments: Comment[];
-
-  // 즐겨찾기 엔티티 중간 테이블 두고 다대다로 구현하는 거는 어떤지?
-  //   @ManyToMany(() => Member, (member) => member.favoritedBy)
-  //   @JoinTable({
-  //     name: 'favorites', // 중간 테이블 이름
-  //     joinColumn: {
-  //       name: 'memberId',
-  //       referencedColumnName: 'memberId'
-  //     },
-  //     inverseJoinColumn: {
-  //       name: 'favoriteId',
-  //       referencedColumnName: 'memberId'
-  //     }
-  //   })
-  //   favorites: Member[];
-
-  //   @ManyToMany(() => Member, (member) => member.favorites)
-  //   favoritedBy: Member[];
 }

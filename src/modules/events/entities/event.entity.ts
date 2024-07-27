@@ -3,51 +3,51 @@ import { Member } from '../../members/entities';
 import { Comment } from '.';
 import { DefaultEntity } from '../../../common/default.entity';
 
-@Entity('사건')
+@Entity()
 export class Event extends DefaultEntity {
-  @PrimaryGeneratedColumn({ type: 'bigint', name: '사건ID' })
-  eventId: number;
+  @PrimaryGeneratedColumn({ type: 'bigint' })
+  id: number;
 
   @ManyToOne(() => Member, (member) => member.events, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: '회원ID' })
+  @JoinColumn()
   member: Member;
 
   @OneToMany(() => Comment, (comment) => comment.event)
   comments: Comment[];
 
-  @Column({ type: 'varchar', length: 10, nullable: true, name: '종류' })
+  @Column({ type: 'varchar', length: 10, nullable: true })
   type: string;
 
-  @Column({ type: 'text', nullable: true, name: '사진, 영상' })
+  @Column({ type: 'text', nullable: true })
   media: string;
 
-  @Column({ type: 'varchar', length: 25, name: '제목' })
+  @Column({ type: 'varchar', length: 25 })
   title: string;
 
-  @Column({ type: 'text', name: '내용' })
+  @Column({ type: 'text' })
   content: string;
 
-  @Column({ type: 'int', name: '위도' })
+  @Column({ type: 'int' })
   latitude: number;
 
-  @Column({ type: 'int', name: '경도' })
+  @Column({ type: 'int' })
   longitude: number;
 
-  @Column({ type: 'varchar', length: 25, name: '시' })
+  @Column({ type: 'varchar', length: 25 })
   city: string;
 
-  @Column({ type: 'varchar', length: 25, name: '동' })
+  @Column({ type: 'varchar', length: 25 })
   district: string;
 
-  @Column({ type: 'varchar', length: 25, name: '구' })
+  @Column({ type: 'varchar', length: 25 })
   neighborhood: string;
 
-  @Column({ type: 'varchar', length: 25, nullable: true, name: '재난 단계' })
+  @Column({ type: 'varchar', length: 25, nullable: true })
   disasterLevel: string;
 
-  @Column({ type: 'int', nullable: true, name: '공감 갯수' })
+  @Column({ type: 'int', nullable: true })
   likesCount: number;
 
-  @Column({ type: 'int', nullable: true, name: '댓글 갯수' })
+  @Column({ type: 'int', nullable: true })
   commentsCount: number;
 }

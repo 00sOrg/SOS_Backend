@@ -2,29 +2,29 @@ import { PrimaryGeneratedColumn, Column, Entity, OneToOne, JoinColumn} from 'typ
 import { Member } from '.';
 import { DefaultEntity } from 'src/common/default.entity';
 
-@Entity('알림')
+@Entity()
 export class UserNotification extends DefaultEntity {
-  @PrimaryGeneratedColumn({ type: 'bigint', name: '알림ID' })
-  notificationId: number;
+  @PrimaryGeneratedColumn({ type: 'bigint' })
+  id: number;
 
   @OneToOne(() => Member, (member) => member.notification, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: '회원ID' })
+  @JoinColumn()
   member: Member;
 
-  @Column({ type: 'boolean', default: false, name: '댓글 알림' })
+  @Column({ type: 'boolean', default: false })
   commentNotification: boolean;
 
-  @Column({ type: 'boolean', default: false, name: '주변 알림' })
+  @Column({ type: 'boolean', default: false })
   nearbyNotification: boolean;
 
-  @Column({ type: 'boolean', default: false, name: '관심사용자 알림' })
+  @Column({ type: 'boolean', default: false })
   favoriteUserNotification: boolean;
 
-  @Column({ type: 'boolean', default: false, name: '국가 재난 알림' })
+  @Column({ type: 'boolean', default: false })
   nationalDisasterNotification: boolean;
 
-  @Column({ type: 'boolean', default: false, name: '도움 요청 알림' })
+  @Column({ type: 'boolean', default: false })
   helpRequestNotification: boolean;
 }

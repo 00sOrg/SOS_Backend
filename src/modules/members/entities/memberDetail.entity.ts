@@ -2,29 +2,29 @@ import { PrimaryColumn, Column, Entity, OneToOne, JoinColumn} from 'typeorm';
 import { Member } from '.';
 import { DefaultEntity } from 'src/common/default.entity';
 
-@Entity('회원 신체정보')
+@Entity()
 export class MemberDetail extends DefaultEntity {
-  @PrimaryColumn({ type: 'bigint', name: '회원ID' })
-  memberId: number;
+  @PrimaryColumn({ type: 'bigint' })
+  id: number;
 
   @OneToOne(() => Member, (member) => member.notification, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: '회원ID' })
+  @JoinColumn()
   member: Member;
 
-  @Column({ type: 'int', nullable: true, name: '키' })
+  @Column({ type: 'int', nullable: true })
   height: number;
 
-  @Column({ type: 'int', nullable: true, name: '몸무게' })
+  @Column({ type: 'int', nullable: true })
   weight: number;
 
-  @Column({ type: 'varchar', length: 5, nullable: true, name: '혈액형' })
+  @Column({ type: 'varchar', length: 5, nullable: true })
   bloodType: string;
 
-  @Column({ type: 'text', nullable: true, name: '질병' })
+  @Column({ type: 'text', nullable: true })
   disease: string;
 
-  @Column({ type: 'text', nullable: true, name: '복용약' })
+  @Column({ type: 'text', nullable: true })
   medication: string;
 }
