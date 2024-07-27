@@ -6,7 +6,7 @@ import { DefaultEntity } from '../../../common/default.entity';
 @Entity()
 export class Event extends DefaultEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
-  id: number;
+  private id: number;
 
   @ManyToOne(() => Member, (member) => member.events, { onDelete: 'CASCADE' })
   @JoinColumn()

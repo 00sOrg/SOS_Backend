@@ -6,7 +6,7 @@ import { DefaultEntity } from '../../../common/default.entity';
 @Entity()
 export class Comment extends DefaultEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
-  id: number;
+  private id: number;
 
   @ManyToOne(() => Event, (event) => event.comments, { onDelete: 'CASCADE' })
   @JoinColumn()
