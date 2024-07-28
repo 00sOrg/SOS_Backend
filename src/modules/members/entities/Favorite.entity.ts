@@ -5,13 +5,18 @@ import { DefaultEntity } from '../../../common/default.entity';
 @Entity()
 export class Favorite extends DefaultEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
-  private id: number;
+  id: number;
 
   @ManyToOne(() => Member, (member) => member.favorites, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
   member: Member;
+
+  @ManyToOne(()=>Member)
+  @JoinColumn({ name: 'interestedMemberId' }) // 명시적으로 열 이름을 정의
+  favoritedMember: Member;
+
 
 // 보류: 없앨 것인가? 없애면 한 쪽에서 즐찾하면 끝나고 즐찾한 사람이 누군지에 대한 정보는 제공x
 // 아니면 팔로우 팔로워처럼 할 것인가? 
