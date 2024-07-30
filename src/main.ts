@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { createDatabase } from './config/config.typeorm';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 import { GeneralFilter } from './common/filters/filters.general';
+import { ValidationPipe } from '@nestjs/common';
+import { CustomValidationPipe } from './common/pipes/custom-validation.pipe';
 
 
 async function bootstrap() {
@@ -12,6 +14,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalInterceptors(new TransformInterceptor());
   app.useGlobalFilters(new GeneralFilter());
+  app.useGlobalPipes(new CustomValidationPipe());
   await app.listen(3000);
 }
 bootstrap();

@@ -6,7 +6,7 @@ import { DefaultEntity } from '../../../common/default.entity';
 @Entity()
 export class Event extends DefaultEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
-  private id: number;
+  id: number;
 
   @ManyToOne(() => Member, (member) => member.events, { onDelete: 'CASCADE' })
   @JoinColumn()
@@ -24,7 +24,7 @@ export class Event extends DefaultEntity {
   @Column({ type: 'varchar', length: 25 })
   title: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true})
   content: string;
 
   @Column({ type: 'int' })
@@ -33,21 +33,21 @@ export class Event extends DefaultEntity {
   @Column({ type: 'int' })
   longitude: number;
 
-  @Column({ type: 'varchar', length: 25 })
+  @Column({ type: 'varchar', length: 25, nullable: true})
   city: string;
 
-  @Column({ type: 'varchar', length: 25 })
+  @Column({ type: 'varchar', length: 25, nullable: true})
   district: string;
 
-  @Column({ type: 'varchar', length: 25 })
+  @Column({ type: 'varchar', length: 25, nullable: true})
   neighborhood: string;
 
   @Column({ type: 'varchar', length: 25, nullable: true })
   disasterLevel: string;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', default: 0})
   likesCount: number;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'int', default: 0})
   commentsCount: number;
 }

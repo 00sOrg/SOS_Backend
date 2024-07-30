@@ -12,7 +12,7 @@ import { MemberDetail, UserNotification, Favorite } from '.';
 @Entity()
 export class Member extends DefaultEntity {
   @PrimaryGeneratedColumn({ type: 'bigint'})
-  private id: number;
+  id: number;
 
   @Column({ type: 'varchar', length: 25 })
   email: string;
