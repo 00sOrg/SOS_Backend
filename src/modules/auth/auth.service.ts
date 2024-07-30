@@ -1,26 +1,40 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/response.dto';
-import { UpdateAuthDto } from './dto/request.dto';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
+import { MembersService } from '../members/members.service';
+import { Member } from '../members/entities';
+import { CreateMemberDto } from '../members/dto/create-member.dto';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    private readonly membersService: MembersService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async validateMember(email: string, password: string): Promise<any> {
+    const member = await this.membersService.findOneByEmail(email);
+    if (member && await bcrypt.compare(password, member.password)) {
+      const { password, ...result } = member;
+      return result;
+    }
+    return null;
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async login(member: any) {
+    const payload = { email: member.email, sub: member.id };
+    return {
+      access_token: this.jwtService.sign(payload),
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  async register(createMemberDto: CreateMemberDto) {
+    const { password, ...rest } = createMemberDto;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newMemberDto = {
+      ...rest,
+      password: hashedPassword,
+    } as Member;
+    return this.membersService.create(newMemberDto);
   }
 }
