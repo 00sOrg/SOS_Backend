@@ -20,7 +20,7 @@ export class EventsService {
   async create(request: CreateEventRequestDto): Promise<void> {
     const member = await this.membersRepository.findById(request.memberId);
     if(!member) {
-      throw new ExceptionHandler(ErrorStatus.MEBER_NOT_FOUND);
+      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
     }
     if(!request.image && !request.content) {
       throw new ExceptionHandler(ErrorStatus.EVENT_CONTENTS_NOT_FOUND);
