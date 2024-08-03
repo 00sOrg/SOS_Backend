@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { DataSource, Repository } from "typeorm";
+import { DataSource, FindOperator, Repository } from "typeorm";
 import { Event } from "./entities";
 
 @Injectable()
@@ -10,7 +10,14 @@ export class EventsRepository {
     }
 
     async create(event: Event): Promise<Event> {
-        this.eventRepository.create
         return this.eventRepository.save(event);
+    }
+
+    async findById(eventId: number | FindOperator<number>): Promise<Event | undefined> {
+        return this.eventRepository.findOne({
+            where: {
+                id: eventId,
+            },
+        });
     }
 }

@@ -1,7 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Member } from '../../members/entities';
-import { Comment } from '.';
 import { DefaultEntity } from '../../../common/default.entity';
+import { Comment } from './comment.entity';
 
 @Entity()
 export class Event extends DefaultEntity {
