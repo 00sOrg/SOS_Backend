@@ -1,25 +1,35 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { MembersRepository } from './members.repository';
 import { CreateMemberDto } from './dto/create-member.dto';
 import { UpdateMemberDto } from './dto/update-member.dto';
 import { Member } from './entities';
+import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
+import { ErrorStatus } from 'src/common/api/status/error.status';
+import { MemberBuilder } from './entities/builder/member.builder';
 
 @Injectable()
 export class MembersService {
-  constructor(
-    @InjectRepository(Member)
-    private readonly membersRepository: Repository<Member>,
-  ) {}
+  constructor(private readonly membersRepository: MembersRepository) {}
 
-  async create(createMemberDto: CreateMemberDto): Promise<Member> {
-    const member = this.membersRepository.create(createMemberDto);
-    return this.membersRepository.save(member);
+  async create(request: CreateMemberDto): Promise<void> {
+    if(!request.email && !request.password && !request.name && !request.nickname){
+      throw new ExceptionHandler(ErrorStatus.MEBER_INFO_NOT_FOUND);
+    }
+
+    const member = new MemberBuilder()
+    .email(request.email)
+    .password(request.password)
+    .name(request.name)
+    .nickname(request.nickname)
+    .build();
+    
+    await this.membersRepository.create(member);
   }
-  
+
   async findOneByEmail(email: string): Promise<Member | undefined> {
-    return this.membersRepository.findOne({ where: { email } });
+    return this.membersRepository.findOneByEmail(email);
   }
+
 
   // findAll() {
   //   return `This action returns all members`;

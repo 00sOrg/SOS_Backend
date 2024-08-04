@@ -3,6 +3,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { MembersService } from '../../members/members.service';
+import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
+import { ErrorStatus } from 'src/common/api/status/error.status';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -20,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: any) {
     const member = await this.membersService.findOneByEmail(payload.email);
     if (!member) {
-      throw new UnauthorizedException();
+      throw new ExceptionHandler(ErrorStatus.MEBER_NOT_FOUND);
     }
     return member;
   }
