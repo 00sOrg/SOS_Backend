@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { MembersRepository } from './members.repository';
-import { CreateMemberDto } from './dto/create-member.dto';
-import { UpdateMemberDto } from './dto/update-member.dto';
+import { CreateMemberDto } from '../auth/dto/create-member.dto';
+import { UpdateMemberDto } from '../auth/dto/update-member.dto';
 import { Member } from './entities';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
@@ -12,24 +12,25 @@ export class MembersService {
   constructor(private readonly membersRepository: MembersRepository) {}
 
   async create(request: CreateMemberDto): Promise<void> {
-    if(!request.email && !request.password && !request.name && !request.nickname){
-      throw new ExceptionHandler(ErrorStatus.MEBER_INFO_NOT_FOUND);
-    }
-
+    // DTO에서 유효성 검사가 처리됨
     const member = new MemberBuilder()
-    .email(request.email)
-    .password(request.password)
-    .name(request.name)
-    .nickname(request.nickname)
-    .build();
-    
+      .email(request.email)
+      .password(request.password)
+      .name(request.name)
+      .nickname(request.nickname)
+      .build();
+
     await this.membersRepository.create(member);
   }
 
-  async findOneByEmail(email: string): Promise<Member | undefined> {
-    return this.membersRepository.findOneByEmail(email);
-  }
 
+  async findOneByEmail(email: string): Promise<Member> {
+    const member = await this.membersRepository.findOneByEmail(email);
+    if (!member) {
+      throw new ExceptionHandler(ErrorStatus.MEBER_NOT_FOUND);
+    }
+    return member;
+  }
 
   // findAll() {
   //   return `This action returns all members`;
@@ -46,5 +47,4 @@ export class MembersService {
   // remove(id: number) {
   //   return `This action removes a #${id} member`;
   // }
-  
 }

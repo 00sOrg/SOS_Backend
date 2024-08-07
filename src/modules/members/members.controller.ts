@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { MembersService } from './members.service';
-import { CreateMemberDto } from './dto/create-member.dto';
 import { Member } from './entities';
-import { UpdateMemberDto } from './dto/update-member.dto';
+import { CreateMemberDto } from '../auth/dto/create-member.dto';
+import { UpdateMemberDto } from '../auth/dto/update-member.dto';
 
 @Controller('members')
 export class MembersController {
@@ -14,7 +14,9 @@ export class MembersController {
   }
 
   @Get(':email')
-  async findOneByEmail(@Param('email') email: string): Promise<Member | undefined> {
+  async findOneByEmail(
+    @Param('email') email: string,
+  ): Promise<Member | undefined> {
     return this.membersService.findOneByEmail(email);
   }
 
