@@ -4,6 +4,9 @@ import * as bcrypt from 'bcryptjs';
 import { MembersService } from '../members/members.service';
 import { Member } from '../members/entities';
 import { CreateMemberDto } from '../auth/dto/create-member.dto';
+import { LoginMemberDto } from './dto/login-member.dto';
+import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
+import { ErrorStatus } from 'src/common/api/status/error.status';
 
 @Injectable()
 export class AuthService {
@@ -12,16 +15,22 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateMember(email: string, password: string): Promise<any> {
+  async validateMember(loginMemberDto: LoginMemberDto): Promise<Member> {
+    const { email, password } = loginMemberDto;
     const member = await this.membersService.findOneByEmail(email);
-    if (member && await bcrypt.compare(password, member.password)) {
-      const { password, ...result } = member;
-      return result;
+    if (!member) {
+      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
     }
-    return null;
+
+    const isPasswordValid = await bcrypt.compare(password, member.password);
+    if (!isPasswordValid) {
+      throw new ExceptionHandler(ErrorStatus.INVALID_PASSWORD);
+    }
+
+    return member;
   }
 
-  async login(member: any) {
+  async login(member: Member) {
     const payload = { email: member.email, sub: member.id };
     return {
       access_token: this.jwtService.sign(payload),

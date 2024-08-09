@@ -1,20 +1,15 @@
 import { Controller, Get, Post, Request, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateMemberDto } from '../auth/dto/create-member.dto';
-import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
-import { ErrorStatus } from 'src/common/api/status/error.status';
+import { LoginMemberDto } from './dto/login-member.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  async login(@Body() body) {
-    const { email, password } = body;
-    const member = await this.authService.validateMember(email, password);
-    if (!member) {
-      throw new ExceptionHandler(ErrorStatus.MEBER_NOT_FOUND);
-    }
+  async login(@Body() loginMemberDto: LoginMemberDto) {
+    const member = await this.authService.validateMember(loginMemberDto);
     return this.authService.login(member);
   }
 
