@@ -8,7 +8,7 @@ export class CreateEventRequestDto {
         message: "제목은 필수 입력 항목입니다."
     })
     @MaxLength(25, {
-        message: '제목은 25자 이하여야 합니다.',
+        message: '제목은 최대 25자 입니다.',
     })
     title: string;
   

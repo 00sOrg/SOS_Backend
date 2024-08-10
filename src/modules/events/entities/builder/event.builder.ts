@@ -1,5 +1,5 @@
-import { Member } from "src/modules/members/entities";
 import { Event } from "../event.entity";
+import { Member } from "../../../members/entities";
 import { Comment } from "../comment.entity";
 
 export class EventBuilder {

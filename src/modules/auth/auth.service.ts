@@ -1,26 +1,44 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/response.dto';
-import { UpdateAuthDto } from './dto/request.dto';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcryptjs';
+import { MembersService } from '../members/members.service';
+import { Member } from '../members/entities';
+import { CreateMemberDto } from '../auth/dto/create-member.dto';
+import { ValidateMemberDto } from './dto/validate-member.dto';
+import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
+import { ErrorStatus } from 'src/common/api/status/error.status';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    private readonly membersService: MembersService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async validateMember(validateMemberDto: ValidateMemberDto): Promise<Member> {
+    const { email, password } = validateMemberDto;
+    const member = await this.membersService.findOneByEmail(email);
+    const isPasswordValid = await bcrypt.compare(password, member.password);
+    if (!isPasswordValid) {
+      throw new ExceptionHandler(ErrorStatus.INVALID_PASSWORD);
+    }
+    return member;
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async login(member: Member):Promise<Object> {
+    const payload = { email: member.email, sub: member.id };
+
+    return {
+      access_token: this.jwtService.signAsync(payload),
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+  async register(createMemberDto: CreateMemberDto) {
+    const hashedPassword = await bcrypt.hash(createMemberDto.password, 10);
+    const newMember = {
+      ...createMemberDto,
+      password: hashedPassword,
+    };
+    return this.membersService.create(newMember);
   }
 }

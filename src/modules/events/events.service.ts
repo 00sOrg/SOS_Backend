@@ -2,8 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { CreateEventRequestDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { EventsRepository } from './events.repository';
-import { Event } from './entities';
-import { EventType } from './enum/event-type.enum';
 import { MembersRepository } from '../members/members.repository';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
@@ -19,6 +17,7 @@ export class EventsService {
 
   async create(request: CreateEventRequestDto): Promise<void> {
     const member = await this.membersRepository.findById(request.memberId);
+    
     if(!member) {
       throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
     }
