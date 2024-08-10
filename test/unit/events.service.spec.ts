@@ -27,6 +27,7 @@ describe('EventService', () => {
           provide: EventsRepository,
           useValue: {
             create: jest.fn(),
+            findById: jest.fn(),
           },
         },
       ],
@@ -49,7 +50,7 @@ describe('EventService', () => {
       lng: -34.34343,
     };
 
-    await expect(eventService.create(request)).rejects.toThrow(new ExceptionHandler(ErrorStatus.MEBER_NOT_FOUND));
+    await expect(eventService.create(request)).rejects.toThrow(new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
   });
 
   it('should throw EVENT_CONTENTS_NOT_FOUND if both image and content are empty', async () => {
@@ -95,4 +96,22 @@ describe('EventService', () => {
       longitude: -34.34343,
     }));
   });
+
+  it('should return the event successfully', async () => {
+    const id = 1;
+    const event = new Event();
+    eventRepository.findById.mockResolvedValue(event);
+    const result = await eventService.findOne(id);
+    expect(eventRepository.findById).toHaveBeenCalledWith(1);
+    expect(result).toBe(event);
+    
+  })
+
+  it('should throw EVENT_NOT_FOUND if the event is not found', async () => {
+    const id = 1;
+    eventRepository.findById.mockResolvedValue(null);
+    
+    await expect(eventService.findOne(id)).rejects.toThrow(new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND));
+  })
+
 });
