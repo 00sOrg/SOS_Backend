@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { AuthService } from '../../src/modules/auth/auth.service';
 import { MembersService } from '../../src/modules/members/members.service';
 import { Member } from '../../src/modules/members/entities';
-import { CreateMemberDto } from '../../src/modules/members/dto/create-member.dto';
+import { CreateMemberDto } from '../../src/modules/auth/dto/create-member.dto';
 import * as bcrypt from 'bcryptjs';
 
 describe('AuthService', () => {

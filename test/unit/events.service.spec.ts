@@ -49,7 +49,7 @@ describe('EventService', () => {
       lng: -34.34343,
     };
 
-    await expect(eventService.create(request)).rejects.toThrow(new ExceptionHandler(ErrorStatus.MEBER_NOT_FOUND));
+    await expect(eventService.create(request)).rejects.toThrow(new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
   });
 
   it('should throw EVENT_CONTENTS_NOT_FOUND if both image and content are empty', async () => {

@@ -1,6 +1,6 @@
 import { IsEmail, IsNotEmpty, IsString, MinLength, MaxLength } from 'class-validator';
 
-export class LoginMemberDto {
+export class ValidateMemberDto {
   @IsEmail({}, {
     message: "유효한 이메일 주소 형식을 입력해 주세요."
   })

@@ -23,11 +23,12 @@ export class MembersService {
     await this.membersRepository.create(member);
   }
 
+  // findOneByEmailandPassword
 
   async findOneByEmail(email: string): Promise<Member> {
     const member = await this.membersRepository.findOneByEmail(email);
     if (!member) {
-      throw new ExceptionHandler(ErrorStatus.MEBER_NOT_FOUND);
+      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
     }
     return member;
   }

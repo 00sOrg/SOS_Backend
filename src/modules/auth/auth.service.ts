@@ -4,7 +4,7 @@ import * as bcrypt from 'bcryptjs';
 import { MembersService } from '../members/members.service';
 import { Member } from '../members/entities';
 import { CreateMemberDto } from '../auth/dto/create-member.dto';
-import { LoginMemberDto } from './dto/login-member.dto';
+import { ValidateMemberDto } from './dto/validate-member.dto';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
 
@@ -15,25 +15,21 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateMember(loginMemberDto: LoginMemberDto): Promise<Member> {
-    const { email, password } = loginMemberDto;
+  async validateMember(validateMemberDto: ValidateMemberDto): Promise<Member> {
+    const { email, password } = validateMemberDto;
     const member = await this.membersService.findOneByEmail(email);
-    if (!member) {
-      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
-    }
-
     const isPasswordValid = await bcrypt.compare(password, member.password);
     if (!isPasswordValid) {
       throw new ExceptionHandler(ErrorStatus.INVALID_PASSWORD);
     }
-
     return member;
   }
 
-  async login(member: Member) {
+  async login(member: Member):Promise<Object> {
     const payload = { email: member.email, sub: member.id };
+
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.jwtService.signAsync(payload),
     };
   }
 

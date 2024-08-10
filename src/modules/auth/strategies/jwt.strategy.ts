@@ -22,7 +22,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: any) {
     const member = await this.membersService.findOneByEmail(payload.email);
     if (!member) {
-      throw new ExceptionHandler(ErrorStatus.MEBER_NOT_FOUND);
+      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
     }
     return member;
   }
