@@ -6,6 +6,7 @@ import { MembersRepository } from '../members/members.repository';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
 import { EventBuilder } from './entities/builder/event.builder';
+import { Event } from './entities';
 
 @Injectable()
 export class EventsService {
