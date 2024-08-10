@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { EventsService } from './events.service';
 import { CreateEventRequestDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import { FindEventDto } from './dto/find-event.dto';
 
 @Controller('events')
 export class EventsController {
@@ -18,8 +19,9 @@ export class EventsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.eventsService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    const event = await this.eventsService.findOne(+id);
+    return FindEventDto.of(event);
   }
 
   @Patch(':id')

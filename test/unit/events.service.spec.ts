@@ -27,6 +27,7 @@ describe('EventService', () => {
           provide: EventsRepository,
           useValue: {
             create: jest.fn(),
+            findById: jest.fn(),
           },
         },
       ],
@@ -95,4 +96,22 @@ describe('EventService', () => {
       longitude: -34.34343,
     }));
   });
+
+  it('should return the event successfully', async () => {
+    const id = 1;
+    const event = new Event();
+    eventRepository.findById.mockResolvedValue(event);
+    const result = await eventService.findOne(id);
+    expect(eventRepository.findById).toHaveBeenCalledWith(1);
+    expect(result).toBe(event);
+    
+  })
+
+  it('should throw EVENT_NOT_FOUND if the event is not found', async () => {
+    const id = 1;
+    eventRepository.findById.mockResolvedValue(null);
+    
+    await expect(eventService.findOne(id)).rejects.toThrow(new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND));
+  })
+
 });
