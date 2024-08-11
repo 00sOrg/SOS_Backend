@@ -11,7 +11,7 @@ import { MemberBuilder } from './entities/builder/member.builder';
 export class MembersService {
   constructor(private readonly membersRepository: MembersRepository) {}
 
-  async create(request: CreateMemberDto): Promise<void> {
+  async create(request: CreateMemberDto): Promise<Member> {
     // DTO에서 유효성 검사가 처리됨
     const member = new MemberBuilder()
       .email(request.email)
@@ -20,12 +20,19 @@ export class MembersService {
       .nickname(request.nickname)
       .build();
 
-    await this.membersRepository.create(member);
+    return await this.membersRepository.create(member);
   }
 
-  // findOneByEmailandPassword
+  // TODO: findOneByEmailandPassword
+  // async findOneByEmailAndPassword(email: string, password: string){
+  //   const member = await this.membersRepository.findOneByEmailAndPassword(email);
+  //   if (!member) {
+  //     throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
+  //   }
+  //   return member;
+  // }
 
-  async findOneByEmail(email: string): Promise<Member> {
+  async findOneByEmail(email: string): Promise<Member | undefined> {
     const member = await this.membersRepository.findOneByEmail(email);
     if (!member) {
       throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
@@ -33,19 +40,12 @@ export class MembersService {
     return member;
   }
 
-  // findAll() {
-  //   return `This action returns all members`;
-  // }
+  async findOneByNickname(nickname: string): Promise<Member | undefined> {
+    const member = await this.membersRepository.findOneByNickname(nickname);
+    if (!member) {
+      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
+    }
+    return member;
+  }
 
-  // findOne(id: number) {
-  //   return `This action returns a #${id} member`;
-  // }
-
-  // update(id: number, updateMemberDto: UpdateMemberDto) {
-  //   return `This action updates a #${id} member`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} member`;
-  // }
 }

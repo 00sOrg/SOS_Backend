@@ -29,16 +29,28 @@ export class AuthService {
     const payload = { email: member.email, sub: member.id };
 
     return {
-      access_token: this.jwtService.signAsync(payload),
+      access_token: await this.jwtService.signAsync(payload),
     };
   }
 
-  async register(createMemberDto: CreateMemberDto) {
+  async register(createMemberDto: CreateMemberDto) : Promise <Member | undefined> {
+    //이메일 중복 확인
+    if (await this.membersService.findOneByEmail(createMemberDto.email)) {
+      throw new ExceptionHandler(ErrorStatus.EMAIL_ALREADY_TAKEN);
+    }
+
+    //닉네임 중복 확인
+    if (await this.membersService.findOneByNickname(createMemberDto.nickname)) {
+      throw new ExceptionHandler(ErrorStatus.NICKNAME_ALREADY_TAKEN);
+    }
+
+    // 비밀번호 해시화
     const hashedPassword = await bcrypt.hash(createMemberDto.password, 10);
     const newMember = {
       ...createMemberDto,
       password: hashedPassword,
     };
+
     return this.membersService.create(newMember);
   }
 }
