@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { CreateEventRequestDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
-import { EventsRepository } from './events.repository';
-import { MembersRepository } from '../members/members.repository';
+import { CreateEventDto } from '../dto/create-event.dto';
+import { UpdateEventDto } from '../dto/update-event.dto';
+import { EventsRepository } from '../repository/events.repository';
+import { EventType } from '../enum/event-type.enum';
+import { MembersRepository } from '../../members/members.repository';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
-import { EventBuilder } from './entities/builder/event.builder';
-import { Event } from './entities';
+import { Event } from '../entities';
+import { EventBuilder } from '../entities/builder/event.builder';
 
 @Injectable()
 export class EventsService {
@@ -16,24 +17,16 @@ export class EventsService {
     private readonly membersRepository: MembersRepository,
   ){}
 
-  async create(request: CreateEventRequestDto): Promise<void> {
-    const member = await this.membersRepository.findById(request.memberId);
-    
+  async create(request: CreateEventDto, memberId: number): Promise<void> {
+    const member = await this.membersRepository.findById(memberId);
     if(!member) {
       throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
     }
     if(!request.image && !request.content) {
       throw new ExceptionHandler(ErrorStatus.EVENT_CONTENTS_NOT_FOUND);
     }
-    const event = new EventBuilder()
-        .member(member)
-        .title(request.title)
-        .content(request.content)
-        .media(request.image)
-        .latitude(request.lat)
-        .longitude(request.lng)
-        .build();
-
+    const event = request.toEvent();
+    event.member = member;
     await this.eventsRepository.create(event);
   }
 

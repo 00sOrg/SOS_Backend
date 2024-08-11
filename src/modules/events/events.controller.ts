@@ -1,16 +1,24 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { EventsService } from './events.service';
-import { CreateEventRequestDto } from './dto/create-event.dto';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { EventsService } from './service/events.service';
+import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { FindEventDto } from './dto/find-event.dto';
+import { CommentService } from './service/comment.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
+import { CreateCommentDto } from './dto/create-comment.dto';
 
+@UseGuards(JwtAuthGuard)
 @Controller('events')
 export class EventsController {
-  constructor(private readonly eventsService: EventsService) {}
+  constructor(
+    private readonly eventsService: EventsService,
+    private readonly commentService: CommentService
+  ) {}
 
   @Post()
-  async create(@Body() request: CreateEventRequestDto): Promise<void> {
-    await this.eventsService.create(request);
+  async create(@Body() request: CreateEventDto, @Request() req): Promise<void> {
+    const memberId = req.user.id;
+    await this.eventsService.create(request, memberId);
   }
 
   @Get()
@@ -32,5 +40,11 @@ export class EventsController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.eventsService.remove(+id);
+  }
+
+  @Post('comment')
+  async createComment(@Body() request: CreateCommentDto, @Request() req): Promise<void> {
+    const memberId = req.user.id;
+    await this.commentService.createComment(request, memberId);
   }
 }

@@ -6,6 +6,7 @@ import { GeneralFilter } from './common/filters/filters.general';
 import { ValidationPipe } from '@nestjs/common';
 import { CustomValidationPipe } from './common/pipes/custom-validation.pipe';
 
+declare const module: any;
 
 async function bootstrap() {
   // 만약 데이터베이스 없으면 생성해주는 코드 (필요없으면 뺴도 됨)
@@ -16,5 +17,9 @@ async function bootstrap() {
   app.useGlobalFilters(new GeneralFilter());
   app.useGlobalPipes(new CustomValidationPipe());
   await app.listen(3000);
+  if(module.hot) {
+    module.hot.accept();
+    module.hot.dispose(()=> app.close());
+  }
 }
 bootstrap();
