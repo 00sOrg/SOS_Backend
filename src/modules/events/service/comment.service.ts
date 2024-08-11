@@ -25,11 +25,7 @@ export class CommentService {
       throw new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND);
     }
 
-    const comment = new CommentBuilder()
-      .event(event)
-      .member(member)
-      .content(request.content)
-      .build();
+    const comment = request.toComment(member, event);
     await this.commentRepository.create(comment);
   }
 }
