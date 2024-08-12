@@ -15,8 +15,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateMember(validateMemberDto: ValidateMemberDto): Promise<Member> {
-    const { email, password } = validateMemberDto;
+  async validateMember(email:string, password:string): Promise<Member> {
     const member = await this.membersService.findOneByEmail(email);
     const isPasswordValid = await bcrypt.compare(password, member.password);
     if (!isPasswordValid) {
@@ -29,7 +28,7 @@ export class AuthService {
     const payload = { email: member.email, sub: member.id };
 
     return {
-      access_token: this.jwtService.signAsync(payload),
+      access_token: await this.jwtService.signAsync(payload),
     };
   }
 
