@@ -10,24 +10,22 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req: Member) {
+  async login(@Request() req: Member) : Promise<Object> {
     return await this.authService.login(req);
   }
 
   @Post('register')
-  async register(@Body() createMemberDto: CreateMemberDto) {
+  async register(@Body() createMemberDto: CreateMemberDto) :  Promise<Member | undefined> {
     return this.authService.register(createMemberDto);
   }
 
   @Get('check-email')
-  async checkEmail(@Query('email') email: string) {
+  async checkEmail(@Query('email') email: string) : Promise<void> {
     await this.authService.checkEmail(email);
-    return { success: true, message: '이 이메일을 사용할 수 있습니다.' };
   }
 
   @Get('check-nickname')
-  async checkNickname(@Query('nickname') nickname: string) {
+  async checkNickname(@Query('nickname') nickname: string) : Promise<void> {
     await this.authService.checkNickName(nickname);
-    return { success: true, message: '이 닉네임을 사용할 수 있습니다.' };
   }
 }
