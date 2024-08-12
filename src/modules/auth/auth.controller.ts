@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Request, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Request, Body, UseGuards, Query, BadRequestException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateMemberDto } from '../auth/dto/create-member.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -17,5 +17,17 @@ export class AuthController {
   @Post('register')
   async register(@Body() createMemberDto: CreateMemberDto) {
     return this.authService.register(createMemberDto);
+  }
+
+  @Get('check-email')
+  async checkEmail(@Query('email') email: string) {
+    await this.authService.checkEmail(email);
+    return { success: true, message: '이 이메일을 사용할 수 있습니다.' };
+  }
+
+  @Get('check-nickname')
+  async checkNickname(@Query('nickname') nickname: string) {
+    await this.authService.checkNickName(nickname);
+    return { success: true, message: '이 닉네임을 사용할 수 있습니다.' };
   }
 }

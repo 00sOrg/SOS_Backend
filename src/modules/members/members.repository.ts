@@ -11,8 +11,7 @@ export class MembersRepository {
     this.memberRepository = this.dataSource.getRepository(Member);
   }
 
-  async create(createMemberDto: CreateMemberDto): Promise<Member> {
-    const member = this.memberRepository.create(createMemberDto);
+  async create(member: Member): Promise<Member> {
     return this.memberRepository.save(member);
   }
 

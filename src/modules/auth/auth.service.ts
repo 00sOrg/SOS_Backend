@@ -33,24 +33,35 @@ export class AuthService {
     };
   }
 
-  async register(createMemberDto: CreateMemberDto) : Promise <Member | undefined> {
-    //이메일 중복 확인
-    if (await this.membersService.findOneByEmail(createMemberDto.email)) {
+  async checkEmail(email: string) : Promise<void> {
+    const existingEmail = await this.membersService.findOneByEmail(email);
+    if (existingEmail) {
       throw new ExceptionHandler(ErrorStatus.EMAIL_ALREADY_TAKEN);
     }
+  }
 
-    //닉네임 중복 확인
-    if (await this.membersService.findOneByNickname(createMemberDto.nickname)) {
+  async checkNickName(nickname: string) : Promise<void> {
+    const existingNickname = await this.membersService.findOneByNickname(nickname);
+    if (existingNickname) {
       throw new ExceptionHandler(ErrorStatus.NICKNAME_ALREADY_TAKEN);
     }
+  }
 
+  // 프론트에서 API로 중복확인 + 회원가입에서 중복확인 (동시에 중복되는 요소로 회원가입하는 경우 방지) 
+  async register(createMemberDto: CreateMemberDto): Promise<Member | undefined> {
+    // 이메일 중복 확인
+    await this.checkEmail(createMemberDto.email);
+  
+    // 닉네임 중복 확인
+    await this.checkNickName(createMemberDto.nickname);
+  
     // 비밀번호 해시화
     const hashedPassword = await bcrypt.hash(createMemberDto.password, 10);
-    const newMember = {
-      ...createMemberDto,
-      password: hashedPassword,
-    };
-
-    return this.membersService.create(newMember);
+  
+    // 해시된 비밀번호를 CreateMemberDto에 설정
+    createMemberDto.password = hashedPassword;
+  
+    // CreateMemberDto를 그대로 create 메서드에 전달
+    return this.membersService.create(createMemberDto);
   }
 }

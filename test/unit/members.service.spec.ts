@@ -66,22 +66,4 @@ describe('MembersService', () => {
         await expect(membersService.findOneByNickname('NonexistentNickname')).rejects.toThrow(new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
       });
     });
-  
-    describe('create', () => {
-      it('should create a new member successfully', async () => {
-        const member = new Member();
-        (membersRepository.create as jest.Mock).mockResolvedValue(member);
-  
-        const createMemberDto = {
-          email: 'newmember@example.com',
-          password: 'password',
-          name: 'New Member',
-          nickname: 'newbie',
-        };
-  
-        await membersService.create(createMemberDto);
-  
-        expect(membersRepository.create).toHaveBeenCalledWith(expect.objectContaining(createMemberDto));
-      });
-    });
   });

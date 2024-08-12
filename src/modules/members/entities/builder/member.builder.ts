@@ -37,7 +37,7 @@ export class MemberBuilder {
         return this;
     }
 
-    phoneNumber(phoneNumber: number): this {
+    phoneNumber(phoneNumber: string): this {
         this._member.phoneNumber = phoneNumber;
         return this;
     }

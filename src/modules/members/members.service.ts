@@ -13,13 +13,7 @@ export class MembersService {
 
   async create(request: CreateMemberDto): Promise<Member> {
     // DTO에서 유효성 검사가 처리됨
-    const member = new MemberBuilder()
-      .email(request.email)
-      .password(request.password)
-      .name(request.name)
-      .nickname(request.nickname)
-      .build();
-
+    const member = request.toMember();
     return await this.membersRepository.create(member);
   }
 
