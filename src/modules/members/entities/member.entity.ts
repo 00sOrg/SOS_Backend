@@ -26,6 +26,9 @@ export class Member extends DefaultEntity {
   @Column({ type: 'varchar', length: 20 })
   nickname: string;
 
+  @Column({ type: 'varchar', length: 15 })
+  phoneNumber: string;
+
   @OneToOne(() => MemberDetail, (memberDetail) => memberDetail.member, {
     cascade: true,
   })

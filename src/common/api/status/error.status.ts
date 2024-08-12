@@ -13,4 +13,6 @@ export class ErrorStatus implements BaseCode {
     static readonly EVENT_CONTENTS_NOT_FOUND = new ErrorStatus(false, 400, "내용은 필수 입력 항목입니다.");
     static readonly INVALID_PASSWORD = new ErrorStatus(false, 400, "틀린 비밀번호 입니다.");
     static readonly EVENT_NOT_FOUND = new ErrorStatus(false, 400, "해당 이벤트가 존재하지 않습니다.");
+    static readonly EMAIL_ALREADY_TAKEN = new ErrorStatus(false, 409, '이 이메일은 이미 사용 중입니다.');
+    static readonly NICKNAME_ALREADY_TAKEN = new ErrorStatus(false, 409, '이 닉네임은 이미 사용 중입니다.');
 }

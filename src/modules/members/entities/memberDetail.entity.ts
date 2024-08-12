@@ -13,6 +13,9 @@ export class MemberDetail extends DefaultEntity {
   @JoinColumn()
   member: Member;
 
+  @Column({ type: 'varchar', length: 8, nullable: true })
+  birthDate: string;
+
   @Column({ type: 'int', nullable: true })
   height: number;
 
@@ -27,4 +30,7 @@ export class MemberDetail extends DefaultEntity {
 
   @Column({ type: 'text', nullable: true })
   medication: string;
+
+  @Column({ type: 'text', nullable: true})
+  allergic: string;
 }

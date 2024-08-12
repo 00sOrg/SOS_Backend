@@ -37,6 +37,11 @@ export class MemberBuilder {
         return this;
     }
 
+    phoneNumber(phoneNumber: string): this {
+        this._member.phoneNumber = phoneNumber;
+        return this;
+    }
+
     comments(comments: Comment[]): this {
         this._member.comments = comments as Comment[];
         return this;
