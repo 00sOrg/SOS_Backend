@@ -17,7 +17,7 @@ export class Member extends DefaultEntity {
   @Column({ type: 'varchar', length: 25 })
   email: string;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', length: 100})
   password: string;
 
   @Column({ type: 'varchar', length: 10 })

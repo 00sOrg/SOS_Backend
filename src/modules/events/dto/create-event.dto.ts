@@ -1,9 +1,8 @@
 import { IsNotEmpty, IsNumber, IsString, Max, MaxLength, Min } from "class-validator";
+import { EventBuilder } from "../entities/builder/event.builder";
+import { Event } from "../entities";
 
-export class CreateEventRequestDto {
-    // 나중에 토큰으로 memberId를 가져올 수 있게 수정
-    memberId: number;
-
+export class CreateEventDto {
     @IsNotEmpty({
         message: "제목은 필수 입력 항목입니다."
     })
@@ -43,4 +42,15 @@ export class CreateEventRequestDto {
         message: "유효한 위도와 경도를 입력해 주세요."
     })
     lng: number;
+
+
+    toEvent(): Event {
+        return new EventBuilder()
+            .title(this.title)
+            .content(this.content)
+            .media(this.image)
+            .latitude(this.lat)
+            .longitude(this.lng)
+            .build();
+    }
 }

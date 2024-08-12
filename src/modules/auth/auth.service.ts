@@ -17,8 +17,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async validateMember(validateMemberDto: ValidateMemberDto): Promise<Member> {
-    const { email, password } = validateMemberDto;
+  async validateMember(email:string, password:string): Promise<Member> {
     const member = await this.membersService.findOneByEmail(email);
     const isPasswordValid = await bcrypt.compare(password, member.password);
     if (!isPasswordValid) {

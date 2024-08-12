@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { EventsService } from 'src/modules/events/events.service';
+import { EventsService } from 'src/modules/events/service/events.service';
 import { MembersRepository } from 'src/modules/members/members.repository';
-import { EventsRepository } from 'src/modules/events/events.repository';
-import { CreateEventRequestDto } from 'src/modules/events/dto/create-event.dto';
+import { EventsRepository } from 'src/modules/events/repository/events.repository';
+import { CreateEventDto } from 'src/modules/events/dto/create-event.dto';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
 import { Member } from 'src/modules/members/entities';
@@ -40,51 +40,48 @@ describe('EventService', () => {
 
   it('should throw MEMBER_NOT_FOUND if member does not exist', async () => {
     memberRepository.findById.mockResolvedValue(null);
-
-    const request: CreateEventRequestDto = {
-      memberId: 1,
+    const memberId = 1;
+    const request = Object.assign(new CreateEventDto(), {
       title: 'Test',
-      content: 'test',
+      content: '',
       image: '',
       lat: 12.2304,
       lng: -34.34343,
-    };
+    });
 
-    await expect(eventService.create(request)).rejects.toThrow(new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
+    await expect(eventService.create(request, memberId)).rejects.toThrow(new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
   });
 
   it('should throw EVENT_CONTENTS_NOT_FOUND if both image and content are empty', async () => {
     const member = new Member();
     memberRepository.findById.mockResolvedValue(member);
-
-    const request: CreateEventRequestDto = {
-      memberId: 1,
-      title: 'Test Event',
+    const memberId = 1;
+    const request = Object.assign(new CreateEventDto(), {
+      title: 'Test',
       content: '',
       image: '',
       lat: 12.2304,
       lng: -34.34343,
-    };
+    });
 
-    await expect(eventService.create(request)).rejects.toThrow(new ExceptionHandler(ErrorStatus.EVENT_CONTENTS_NOT_FOUND));
+    await expect(eventService.create(request, memberId)).rejects.toThrow(new ExceptionHandler(ErrorStatus.EVENT_CONTENTS_NOT_FOUND));
   });
 
   it('should create an event successfully', async () => {
     const member = new Member();
     const event = new Event();
+    const memberId = 1;
     memberRepository.findById.mockResolvedValue(member);
     eventRepository.create.mockResolvedValue(event);
 
-    const request: CreateEventRequestDto = {
-      memberId: 1,
+    const request = Object.assign(new CreateEventDto(), {
       title: 'Test Event',
       content: 'This is a test event',
       image: 'image_url',
       lat: 12.2304,
       lng: -34.34343,
-    };
-
-    await eventService.create(request);
+    });
+    await eventService.create(request, memberId);
 
     expect(memberRepository.findById).toHaveBeenCalledWith(1);
     expect(eventRepository.create).toHaveBeenCalledWith(expect.objectContaining({
