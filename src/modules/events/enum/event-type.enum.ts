@@ -1,4 +1,4 @@
 export enum EventType {
-  PRIMARY,
-  SECONDARY,
+  PRIMARY = 'PRIMARY',
+  SECONDARY = 'SECONDARY'
 }

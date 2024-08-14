@@ -1,6 +1,9 @@
 import { IsNotEmpty, IsNumber, IsString, Max, MaxLength, Min } from "class-validator";
 import { EventBuilder } from "../entities/builder/event.builder";
 import { Event } from "../entities";
+import { EventType } from "../enum/event-type.enum";
+import { Region } from "src/external/naver/dto/region.dto";
+import { Member } from "src/modules/members/entities";
 
 export class CreateEventDto {
     @IsNotEmpty({
@@ -12,8 +15,6 @@ export class CreateEventDto {
     title: string;
   
     content: string;
-
-    image: string;
   
     @IsNotEmpty({
         message: "위도와 경도는 필수 입력 항목입니다."
@@ -44,13 +45,18 @@ export class CreateEventDto {
     lng: number;
 
 
-    toEvent(): Event {
+    toEvent(region: Region, member: Member, mediaUrl: string): Event {
         return new EventBuilder()
             .title(this.title)
-            .content(this.content)
-            .media(this.image)
+            .content(this.content? this.content : null)
             .latitude(this.lat)
             .longitude(this.lng)
+            .type(EventType.SECONDARY)
+            .city(region.city)
+            .gu(region.gu)
+            .dong(region.dong)
+            .member(member)
+            .media(mediaUrl)
             .build();
     }
 }

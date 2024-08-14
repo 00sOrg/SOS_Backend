@@ -59,13 +59,13 @@ export class EventBuilder {
         return this;
     }
 
-    district(district: string): this {
-        this._event.district = district;
+    gu(gu: string): this {
+        this._event.gu = gu;
         return this;
     }
 
-    neighborhood(neighborhood: string): this {
-        this._event.neighborhood = neighborhood;
+    dong(dong: string): this {
+        this._event.dong = dong;
         return this;
     }
 
