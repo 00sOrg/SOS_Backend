@@ -70,11 +70,7 @@ export class MembersService {
 
     return this.membersRepository.saveFavorite(favorite);
   }
-
-  async getFavoritesForMember(memberId: number): Promise<Favorite[]> {
-    return this.membersRepository.findAllFavoritesForMember(memberId);
-  }
-
+ 
   async acceptFavoriteRequest(memberId: number, requesterId: number) : Promise<Favorite> {
     const favorite = await this.membersRepository.findFavorite(requesterId, memberId);
 
@@ -85,5 +81,19 @@ export class MembersService {
     favorite.isAccepted = true;
 
     return this.membersRepository.saveFavorite(favorite);
+  }
+
+  async rejectFavoriteRequest(memberId: number, requesterId: number): Promise<void> {
+    const favorite = await this.membersRepository.findFavorite(requesterId, memberId);
+
+    if (!favorite) {
+      throw new ExceptionHandler(ErrorStatus.FAVORITE_REQUEST_NOT_FOUND);
+    }
+
+    await this.membersRepository.removeFavorite(favorite);
+  }
+
+  async getFavoritesForMember(memberId: number): Promise<Favorite[]> {
+    return this.membersRepository.findAllFavoritesForMember(memberId);
   }
 }

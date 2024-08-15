@@ -40,6 +40,10 @@ export class MembersRepository {
     return this.favoriteRepository.save(favorite);
   }
 
+  async removeFavorite(favorite: Favorite): Promise<void> {
+    await this.favoriteRepository.remove(favorite);
+  }
+
   async findFavorite(requesterId: number, receiverId: number): Promise<Favorite | null> {
     return this.favoriteRepository.findOne({
       where: {

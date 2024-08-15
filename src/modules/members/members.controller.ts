@@ -46,6 +46,13 @@ export class MembersController {
     return this.membersService.acceptFavoriteRequest(memberId, requesterId);
   }
 
+  @UseGuards(AuthGuard('jwt'))
+  @Post('reject-favorite')
+  async rejectFavorite(@Body('memberId') memberId: number, @Body('requesterId') requesterId: number) {
+    await this.membersService.rejectFavoriteRequest(memberId, requesterId);
+    //return { message: '관심 사용자 요청이 거부되었습니다.' };
+  }
+
   // 사용자가 추가한 친구 목록 조회 API
   @UseGuards(AuthGuard('jwt'))
   @Get('favorites')
@@ -53,4 +60,6 @@ export class MembersController {
     const memberId = req.user.id; // 현재 로그인된 사용자의 ID
     return this.membersService.getFavoritesForMember(memberId);
   }
+
+  
 }
