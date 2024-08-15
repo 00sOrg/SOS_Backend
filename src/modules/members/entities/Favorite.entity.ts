@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, Entity, ManyToOne, JoinColumn } from 'typeorm';
+import { PrimaryGeneratedColumn, Entity, ManyToOne, JoinColumn, Column } from 'typeorm';
 import { Member } from '.';
 import { DefaultEntity } from '../../../common/default.entity';
 
@@ -7,22 +7,18 @@ export class Favorite extends DefaultEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ManyToOne(() => Member, (member) => member.favorites, {
+  @ManyToOne(() => Member, (member) => member.favoritesRequested, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  member: Member;
+  requester: Member;
 
-  @ManyToOne(()=>Member)
-  @JoinColumn({ name: 'interestedMemberId' }) // 명시적으로 열 이름을 정의
-  favoritedMember: Member;
+  @ManyToOne(() => Member, (member) => member.favoritesReceived, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
+  receiver: Member;
 
-
-// 보류: 없앨 것인가? 없애면 한 쪽에서 즐찾하면 끝나고 즐찾한 사람이 누군지에 대한 정보는 제공x
-// 아니면 팔로우 팔로워처럼 할 것인가? 
-//   @ManyToOne(() => Member, (member) => member.favoritedBy, {
-//     onDelete: 'CASCADE',
-//   })
-//   @JoinColumn({ name: '회원ID' })
-//   favoriteMember: Member;
+  @Column({ type: 'boolean', default: false })
+  isAccepted: boolean; // 즐겨찾기 요청 수락 여부
 }

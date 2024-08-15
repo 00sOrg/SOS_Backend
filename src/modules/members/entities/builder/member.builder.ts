@@ -62,11 +62,6 @@ export class MemberBuilder {
         return this;
     }
 
-    favorites(favorites: Favorite[]): this {
-        this._member.favorites = favorites as Favorite[];
-        return this;
-    }
-
     build(): Member{
         return this._member;
     }

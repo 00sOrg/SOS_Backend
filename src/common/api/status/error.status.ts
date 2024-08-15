@@ -15,4 +15,6 @@ export class ErrorStatus implements BaseCode {
     static readonly EVENT_NOT_FOUND = new ErrorStatus(false, 400, "해당 이벤트가 존재하지 않습니다.");
     static readonly EMAIL_ALREADY_TAKEN = new ErrorStatus(false, 409, '이 이메일은 이미 사용 중입니다.');
     static readonly NICKNAME_ALREADY_TAKEN = new ErrorStatus(false, 409, '이 닉네임은 이미 사용 중입니다.');
+    static readonly FAVORITE_ALREADY_EXISTS = new ErrorStatus(false, 400, '이미 등록한 관심 사용자입니다.');
+    static readonly FAVORITE_REQUEST_ALREADY_SENT = new ErrorStatus(false, 400, '이미 요청을 보낸 사용자입니다.');
 }
