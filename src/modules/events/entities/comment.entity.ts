@@ -1,5 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Member } from '../../members/entities'; 
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Member } from '../../members/entities';
 import { Event } from '.';
 import { DefaultEntity } from '../../../common/default.entity';
 

@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  OneToMany,
+} from 'typeorm';
 import { Member } from '../../members/entities';
 import { DefaultEntity } from '../../../common/default.entity';
 import { Comment } from './comment.entity';
@@ -24,7 +31,7 @@ export class Event extends DefaultEntity {
   @Column({ type: 'varchar', length: 25 })
   title: string;
 
-  @Column({ type: 'text', nullable: true})
+  @Column({ type: 'text', nullable: true })
   content: string;
 
   @Column({ type: 'float' })
@@ -33,21 +40,21 @@ export class Event extends DefaultEntity {
   @Column({ type: 'float' })
   longitude: number;
 
-  @Column({ type: 'varchar', length: 25, nullable: true})
-  city: string;
+  @Column({ type: 'varchar', length: 25, nullable: true })
+  si: string;
 
-  @Column({ type: 'varchar', length: 25, nullable: true})
+  @Column({ type: 'varchar', length: 25, nullable: true })
   gu: string;
 
-  @Column({ type: 'varchar', length: 25, nullable: true})
+  @Column({ type: 'varchar', length: 25, nullable: true })
   dong: string;
 
   @Column({ type: 'varchar', length: 25, nullable: true })
   disasterLevel: string;
 
-  @Column({ type: 'int', default: 0})
+  @Column({ type: 'int', default: 0 })
   likesCount: number;
 
-  @Column({ type: 'int', default: 0})
+  @Column({ type: 'int', default: 0 })
   commentsCount: number;
 }

@@ -43,10 +43,7 @@ export class EventsController {
     @Query('lat') lat: string,
     @Query('lng') lng: string,
   ): Promise<FindNearybyDto> {
-    const events = await this.eventsService.findNearby(
-      parseFloat(lat),
-      parseFloat(lng),
-    );
+    const events = await this.eventsService.findNearby(+lat, +lng);
     return FindNearybyDto.of(events);
   }
 
