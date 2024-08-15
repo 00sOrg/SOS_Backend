@@ -47,54 +47,56 @@ describe('CommmentSerivce', ()=>{
         commentRepository = module.get(CommentRepository);
     });
 
-    it('should create a comment successfully', async()=>{
-        const request = Object.assign(new CreateCommentDto(), {
-            eventId: 1,
-            content: 'test'
+    describe('createComment', ()=>{
+        it('should create a comment successfully', async()=>{
+            const request = Object.assign(new CreateCommentDto(), {
+                eventId: 1,
+                content: 'test'
+            });
+            const memberid = 1;
+            const member = new Member();
+            const event = new Event();
+    
+            memberRepository.findById.mockResolvedValue(member);
+            eventsRepository.findById.mockResolvedValue(event);
+    
+            await commentService.createComment(request, memberid);
+    
+            expect(memberRepository.findById).toHaveBeenCalledWith(1);
+            expect(eventsRepository.findById).toHaveBeenCalledWith(1);
+            expect(commentRepository.create).toHaveBeenCalledWith(expect.objectContaining({
+                content: 'test',
+                event: event,
+                member: member
+            }));
         });
-        const memberid = 1;
-        const member = new Member();
-        const event = new Event();
-
-        memberRepository.findById.mockResolvedValue(member);
-        eventsRepository.findById.mockResolvedValue(event);
-
-        await commentService.createComment(request, memberid);
-
-        expect(memberRepository.findById).toHaveBeenCalledWith(1);
-        expect(eventsRepository.findById).toHaveBeenCalledWith(1);
-        expect(commentRepository.create).toHaveBeenCalledWith(expect.objectContaining({
-            content: 'test',
-            event: event,
-            member: member
-        }));
+    
+        it('should throw MEMBER_NOT_FOUND if member does not exist', async()=>{
+            const request = Object.assign(new CreateCommentDto(), {
+                eventId: 1,
+                content: 'test'
+            });
+            const memberid = 1;
+            memberRepository.findById.mockResolvedValue(null);
+    
+            await expect(commentService.createComment(request, memberid)).rejects.toThrow(
+                new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND)
+            );
+        })
+    
+        it('should throw MEMBER_NOT_FOUND if member does not exist', async()=>{
+            const request = Object.assign(new CreateCommentDto(), {
+                eventId: 1,
+                content: 'test'
+            });
+            const memberid = 1;
+            const member = new Member();
+            memberRepository.findById.mockResolvedValue(member);
+            eventsRepository.findById.mockResolvedValue(null);
+    
+            await expect(commentService.createComment(request, memberid)).rejects.toThrow(
+                new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND)
+            );
+        })
     });
-
-    it('should throw MEMBER_NOT_FOUND if member does not exist', async()=>{
-        const request = Object.assign(new CreateCommentDto(), {
-            eventId: 1,
-            content: 'test'
-        });
-        const memberid = 1;
-        memberRepository.findById.mockResolvedValue(null);
-
-        await expect(commentService.createComment(request, memberid)).rejects.toThrow(
-            new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND)
-        );
-    })
-
-    it('should throw MEMBER_NOT_FOUND if member does not exist', async()=>{
-        const request = Object.assign(new CreateCommentDto(), {
-            eventId: 1,
-            content: 'test'
-        });
-        const memberid = 1;
-        const member = new Member();
-        memberRepository.findById.mockResolvedValue(member);
-        eventsRepository.findById.mockResolvedValue(null);
-
-        await expect(commentService.createComment(request, memberid)).rejects.toThrow(
-            new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND)
-        );
-    })
 })

@@ -9,7 +9,7 @@ import { Member } from './entities';
   imports: [TypeOrmModule.forFeature([Member])],
   providers: [MembersService, MembersRepository],
   controllers: [MembersController],
-  exports: [MembersService],
+  exports: [MembersService, MembersRepository],
 })
 export class MembersModule {}
 

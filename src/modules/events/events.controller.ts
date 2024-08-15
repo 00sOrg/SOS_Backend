@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { EventsService } from './service/events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
@@ -6,19 +6,21 @@ import { FindEventDto } from './dto/find-event.dto';
 import { CommentService } from './service/comment.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
 import { CreateCommentDto } from './dto/create-comment.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @UseGuards(JwtAuthGuard)
 @Controller('events')
 export class EventsController {
   constructor(
     private readonly eventsService: EventsService,
-    private readonly commentService: CommentService
+    private readonly commentService: CommentService,
   ) {}
 
+  @UseInterceptors(FileInterceptor('media'))
   @Post()
-  async create(@Body() request: CreateEventDto, @Request() req): Promise<void> {
+  async create(@Body() request: CreateEventDto, @Request() req, @UploadedFile() media: Express.Multer.File): Promise<void> {
     const memberId = req.user.id;
-    await this.eventsService.create(request, memberId);
+    await this.eventsService.create(request, memberId, media);
   }
 
   @Get()
