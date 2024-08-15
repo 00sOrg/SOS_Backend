@@ -27,20 +27,20 @@ export class Event extends DefaultEntity {
   @Column({ type: 'text', nullable: true})
   content: string;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'float' })
   latitude: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'float' })
   longitude: number;
 
   @Column({ type: 'varchar', length: 25, nullable: true})
   city: string;
 
   @Column({ type: 'varchar', length: 25, nullable: true})
-  district: string;
+  gu: string;
 
   @Column({ type: 'varchar', length: 25, nullable: true})
-  neighborhood: string;
+  dong: string;
 
   @Column({ type: 'varchar', length: 25, nullable: true })
   disasterLevel: string;
