@@ -1,4 +1,4 @@
-import { PrimaryGeneratedColumn, Entity, ManyToOne, JoinColumn } from 'typeorm';
+import { PrimaryGeneratedColumn, Entity, ManyToOne, JoinColumn, Column } from 'typeorm';
 import { Member } from '.';
 import { DefaultEntity } from '../../../common/default.entity';
 
@@ -7,13 +7,18 @@ export class Favorite extends DefaultEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ManyToOne(() => Member, (member) => member.favorites, {
+  @ManyToOne(() => Member, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
   member: Member;
 
-  @ManyToOne(() => Member)
-  @JoinColumn({ name: 'interestedMemberId' }) // 명시적으로 열 이름을 정의
+  @ManyToOne(() => Member, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn()
   favoritedMember: Member;
+
+  @Column({ type: 'boolean', default: false })
+  isAccepted: boolean; // 즐겨찾기 요청 수락 여부
 }

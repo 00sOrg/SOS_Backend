@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateEventDto } from '../dto/create-event.dto';
 import { EventsRepository } from '../repository/events.repository';
-import { MembersRepository } from '../../members/members.repository';
+import { MembersRepository } from '../../members/repository/members.repository';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
 import { Event } from '../entities';

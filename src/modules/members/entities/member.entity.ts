@@ -39,13 +39,6 @@ export class Member extends DefaultEntity {
   })
   notification: UserNotification;
 
-  @OneToMany(() => Favorite, (favorite) => favorite.member)
-  favorites: Favorite[];
-
-  // 보류 중
-  // @OneToMany(() => Favorite, (favorite) => favorite.favoriteMember)
-  // favoritedBy: Favorite[];
-
   @OneToMany(() => Event, (event) => event.member, {
     cascade: true,
   })

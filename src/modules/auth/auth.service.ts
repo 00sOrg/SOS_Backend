@@ -7,7 +7,7 @@ import { CreateMemberDto } from '../auth/dto/create-member.dto';
 import { ValidateMemberDto } from './dto/validate-member.dto';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
-import { MembersRepository } from '../members/members.repository';
+import { MembersRepository } from '../members/repository/members.repository';
 
 @Injectable()
 export class AuthService {
@@ -18,7 +18,7 @@ export class AuthService {
   ) {}
 
   async validateMember(email:string, password:string): Promise<Member> {
-    const member = await this.membersService.findOneByEmail(email);
+    const member = await this.membersService.findByEmail(email);
     const isPasswordValid = await bcrypt.compare(password, member.password);
     if (!isPasswordValid) {
       throw new ExceptionHandler(ErrorStatus.INVALID_PASSWORD);
@@ -35,14 +35,14 @@ export class AuthService {
   }
 
   async checkEmail(email: string) : Promise<void> {
-    const existingEmail = await this.membersRepository.findOneByEmail(email);
+    const existingEmail = await this.membersRepository.findByEmail(email);
     if (existingEmail) {
       throw new ExceptionHandler(ErrorStatus.EMAIL_ALREADY_TAKEN);
     }
   }
 
   async checkNickName(nickname: string) : Promise<void> {
-    const existingNickname = await this.membersRepository.findOneByNickname(nickname);
+    const existingNickname = await this.membersRepository.findByNickname(nickname);
     if (existingNickname) {
       throw new ExceptionHandler(ErrorStatus.NICKNAME_ALREADY_TAKEN);
     }

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MembersRepository } from 'src/modules/members/members.repository';
+import { MembersRepository } from 'src/modules/members/repository/members.repository';
 import { CommentRepository } from '../repository/comment.repository';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
