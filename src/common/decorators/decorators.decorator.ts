@@ -1,3 +1,4 @@
 import { SetMetadata } from '@nestjs/common';
 
-export const Decorators = (...args: string[]) => SetMetadata('decorators', args);
+export const Decorators = (...args: string[]) =>
+  SetMetadata('decorators', args);

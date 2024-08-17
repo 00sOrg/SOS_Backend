@@ -1,36 +1,36 @@
-import { PrimaryColumn, Column, Entity, OneToOne, JoinColumn} from 'typeorm';
+import { PrimaryColumn, Column, Entity, OneToOne, JoinColumn } from 'typeorm';
 import { Member } from '.';
 import { DefaultEntity } from 'src/common/default.entity';
 
 @Entity()
 export class MemberDetail extends DefaultEntity {
   @PrimaryColumn({ type: 'bigint' })
-  id: number;
+  id!: number;
 
   @OneToOne(() => Member, (member) => member.notification, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  member: Member;
+  member!: Member;
 
   @Column({ type: 'varchar', length: 8, nullable: true })
-  birthDate: string;
+  birthDate?: string;
 
   @Column({ type: 'int', nullable: true })
-  height: number;
+  height?: number;
 
   @Column({ type: 'int', nullable: true })
-  weight: number;
+  weight?: number;
 
   @Column({ type: 'varchar', length: 5, nullable: true })
-  bloodType: string;
+  bloodType?: string;
 
   @Column({ type: 'text', nullable: true })
-  disease: string;
+  disease?: string;
 
   @Column({ type: 'text', nullable: true })
-  medication: string;
+  medication?: string;
 
-  @Column({ type: 'text', nullable: true})
-  allergic: string;
+  @Column({ type: 'text', nullable: true })
+  allergic?: string;
 }

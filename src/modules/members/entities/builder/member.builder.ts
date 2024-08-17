@@ -1,68 +1,65 @@
-import { MemberDetail } from "../memberDetail.entity";
-import { UserNotification } from "../userNotification.entity";
-import { Member } from "../member.entity";
-import { Event } from "src/modules/events/entities";
-import { Comment } from "src/modules/events/entities";
-import { Favorite } from "../favorite.entity";
+import { MemberDetail } from '../memberDetail.entity';
+import { UserNotification } from '../userNotification.entity';
+import { Member } from '../member.entity';
 
 export class MemberBuilder {
-    private _member: Member;
-     
-    constructor(){
-        this._member = new Member();
-    }
+  private _member: Member;
 
-    id(id: number): this {
-        this._member.id = id;
-        return this;
-    }
+  constructor() {
+    this._member = new Member();
+  }
 
-    email(email: string): this {
-        this._member.email = email;
-        return this;
-    }
+  id(id: number): this {
+    this._member.id = id;
+    return this;
+  }
 
-    password(password: string): this {
-        this._member.password = password;
-        return this;
-    }
+  email(email: string): this {
+    this._member.email = email;
+    return this;
+  }
 
-    name(name: string): this {
-        this._member.name = name;
-        return this;
-    }
+  password(password: string): this {
+    this._member.password = password;
+    return this;
+  }
 
-    nickname(nickname: string): this {
-        this._member.nickname = nickname;
-        return this;
-    }
+  name(name: string): this {
+    this._member.name = name;
+    return this;
+  }
 
-    phoneNumber(phoneNumber: string): this {
-        this._member.phoneNumber = phoneNumber;
-        return this;
-    }
+  nickname(nickname: string): this {
+    this._member.nickname = nickname;
+    return this;
+  }
 
-    comments(comments: Comment[]): this {
-        this._member.comments = comments as Comment[];
-        return this;
-    }
+  phoneNumber(phoneNumber: string): this {
+    this._member.phoneNumber = phoneNumber;
+    return this;
+  }
 
-    memberDetail(memberDetail: MemberDetail): this {
-        this._member.memberDetail = memberDetail;
-        return this;
-    }
+  // comments(comments: Comment[]): this {
+  //   this._member.comments = comments as Comment[];
+  //   return this;
+  // }
 
-    notification(notification: UserNotification): this {
-        this._member.notification = notification;
-        return this;
-    }
+  memberDetail(memberDetail: MemberDetail): this {
+    this._member.memberDetail = memberDetail;
+    return this;
+  }
 
-    events(events: Event[]): this {
-        this._member.events = events as Event[];
-        return this;
-    }
+  notification(notification: UserNotification): this {
+    this._member.notification = notification;
+    return this;
+  }
 
-    build(): Member{
-        return this._member;
-    }
+  // events(events: Event[]): this {
+  //   this._member.events = events as Event[];
+  //   return this;
+  // }
+
+  build(): Member {
+    return this._member;
+  }
 }

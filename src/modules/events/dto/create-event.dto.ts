@@ -12,9 +12,9 @@ export class CreateEventDto {
   @MaxLength(25, {
     message: '제목은 최대 25자 입니다.',
   })
-  title: string;
+  title!: string;
 
-  content: string;
+  content!: string;
 
   @IsNotEmpty({
     message: '위도와 경도는 필수 입력 항목입니다.',
@@ -31,7 +31,7 @@ export class CreateEventDto {
   @Min(-90, {
     message: '유효한 위도와 경도를 입력해 주세요.',
   })
-  lat: number;
+  lat!: number;
 
   @IsNotEmpty({
     message: '위도와 경도는 필수 입력 항목입니다.',
@@ -48,12 +48,12 @@ export class CreateEventDto {
   @Min(-180, {
     message: '유효한 위도와 경도를 입력해 주세요.',
   })
-  lng: number;
+  lng!: number;
 
-  toEvent(region: Region, member: Member, mediaUrl: string): Event {
+  toEvent(region: Region, member: Member, mediaUrl?: string): Event {
     return new EventBuilder()
       .title(this.title)
-      .content(this.content ? this.content : null)
+      .content(this.content)
       .latitude(this.lat)
       .longitude(this.lng)
       .type(EventType.SECONDARY)

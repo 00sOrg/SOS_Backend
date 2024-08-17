@@ -3,8 +3,8 @@ import { Comment, Event } from '../entities';
 import { CommentBuilder } from '../entities/builder/comment.builder';
 
 export class CreateCommentDto {
-  eventId: number;
-  content: string;
+  eventId!: number;
+  content!: string;
 
   toComment(member: Member, event: Event): Comment {
     return new CommentBuilder()

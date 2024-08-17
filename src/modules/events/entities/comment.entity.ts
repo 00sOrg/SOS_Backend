@@ -12,16 +12,16 @@ import { DefaultEntity } from '../../../common/default.entity';
 @Entity()
 export class Comment extends DefaultEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
-  id: number;
+  id!: number;
 
-  @ManyToOne(() => Event, (event) => event.comments, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Event)
   @JoinColumn()
-  event: Event;
+  event!: Event;
 
-  @ManyToOne(() => Member, (member) => member.comments, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Member)
   @JoinColumn()
-  member: Member;
+  member!: Member;
 
   @Column({ type: 'text', nullable: true })
-  content: string;
+  content!: string;
 }

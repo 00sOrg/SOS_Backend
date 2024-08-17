@@ -17,8 +17,8 @@ export class nearbyEvent {
   id: number;
   longitude: number;
   latitude: number;
-  media: string;
-  constructor(id: number, longitude: number, latitude: number, media: string) {
+  media?: string;
+  constructor(id: number, longitude: number, latitude: number, media?: string) {
     this.id = id;
     this.latitude = latitude;
     this.longitude = longitude;

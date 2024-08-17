@@ -1,6 +1,5 @@
 import { Event } from '../event.entity';
 import { Member } from '../../../members/entities';
-import { Comment } from '../comment.entity';
 
 export class EventBuilder {
   private _event: Event;
@@ -19,17 +18,12 @@ export class EventBuilder {
     return this;
   }
 
-  comments(comments: Comment[]): this {
-    this._event.comments = comments as Comment[];
-    return this;
-  }
-
   type(type: string): this {
     this._event.type = type;
     return this;
   }
 
-  media(media: string): this {
+  media(media?: string): this {
     this._event.media = media;
     return this;
   }
@@ -39,7 +33,7 @@ export class EventBuilder {
     return this;
   }
 
-  content(content: string): this {
+  content(content?: string): this {
     this._event.content = content;
     return this;
   }

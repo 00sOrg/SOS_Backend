@@ -1,13 +1,13 @@
 import { Event } from '../entities';
 
 export class FindEventDto {
-  id: number;
-  title: string;
-  content: string;
-  media: string;
-  likes: number;
-  comments: number;
-  createdAt: Date;
+  id!: number;
+  title!: string;
+  content?: string;
+  media?: string;
+  likes: number = 0;
+  comments: number = 0;
+  createdAt!: Date;
 
   static of(event: Event): FindEventDto {
     const dto = new FindEventDto();

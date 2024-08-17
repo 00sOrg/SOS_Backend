@@ -1,51 +1,44 @@
-import {
-  Column,
-  Entity,
-  OneToOne,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { DefaultEntity } from '../../../common/default.entity';
-import { Event, Comment } from '../../events/entities';
-import { MemberDetail, UserNotification, Favorite } from '.';
+import { MemberDetail, UserNotification } from '.';
 
 @Entity()
 export class Member extends DefaultEntity {
-  @PrimaryGeneratedColumn({ type: 'bigint'})
-  id: number;
+  @PrimaryGeneratedColumn({ type: 'bigint' })
+  id!: number;
 
   @Column({ type: 'varchar', length: 25 })
-  email: string;
+  email!: string;
 
-  @Column({ type: 'varchar', length: 100})
-  password: string;
+  @Column({ type: 'varchar', length: 100 })
+  password!: string;
 
   @Column({ type: 'varchar', length: 10 })
-  name: string;
+  name!: string;
 
   @Column({ type: 'varchar', length: 20 })
-  nickname: string;
+  nickname!: string;
 
   @Column({ type: 'varchar', length: 15 })
-  phoneNumber: string;
+  phoneNumber!: string;
 
   @OneToOne(() => MemberDetail, (memberDetail) => memberDetail.member, {
     cascade: true,
   })
-  memberDetail: MemberDetail;
+  memberDetail?: MemberDetail;
 
   @OneToOne(() => UserNotification, (notification) => notification.member, {
     cascade: true,
   })
-  notification: UserNotification;
+  notification?: UserNotification;
 
-  @OneToMany(() => Event, (event) => event.member, {
-    cascade: true,
-  })
-  events: Event[];
+  // @OneToMany(() => Event, (event) => event.member, {
+  //   cascade: true,
+  // })
+  // events: Event[];
 
-  @OneToMany(() => Comment, (comment) => comment.member, {
-    cascade: true,
-  })
-  comments: Comment[];
+  // @OneToMany(() => Comment, (comment) => comment.member, {
+  //   cascade: true,
+  // })
+  // comments: Comment[];
 }

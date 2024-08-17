@@ -13,4 +13,3 @@ import { Member } from './entities';
   exports: [MembersService, MembersRepository, FavoritesRepository],
 })
 export class MembersModule {}
-
