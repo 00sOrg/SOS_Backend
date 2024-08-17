@@ -13,21 +13,21 @@ export class MembersService {
     private readonly favoritesRepository: FavoritesRepository,  // FavoritesRepository 추가
   ) {}
 
-  async createMember(request: CreateMemberDto): Promise<Member> {
+  async create(request: CreateMemberDto): Promise<Member> {
     const member = request.toMember();
-    return await this.membersRepository.createMember(member);
+    return await this.membersRepository.create(member);
   }
 
-  async findOneByEmail(email: string): Promise<Member | null> {
-    const member = await this.membersRepository.findOneByEmail(email);
+  async findByEmail(email: string): Promise<Member | null> {
+    const member = await this.membersRepository.findByEmail(email);
     if (!member) {
       throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
     }
     return member;
   }
 
-  async findOneByNickname(nickname: string): Promise<Member | null> {
-    const member = await this.membersRepository.findOneByNickname(nickname);
+  async findByNickname(nickname: string): Promise<Member | null> {
+    const member = await this.membersRepository.findByNickname(nickname);
     if (!member) {
       throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
     }
@@ -37,7 +37,7 @@ export class MembersService {
   // 관심 사용자 요청 생성
   async addFavorite(memberId: number, nickname: string): Promise<Favorite | undefined> {
     // 추가하려는 사용자가 있는지
-    const favoritedMember = await this.membersRepository.findOneByNickname(nickname);
+    const favoritedMember = await this.membersRepository.findByNickname(nickname);
 
     if(!favoritedMember){
       throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
@@ -54,7 +54,7 @@ export class MembersService {
       }
     }
 
-    const member = await this.membersRepository.findOneById(memberId);
+    const member = await this.membersRepository.findById(memberId);
     const favorite = new Favorite();
     favorite.member = member;
     favorite.favoritedMember = favoritedMember;

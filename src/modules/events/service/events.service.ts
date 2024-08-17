@@ -1,8 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CreateEventDto } from '../dto/create-event.dto';
-import { UpdateEventDto } from '../dto/update-event.dto';
 import { EventsRepository } from '../repository/events.repository';
-import { MembersRepository } from '../../members/members.repository';
+import { MembersRepository } from '../../members/repository/members.repository';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
 import { Event } from '../entities';
@@ -11,45 +10,60 @@ import { S3Service } from 'src/external/s3/s3.service';
 
 @Injectable()
 export class EventsService {
-
   constructor(
     private readonly eventsRepository: EventsRepository,
     private readonly membersRepository: MembersRepository,
     private readonly naverService: NaverService,
     private readonly s3Service: S3Service,
-  ){}
+  ) {}
 
-  async create(request: CreateEventDto, memberId: number, media: Express.Multer.File): Promise<void> {
+  async create(
+    request: CreateEventDto,
+    memberId: number,
+    media: Express.Multer.File,
+  ): Promise<void> {
     const member = await this.membersRepository.findById(memberId);
-    if(!member) {
+    if (!member) {
       throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
     }
-    if(!request.content && !media) {
+    if (!request.content && !media) {
       throw new ExceptionHandler(ErrorStatus.EVENT_CONTENTS_NOT_FOUND);
     }
     const url = media ? await this.s3Service.upload(media) : null;
-    const region = await this.naverService.getAddressFromCoordinate(request.lat, request.lng);
+    const region = await this.naverService.getAddressFromCoordinate(
+      request.lat,
+      request.lng,
+    );
     const event = request.toEvent(region, member, url);
     await this.eventsRepository.create(event);
   }
 
-  findAll() {
-    return `This action returns all events`;
-  }
-
-  async findOne(id: number) : Promise<Event> {
+  async findOne(id: number): Promise<Event> {
     const event = await this.eventsRepository.findById(id);
-    if(!event) {
+    if (!event) {
       throw new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND);
     }
     return event;
   }
 
-  update(id: number, updateEventDto: UpdateEventDto) {
-    return `This action updates a #${id} event`;
-  }
+  async findNearby(lat: number, lng: number): Promise<Event[]> {
+    if (!lat || !lng || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      throw new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION);
+    }
+    const earthRadius = 6371000;
+    const latDistance = 200 / earthRadius;
+    const lngDistance = 200 / (earthRadius * Math.cos((Math.PI * lat) / 180));
 
-  remove(id: number) {
-    return `This action removes a #${id} event`;
+    const minLat = lat - (latDistance * 180) / Math.PI;
+    const maxLat = lat + (latDistance * 180) / Math.PI;
+    const minLng = lng - (lngDistance * 180) / Math.PI;
+    const maxLng = lng + (lngDistance * 180) / Math.PI;
+
+    return await this.eventsRepository.findNearby(
+      minLat,
+      maxLat,
+      minLng,
+      maxLng,
+    );
   }
 }

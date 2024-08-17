@@ -12,23 +12,23 @@ export class MembersRepository {
     this.memberRepository = this.dataSource.getRepository(Member);
   }
 
-  async createMember(member: Member): Promise<Member> {
+  async create(member: Member): Promise<Member> {
     return this.memberRepository.save(member);
   }
 
-  async findOneById(memberId: number): Promise<Member | null> {
+  async findById(memberId: number): Promise<Member | null> {
     return this.memberRepository.findOne({
       where: { id: memberId },
     });
   }
 
-  async findOneByEmail(email: string): Promise<Member | null> {
+  async findByEmail(email: string): Promise<Member | null> {
     return this.memberRepository.findOne({
       where: { email },
     });
   }
 
-  async findOneByNickname(nickname: string): Promise<Member | null> {
+  async findByNickname(nickname: string): Promise<Member | null> {
     return this.memberRepository.findOne({
       where: { nickname },
     });

@@ -22,7 +22,7 @@ export class MembersController {
 
   @Get(':email')
   async findOneByEmail(@Param('email') email: string ): Promise<Member | undefined> {
-    return this.membersService.findOneByEmail(email);
+    return this.membersService.findByEmail(email);
   }
 
   // 친구 추가 요청 API

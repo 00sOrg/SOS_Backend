@@ -7,7 +7,7 @@ import { CommentRepository } from "src/modules/events/repository/comment.reposit
 import { EventsRepository } from "src/modules/events/repository/events.repository";
 import { CommentService } from "src/modules/events/service/comment.service"
 import { Member } from "src/modules/members/entities";
-import { MembersRepository } from "src/modules/members/members.repository";
+import { MembersRepository } from "src/modules/members/repository/members.repository";
 
 
 describe('CommmentSerivce', ()=>{
