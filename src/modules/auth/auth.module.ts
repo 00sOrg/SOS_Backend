@@ -7,8 +7,6 @@ import { MembersModule } from '../members/members.module';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { MembersRepository } from '../members/members.repository';
-
 
 @Module({
   imports: [

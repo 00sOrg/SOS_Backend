@@ -1,12 +1,23 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Request, Query, UseInterceptors, UploadedFile } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  UseGuards,
+  Request,
+  Query,
+  UseInterceptors,
+  UploadedFile,
+} from '@nestjs/common';
 import { EventsService } from './service/events.service';
 import { CreateEventDto } from './dto/create-event.dto';
-import { UpdateEventDto } from './dto/update-event.dto';
 import { FindEventDto } from './dto/find-event.dto';
 import { CommentService } from './service/comment.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { FindNearybyDto } from './dto/find-nearyby-events.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('events')
@@ -18,14 +29,22 @@ export class EventsController {
 
   @UseInterceptors(FileInterceptor('media'))
   @Post()
-  async create(@Body() request: CreateEventDto, @Request() req, @UploadedFile() media: Express.Multer.File): Promise<void> {
+  async create(
+    @Body() request: CreateEventDto,
+    @Request() req,
+    @UploadedFile() media: Express.Multer.File,
+  ): Promise<void> {
     const memberId = req.user.id;
     await this.eventsService.create(request, memberId, media);
   }
 
-  @Get()
-  findAll() {
-    return this.eventsService.findAll();
+  @Get('nearby')
+  async findNearyby(
+    @Query('lat') lat: string,
+    @Query('lng') lng: string,
+  ): Promise<FindNearybyDto> {
+    const events = await this.eventsService.findNearby(+lat, +lng);
+    return FindNearybyDto.of(events);
   }
 
   @Get(':id')
@@ -34,18 +53,11 @@ export class EventsController {
     return FindEventDto.of(event);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
-    return this.eventsService.update(+id, updateEventDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.eventsService.remove(+id);
-  }
-
   @Post('comment')
-  async createComment(@Body() request: CreateCommentDto, @Request() req): Promise<void> {
+  async createComment(
+    @Body() request: CreateCommentDto,
+    @Request() req,
+  ): Promise<void> {
     const memberId = req.user.id;
     await this.commentService.createComment(request, memberId);
   }
