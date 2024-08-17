@@ -7,7 +7,7 @@ import { CreateMemberDto } from '../auth/dto/create-member.dto';
 import { ValidateMemberDto } from './dto/validate-member.dto';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
-import { MembersRepository } from '../members/members.repository';
+import { MembersRepository } from '../members/repository/members.repository';
 
 @Injectable()
 export class AuthService {
@@ -63,6 +63,6 @@ export class AuthService {
     createMemberDto.password = hashedPassword;
   
     // CreateMemberDto를 그대로 create 메서드에 전달
-    return this.membersService.create(createMemberDto);
+    return this.membersService.createMember(createMemberDto);
   }
 }

@@ -7,17 +7,17 @@ export class Favorite extends DefaultEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id: number;
 
-  @ManyToOne(() => Member, (member) => member.favoritesRequested, {
+  @ManyToOne(() => Member, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  requester: Member;
+  member: Member;
 
-  @ManyToOne(() => Member, (member) => member.favoritesReceived, {
+  @ManyToOne(() => Member, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  receiver: Member;
+  favoritedMember: Member;
 
   @Column({ type: 'boolean', default: false })
   isAccepted: boolean; // 즐겨찾기 요청 수락 여부

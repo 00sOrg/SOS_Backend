@@ -1,17 +1,19 @@
 import { Injectable } from '@nestjs/common';
-import { MembersRepository } from './members.repository';
+import { MembersRepository } from './repository/members.repository';
+import { FavoritesRepository } from './repository/favorites.repository';
 import { CreateMemberDto } from '../auth/dto/create-member.dto';
-import { UpdateMemberDto } from '../auth/dto/update-member.dto';
 import { Member, Favorite } from './entities';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
 
 @Injectable()
 export class MembersService {
-  constructor(private readonly membersRepository: MembersRepository) {}
+  constructor(
+    private readonly membersRepository: MembersRepository,
+    private readonly favoritesRepository: FavoritesRepository,  // FavoritesRepository 추가
+  ) {}
 
-  async create(request: CreateMemberDto): Promise<Member> {
-    // DTO에서 유효성 검사가 처리됨
+  async createMember(request: CreateMemberDto): Promise<Member> {
     const member = request.toMember();
     return await this.membersRepository.createMember(member);
   }
@@ -32,17 +34,17 @@ export class MembersService {
     return member;
   }
 
+  // 관심 사용자 요청 생성
   async addFavorite(memberId: number, nickname: string): Promise<Favorite | undefined> {
     // 추가하려는 사용자가 있는지
-    const receiver = await this.membersRepository.findOneByNickname(nickname);
+    const favoritedMember = await this.membersRepository.findOneByNickname(nickname);
 
-    if(!receiver){
+    if(!favoritedMember){
       throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
     }
 
-    const existingFavorite = await this.membersRepository.findFavorite(memberId, receiver.id);
-    const reverseFavorite = await this.membersRepository.findFavorite(receiver.id, memberId);
-
+    const existingFavorite = await this.favoritesRepository.findFavorite(memberId, favoritedMember.id);
+  
     // 이미 친구 관계이거나 요청이 존재하는 경우 처리
     if (existingFavorite) {
       if (existingFavorite.isAccepted) {
@@ -52,48 +54,43 @@ export class MembersService {
       }
     }
 
-    if (reverseFavorite) {
-      if (reverseFavorite.isAccepted) {
-        throw new ExceptionHandler(ErrorStatus.FAVORITE_ALREADY_EXISTS);
-      } else {
-        // 상대방이 먼저 친구 요청을 보낸 경우, 바로 친구 관계를 수락
-        reverseFavorite.isAccepted = true;
-        return this.membersRepository.saveFavorite(reverseFavorite);
-      }
-    }
-
-    // 새로운 친구 요청 생성
-    const requester = await this.membersRepository.findOneById(memberId);
+    const member = await this.membersRepository.findOneById(memberId);
     const favorite = new Favorite();
-    favorite.requester = requester;
-    favorite.receiver = receiver;
+    favorite.member = member;
+    favorite.favoritedMember = favoritedMember;
 
-    return this.membersRepository.saveFavorite(favorite);
+    return this.favoritesRepository.saveFavorite(favorite);
   }
  
-  async acceptFavoriteRequest(memberId: number, requesterId: number) : Promise<Favorite> {
-    const favorite = await this.membersRepository.findFavorite(requesterId, memberId);
+  // 관심 사용자 요청 수락 (여기서 memberId는 요청을 받은 사람의 Id)
+  async acceptFavoriteRequest(memberId: number, requestMemberId: number) : Promise<void> {
+    const favorite = await this.favoritesRepository.findFavorite(requestMemberId, memberId);
 
-    if (!favorite || favorite.isAccepted === true) {
-      throw new ExceptionHandler(ErrorStatus.BAD_REQUEST);
+    if(!favorite){
+      throw new ExceptionHandler(ErrorStatus.FAVORITE_REQUEST_NOT_FOUND)
+    }
+    else if(favorite.isAccepted === true){
+      throw new ExceptionHandler(ErrorStatus.FAVORITE_ALREADY_EXISTS);
     }
 
     favorite.isAccepted = true;
 
-    return this.membersRepository.saveFavorite(favorite);
+    await this.favoritesRepository.updateFavorite(requestMemberId, favorite);
   }
 
-  async rejectFavoriteRequest(memberId: number, requesterId: number): Promise<void> {
-    const favorite = await this.membersRepository.findFavorite(requesterId, memberId);
+  // 관심 사용자 요청 거절
+  async rejectFavoriteRequest(memberId: number, requestMemberId: number): Promise<void> {
+    const favorite = await this.favoritesRepository.findFavorite(requestMemberId, memberId);
 
     if (!favorite) {
       throw new ExceptionHandler(ErrorStatus.FAVORITE_REQUEST_NOT_FOUND);
     }
 
-    await this.membersRepository.removeFavorite(favorite);
+    await this.favoritesRepository.removeFavorite(favorite);
   }
 
+  // 괌심 사용자 조회
   async getFavoritesForMember(memberId: number): Promise<Favorite[]> {
-    return this.membersRepository.findAllFavoritesForMember(memberId);
+    return this.favoritesRepository.findAllFavoritesForMember(memberId);
   }
 }

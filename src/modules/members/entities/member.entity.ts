@@ -48,10 +48,4 @@ export class Member extends DefaultEntity {
     cascade: true,
   })
   comments: Comment[];
-
-  @OneToMany(() => Favorite, (favorite) => favorite.requester)
-  favoritesRequested: Favorite[];
-
-  @OneToMany(() => Favorite, (favorite) => favorite.receiver)
-  favoritesReceived: Favorite[];
 }

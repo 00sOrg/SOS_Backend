@@ -6,7 +6,7 @@ import { Member } from 'src/modules/members/entities/member.entity';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { MembersModule } from 'src/modules/members/members.module';
 import { ErrorStatus } from 'src/common/api/status/error.status';
-import { MembersRepository } from 'src/modules/members/members.repository';
+import { MembersRepository } from 'src/modules/members/repository/members.repository';
 
 describe('MembersService', () => {
     let membersService: MembersService;

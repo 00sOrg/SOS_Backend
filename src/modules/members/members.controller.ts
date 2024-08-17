@@ -15,6 +15,7 @@ import { UpdateMemberDto } from '../auth/dto/update-member.dto';
 import { Favorite } from './entities';
 import { AuthGuard } from '@nestjs/passport';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('members')
 export class MembersController {
   constructor(private readonly membersService: MembersService) {}
@@ -25,7 +26,6 @@ export class MembersController {
   }
 
   // 친구 추가 요청 API
-  @UseGuards(AuthGuard('jwt'))
   @Post('favorite/:nickname')
   async addFavorite(
     @Request() req,
@@ -36,30 +36,28 @@ export class MembersController {
   }
 
   // 친구 요청 수락 API
-  @UseGuards(AuthGuard('jwt'))
-  @Post('favorite/accept/:requesterId')
+  @Post('favorite/accept/:requestMemberId')
   async acceptFavoriteRequest(
     @Request() req,
-    @Param('requesterId', ParseIntPipe) requesterId: number,
-  ): Promise<Favorite> {
+    @Param('requesterId', ParseIntPipe) requestMemberId: number,
+  ): Promise<void> {
     const memberId = req.user.id; // 현재 로그인된 사용자의 ID
-    return this.membersService.acceptFavoriteRequest(memberId, requesterId);
+    await this.membersService.acceptFavoriteRequest(memberId, requestMemberId);
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Post('reject-favorite')
-  async rejectFavorite(@Body('memberId') memberId: number, @Body('requesterId') requesterId: number) {
-    await this.membersService.rejectFavoriteRequest(memberId, requesterId);
-    //return { message: '관심 사용자 요청이 거부되었습니다.' };
+  @Post('favorite/reject/:requestMemberId')
+  async rejectFavoriteRequest(
+    @Request() req,
+    @Param('requesterId', ParseIntPipe) requestMemberId: number,
+  ): Promise<void>{
+    const memberId = req.user.id; // 현재 로그인된 사용자의 ID
+    await this.membersService.rejectFavoriteRequest(memberId, requestMemberId);
   }
 
   // 사용자가 추가한 친구 목록 조회 API
-  @UseGuards(AuthGuard('jwt'))
   @Get('favorites')
   async getFavorites(@Request() req) : Promise <Favorite[]>{
     const memberId = req.user.id; // 현재 로그인된 사용자의 ID
     return this.membersService.getFavoritesForMember(memberId);
   }
-
-  
 }
