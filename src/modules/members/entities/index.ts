@@ -1,4 +1,4 @@
 export * from './member.entity';
 export * from './memberDetail.entity';
 export * from './userNotification.entity';
-export * from './favorite.entity'
+export * from './favorite.entity';

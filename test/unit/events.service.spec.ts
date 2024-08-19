@@ -103,7 +103,7 @@ describe('EventService', () => {
       jest
         .spyOn(naverService, 'getAddressFromCoordinate')
         .mockResolvedValue(region);
-      jest.spyOn(s3Service, 'upload').mockResolvedValue(null);
+      // jest.spyOn(s3Service, 'upload').mockResolvedValue(null);
 
       await eventService.create(request, memberId, media);
 
@@ -134,7 +134,7 @@ describe('EventService', () => {
     });
 
     it('should throw EVENT_NOT_FOUND if the event is not found', async () => {
-      jest.spyOn(eventRepository, 'create').mockResolvedValue(null);
+      jest.spyOn(eventRepository, 'findById').mockResolvedValue(null);
 
       await expect(eventService.findOne(id)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND),

@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Request, Body, UseGuards, Query, BadRequestException } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Request,
+  Body,
+  UseGuards,
+  Query,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateMemberDto } from '../auth/dto/create-member.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -10,22 +18,22 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Request() req: Member) : Promise<Object> {
+  async login(@Request() req: Member): Promise<object> {
     return await this.authService.login(req);
   }
 
   @Post('register')
-  async register(@Body() createMemberDto: CreateMemberDto) :  Promise<Member | undefined> {
+  async register(@Body() createMemberDto: CreateMemberDto): Promise<Member> {
     return this.authService.register(createMemberDto);
   }
 
   @Get('check-email')
-  async checkEmail(@Query('email') email: string) : Promise<void> {
+  async checkEmail(@Query('email') email: string): Promise<void> {
     await this.authService.checkEmail(email);
   }
 
   @Get('check-nickname')
-  async checkNickname(@Query('nickname') nickname: string) : Promise<void> {
+  async checkNickname(@Query('nickname') nickname: string): Promise<void> {
     await this.authService.checkNickName(nickname);
   }
 }

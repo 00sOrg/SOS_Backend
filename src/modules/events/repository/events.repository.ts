@@ -13,7 +13,7 @@ export class EventsRepository {
     return this.eventRepository.save(event);
   }
 
-  async findById(eventId: number): Promise<Event> {
+  async findById(eventId: number): Promise<Event | null> {
     return this.eventRepository.findOne({
       where: {
         id: eventId,

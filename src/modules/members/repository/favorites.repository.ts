@@ -18,11 +18,20 @@ export class FavoritesRepository {
     await this.favoriteRepository.remove(favorite);
   }
 
-  async updateFavorite(memberId: number, updateData: Partial<Favorite>): Promise<void> {
-    await this.favoriteRepository.update({ member: { id: memberId } }, updateData);
+  async updateFavorite(
+    memberId: number,
+    updateData: Partial<Favorite>,
+  ): Promise<void> {
+    await this.favoriteRepository.update(
+      { member: { id: memberId } },
+      updateData,
+    );
   }
 
-  async findFavorite(memberId: number, favoritedMemberId: number): Promise<Favorite | null> {
+  async findFavorite(
+    memberId: number,
+    favoritedMemberId: number,
+  ): Promise<Favorite | null> {
     return this.favoriteRepository.findOne({
       where: {
         member: { id: memberId },
@@ -33,9 +42,7 @@ export class FavoritesRepository {
 
   async findAllFavoritesForMember(memberId: number): Promise<Favorite[]> {
     return this.favoriteRepository.find({
-        where: [
-            { member: { id: memberId }, isAccepted: true },
-        ],
+      where: [{ member: { id: memberId }, isAccepted: true }],
     });
   }
 }

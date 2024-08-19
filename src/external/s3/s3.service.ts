@@ -9,11 +9,17 @@ import { v4 as uuidv4 } from 'uuid';
 export class S3Service {
   private s3Client: S3Client;
   constructor(private readonly configService: ConfigService) {
+    const region = this.configService.get<string>('BUCKET_REGION');
+    const accessKeyId = this.configService.get<string>('BUCKET_ACCESS_KEY');
+    const secretAccessKey = this.configService.get<string>('BUCKET_SECRET_KEY');
+    if (!region || !accessKeyId || !secretAccessKey) {
+      throw new ExceptionHandler(ErrorStatus.S3_CONFIG_ERROR);
+    }
     this.s3Client = new S3Client({
-      region: this.configService.get<string>('BUCKET_REGION'),
+      region: region,
       credentials: {
-        accessKeyId: this.configService.get<string>('BUCKET_ACCESS_KEY'), // Access Key
-        secretAccessKey: this.configService.get<string>('BUCKET_SECRET_KEY'), // Secret Key
+        accessKeyId: accessKeyId,
+        secretAccessKey: secretAccessKey,
       },
     });
   }

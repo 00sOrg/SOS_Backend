@@ -1,5 +1,5 @@
 export interface BaseCode {
-    success: boolean;
-    statusCode: number;
-    message: string;
+  success: boolean;
+  statusCode: number;
+  message: string;
 }

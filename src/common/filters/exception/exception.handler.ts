@@ -1,16 +1,15 @@
-import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
+import { HttpException } from '@nestjs/common';
 import { BaseCode } from '../../api/base.api';
 
-
 export class ExceptionHandler extends HttpException {
-    private readonly baseCode: BaseCode;
-    
-    constructor(baseCode: BaseCode) {
-        super(baseCode.message, baseCode.statusCode);
-        this.baseCode = baseCode;
-    }
+  private readonly baseCode: BaseCode;
 
-    getErrorReason(): BaseCode {
-        return this.baseCode;
-    }
+  constructor(baseCode: BaseCode) {
+    super(baseCode.message, baseCode.statusCode);
+    this.baseCode = baseCode;
+  }
+
+  getErrorReason(): BaseCode {
+    return this.baseCode;
+  }
 }

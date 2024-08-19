@@ -64,7 +64,11 @@ describe('AuthService', () => {
     it('should validate a member with correct credentials', async () => {
       const email = 'test@example.com';
       const password = 'test1234';
-      const member = { id: 1, email, password: await bcrypt.hash(password, 10) } as Member;
+      const member = {
+        id: 1,
+        email,
+        password: await bcrypt.hash(password, 10),
+      } as Member;
 
       jest.spyOn(membersService, 'findByEmail').mockResolvedValue(member);
       jest.spyOn(bcrypt, 'compare').mockImplementation(async () => true);
@@ -78,7 +82,11 @@ describe('AuthService', () => {
     it('should throw an error if password is incorrect', async () => {
       const email = 'test@example.com';
       const password = 'wrongpassword';
-      const member = { id: 1, email, password: await bcrypt.hash('test1234', 10) } as Member;
+      const member = {
+        id: 1,
+        email,
+        password: await bcrypt.hash('test1234', 10),
+      } as Member;
 
       jest.spyOn(membersService, 'findByEmail').mockResolvedValue(member);
       jest.spyOn(bcrypt, 'compare').mockImplementation(async () => false);
@@ -110,7 +118,9 @@ describe('AuthService', () => {
     it('should throw an error if email already exists', async () => {
       const email = 'test@example.com';
 
-      jest.spyOn(membersRepository, 'findByEmail').mockResolvedValue({} as Member);
+      jest
+        .spyOn(membersRepository, 'findByEmail')
+        .mockResolvedValue({} as Member);
 
       await expect(authService.checkEmail(email)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.EMAIL_ALREADY_TAKEN),
@@ -130,7 +140,9 @@ describe('AuthService', () => {
     it('should throw an error if nickname already exists', async () => {
       const nickname = 'Tester';
 
-      jest.spyOn(membersRepository, 'findByNickname').mockResolvedValue({} as Member);
+      jest
+        .spyOn(membersRepository, 'findByNickname')
+        .mockResolvedValue({} as Member);
 
       await expect(authService.checkNickName(nickname)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.NICKNAME_ALREADY_TAKEN),
@@ -155,21 +167,22 @@ describe('AuthService', () => {
         nickname: 'Tester',
         phoneNumber: '01012345678',
       });
-  
+
       // Mock the hashed password value
-      const hashedPassword = '$2a$10$CwTycUXWue0Thq9StjUM0uJ8bNHVrEsSnj/Jg6c4pN4/Yk8rje3aK'; // 고정된 해시 값
-  
+      const hashedPassword =
+        '$2a$10$CwTycUXWue0Thq9StjUM0uJ8bNHVrEsSnj/Jg6c4pN4/Yk8rje3aK'; // 고정된 해시 값
+
       // Mock bcrypt.hash to return the fixed hashedPassword
       jest.spyOn(bcrypt, 'hash').mockImplementation(async () => hashedPassword);
-  
+
       const member = createMemberDto.toMember();
       member.password = hashedPassword; // 해시된 비밀번호를 Member 객체에 설정
-  
+
       // Mock the membersService.create to return the member
       jest.spyOn(membersService, 'create').mockResolvedValueOnce(member);
-  
+
       const result = await authService.register(createMemberDto);
-  
+
       // Validate the result and expectations
       expect(result).toEqual(member);
       expect(membersService.create).toHaveBeenCalledWith(
@@ -179,7 +192,7 @@ describe('AuthService', () => {
           name: 'Test',
           nickname: 'Tester',
           phoneNumber: '01012345678',
-        })
+        }),
       );
     });
   });

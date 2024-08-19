@@ -4,57 +4,52 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-  OneToMany,
 } from 'typeorm';
 import { Member } from '../../members/entities';
 import { DefaultEntity } from '../../../common/default.entity';
-import { Comment } from './comment.entity';
 
 @Entity()
 export class Event extends DefaultEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
-  id: number;
+  id!: number;
 
-  @ManyToOne(() => Member, (member) => member.events, { onDelete: 'CASCADE' })
+  @ManyToOne(() => Member)
   @JoinColumn()
-  member: Member;
-
-  @OneToMany(() => Comment, (comment) => comment.event)
-  comments: Comment[];
+  member!: Member;
 
   @Column({ type: 'varchar', length: 10, nullable: true })
-  type: string;
+  type!: string;
 
   @Column({ type: 'text', nullable: true })
-  media: string;
+  media?: string;
 
   @Column({ type: 'varchar', length: 25 })
-  title: string;
+  title!: string;
 
   @Column({ type: 'text', nullable: true })
-  content: string;
+  content?: string;
 
   @Column({ type: 'float' })
-  latitude: number;
+  latitude!: number;
 
   @Column({ type: 'float' })
-  longitude: number;
+  longitude!: number;
+
+  @Column({ type: 'varchar', length: 25 })
+  si!: string;
+
+  @Column({ type: 'varchar', length: 25 })
+  gu!: string;
+
+  @Column({ type: 'varchar', length: 25 })
+  dong!: string;
 
   @Column({ type: 'varchar', length: 25, nullable: true })
-  si: string;
-
-  @Column({ type: 'varchar', length: 25, nullable: true })
-  gu: string;
-
-  @Column({ type: 'varchar', length: 25, nullable: true })
-  dong: string;
-
-  @Column({ type: 'varchar', length: 25, nullable: true })
-  disasterLevel: string;
+  disasterLevel?: string;
 
   @Column({ type: 'int', default: 0 })
-  likesCount: number;
+  likesCount: number = 0;
 
   @Column({ type: 'int', default: 0 })
-  commentsCount: number;
+  commentsCount: number = 0;
 }

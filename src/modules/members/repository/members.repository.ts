@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { Member } from '../entities/member.entity';
-import { Favorite } from '../entities';
-import { CreateMemberDto } from '../../auth/dto/create-member.dto';
 
 @Injectable()
 export class MembersRepository {

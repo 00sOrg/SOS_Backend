@@ -20,7 +20,7 @@ export class EventsService {
   async create(
     request: CreateEventDto,
     memberId: number,
-    media: Express.Multer.File,
+    media: Express.Multer.File | null,
   ): Promise<void> {
     const member = await this.membersRepository.findById(memberId);
     if (!member) {
@@ -29,7 +29,7 @@ export class EventsService {
     if (!request.content && !media) {
       throw new ExceptionHandler(ErrorStatus.EVENT_CONTENTS_NOT_FOUND);
     }
-    const url = media ? await this.s3Service.upload(media) : null;
+    const url = media ? await this.s3Service.upload(media) : undefined;
     const region = await this.naverService.getAddressFromCoordinate(
       request.lat,
       request.lng,

@@ -40,9 +40,21 @@ export class ErrorStatus implements BaseCode {
     400,
     '이 닉네임은 이미 사용 중입니다.',
   );
-  static readonly FAVORITE_ALREADY_EXISTS = new ErrorStatus(false, 400, '이미 등록한 관심 사용자입니다.');
-  static readonly FAVORITE_REQUEST_ALREADY_SENT = new ErrorStatus(false, 400, '이미 요청을 보낸 사용자입니다.');
-  static readonly FAVORITE_REQUEST_NOT_FOUND = new ErrorStatus(false, 400, '관심 사용자 등록 요청이 존재하지 않습니다.');
+  static readonly FAVORITE_ALREADY_EXISTS = new ErrorStatus(
+    false,
+    400,
+    '이미 등록한 관심 사용자입니다.',
+  );
+  static readonly FAVORITE_REQUEST_ALREADY_SENT = new ErrorStatus(
+    false,
+    400,
+    '이미 요청을 보낸 사용자입니다.',
+  );
+  static readonly FAVORITE_REQUEST_NOT_FOUND = new ErrorStatus(
+    false,
+    400,
+    '관심 사용자 등록 요청이 존재하지 않습니다.',
+  );
 
   //이벤트 에러
   static readonly EVENT_CONTENTS_NOT_FOUND = new ErrorStatus(
@@ -71,5 +83,11 @@ export class ErrorStatus implements BaseCode {
     false,
     400,
     '이미지 업로드에 실패했습니다.',
+  );
+
+  static readonly S3_CONFIG_ERROR = new ErrorStatus(
+    false,
+    400,
+    'S3 설정 정보가 잘못되었습니다.',
   );
 }
