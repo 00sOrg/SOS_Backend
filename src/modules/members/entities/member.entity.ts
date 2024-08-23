@@ -22,10 +22,10 @@ export class Member extends DefaultEntity {
   @Column({ type: 'varchar', length: 15 })
   phoneNumber!: string;
 
-  @Column({ type: 'float', nullable: true })
+  @Column({ type: 'decimal', precision: 13, scale: 13, nullable: true })
   latitude?: number;
-
-  @Column({ type: 'float', nullable: true })
+  
+  @Column({ type: 'decimal', precision: 13, scale: 13, nullable: true })
   longitude?: number;
 
   @OneToOne(() => MemberDetail, (memberDetail) => memberDetail.member, {

@@ -2,26 +2,27 @@ import { Injectable } from '@nestjs/common';
 import { MembersRepository } from '../repository/members.repository';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
+import { MemberLocationDto } from '../dto/member-location.dto';
 
 @Injectable()
 export class LocationService {
   constructor(private readonly membersRepository: MembersRepository) {}
 
-  async getLastLocation(memberId: number): Promise<{ latitude: number, longitude: number } | null > {
+  async getLastLocation(memberId: number): Promise<MemberLocationDto | null> {
     const member = await this.membersRepository.findById(memberId);
     if (!member) {
       throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
     }
-
-    // latitude와 longitude가 undefined인 경우 null 반환 (Error로 처리해야하나?)
+  
     if (member.latitude === undefined || member.longitude === undefined) {
-        return null;
+      return null;
     }
-
-    return {
-      latitude: member.latitude,
-      longitude: member.longitude,
-    };
+  
+    const location = new MemberLocationDto();
+    location.latitude = member.latitude;
+    location.longitude = member.longitude;
+  
+    return location;
   }
 
   async updateLocation(memberId: number, latitude: number, longitude: number): Promise<void> {

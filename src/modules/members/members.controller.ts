@@ -14,6 +14,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { MembersService } from './services/members.service';
 import { FavoritesService } from './services/favorites.service';
 import { LocationService } from './services/location.service';
+import { MemberLocationDto } from './dto/member-location.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('members')
@@ -67,7 +68,7 @@ export class MembersController {
 
   // 사용자의 마지막 위치 조회 API
   @Get('location/last')
-  async getLastLocation(@Request() req): Promise<{ latitude: number, longitude: number } | null> {
+  async getLastLocation(@Request() req): Promise<MemberLocationDto | null> {
     const memberId = req.user.id; // 현재 로그인된 사용자의 ID
     return this.locationService.getLastLocation(memberId);
   }
@@ -76,10 +77,10 @@ export class MembersController {
   @Post('location/update')
   async updateLocation(
     @Request() req,
-    @Body('latitude') latitude: number,
-    @Body('longitude') longitude: number,
+    @Body() memberLocationDto: MemberLocationDto,
   ): Promise<void> {
     const memberId = req.user.id; // 현재 로그인된 사용자의 ID
+    const { latitude, longitude } = memberLocationDto;
     await this.locationService.updateLocation(memberId, latitude, longitude);
   }
 }

@@ -31,8 +31,8 @@ export class EventsService {
     }
     const url = media ? await this.s3Service.upload(media) : undefined;
     const region = await this.naverService.getAddressFromCoordinate(
-      request.lat,
-      request.lng,
+      request.latitude,
+      request.longitude,
     );
     const event = request.toEvent(region, member, url);
     await this.eventsRepository.create(event);
