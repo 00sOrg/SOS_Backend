@@ -1,39 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { MembersRepository } from './repository/members.repository';
-import { FavoritesRepository } from './repository/favorites.repository';
-import { CreateMemberDto } from '../auth/dto/create-member.dto';
-import { Member, Favorite } from './entities';
+import { MembersRepository } from '../repository/members.repository';
+import { FavoritesRepository } from '../repository/favorites.repository';
+import { Favorite } from '../entities';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
 
 @Injectable()
-export class MembersService {
+export class FavoritesService {
   constructor(
     private readonly membersRepository: MembersRepository,
-    private readonly favoritesRepository: FavoritesRepository, // FavoritesRepository 추가
+    private readonly favoritesRepository: FavoritesRepository,
   ) {}
-
-  async create(request: CreateMemberDto): Promise<Member> {
-    const member = request.toMember();
-    return await this.membersRepository.create(member);
-  }
-
-  async findByEmail(email: string): Promise<Member> {
-    const member = await this.membersRepository.findByEmail(email);
-    if (!member) {
-      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
-    }
-    return member;
-  }
-
-  async findByNickname(nickname: string): Promise<Member> {
-    const member = await this.membersRepository.findByNickname(nickname);
-    if (!member) {
-      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
-    }
-    return member;
-  }
-
   // 관심 사용자 요청 생성
   async addFavorite(memberId: number, nickname: string): Promise<Favorite> {
     // 추가하려는 사용자가 있는지
@@ -107,7 +84,7 @@ export class MembersService {
     await this.favoritesRepository.removeFavorite(favorite);
   }
 
-  // 괌심 사용자 조회
+  // 관심 사용자 조회
   async getFavoritesForMember(memberId: number): Promise<Favorite[]> {
     return this.favoritesRepository.findAllFavoritesForMember(memberId);
   }

@@ -22,6 +22,12 @@ export class Member extends DefaultEntity {
   @Column({ type: 'varchar', length: 15 })
   phoneNumber!: string;
 
+  @Column({ type: 'float', nullable: true })
+  latitude?: number;
+
+  @Column({ type: 'float', nullable: true })
+  longitude?: number;
+
   @OneToOne(() => MemberDetail, (memberDetail) => memberDetail.member, {
     cascade: true,
   })
@@ -31,14 +37,4 @@ export class Member extends DefaultEntity {
     cascade: true,
   })
   notification?: UserNotification;
-
-  // @OneToMany(() => Event, (event) => event.member, {
-  //   cascade: true,
-  // })
-  // events: Event[];
-
-  // @OneToMany(() => Comment, (comment) => comment.member, {
-  //   cascade: true,
-  // })
-  // comments: Comment[];
 }

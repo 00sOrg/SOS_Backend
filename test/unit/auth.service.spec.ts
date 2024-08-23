@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from 'src/modules/auth/auth.service';
-import { MembersService } from 'src/modules/members/members.service';
+import { MembersService } from 'src/modules/members/services/members.service';
 import { MembersRepository } from 'src/modules/members/repository/members.repository';
 import { JwtService } from '@nestjs/jwt';
 import { CreateMemberDto } from 'src/modules/auth/dto/create-member.dto';

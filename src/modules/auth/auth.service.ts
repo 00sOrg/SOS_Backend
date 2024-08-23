@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { MembersService } from '../members/members.service';
+import { MembersService } from '../members/services/members.service';
 import { Member } from '../members/entities';
 import { CreateMemberDto } from '../auth/dto/create-member.dto';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
