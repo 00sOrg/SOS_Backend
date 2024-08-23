@@ -9,6 +9,7 @@ import { Member } from 'src/modules/members/entities';
 import { Event } from 'src/modules/events/entities';
 import { NaverService } from 'src/external/naver/naver.service';
 import { S3Service } from 'src/external/s3/s3.service';
+import { Region } from '../../src/external/naver/dto/region.dto';
 
 describe('EventService', () => {
   let eventService: EventsService;
@@ -33,6 +34,7 @@ describe('EventService', () => {
             create: jest.fn(),
             findById: jest.fn(),
             findNearby: jest.fn(),
+            findNearbyAll: jest.fn(),
           },
         },
         {
@@ -177,6 +179,64 @@ describe('EventService', () => {
       jest.spyOn(eventRepository, 'findNearby').mockResolvedValue(events);
       const result = await eventService.findNearby(lat, lng);
       expect(result).toEqual(events);
+    });
+    it('should throw INVALID_GEO_LOCATION if the lat or lng is not valid', async () => {
+      lat = 100.5665;
+      lng = 186.978;
+      await expect(eventService.findNearby(lat, lng)).rejects.toThrow(
+        new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION),
+      );
+    });
+  });
+  describe('findNearbyAll', () => {
+    let lat: number;
+    let lng: number;
+    let events: Event[];
+    let region: Region;
+    beforeEach(() => {
+      lat = 37.5665;
+      lng = 126.978;
+      events = [
+        {
+          id: 1,
+          title: 'Event 1',
+          latitude: 37.5665,
+          longitude: 126.978,
+          media: 'media1.jpg',
+        } as Event,
+        {
+          id: 2,
+          title: 'Event 2',
+          latitude: 37.5651,
+          longitude: 126.982,
+          media: 'media2.jpg',
+        } as Event,
+        {
+          id: 3,
+          title: 'Event 3',
+          latitude: 37.5643,
+          longitude: 126.977,
+          media: 'media3.jpg',
+        } as Event,
+      ];
+      region = { si: 'si', gu: 'gu', dong: 'dong' };
+    });
+    it('should return all the events nearby', async () => {
+      jest
+        .spyOn(naverService, 'getAddressFromCoordinate')
+        .mockResolvedValue(region);
+      jest.spyOn(eventRepository, 'findNearbyAll').mockResolvedValue(events);
+      const result = await eventService.findNearybyAll(lat, lng);
+      result.events.forEach((event, index) => {
+        expect(event.id).toEqual(events[index].id);
+        expect(event.title).toEqual(events[index].title);
+        expect(event.media).toEqual(events[index].media);
+        expect(event.createdAt).toEqual(events[index].createdAt);
+      });
+      expect(result.si).toEqual(region.si);
+      expect(result.gu).toEqual(region.gu);
+      expect(result.dong).toEqual(region.dong);
+      expect(result.eventsNumber).toEqual(events.length);
     });
     it('should throw INVALID_GEO_LOCATION if the lat or lng is not valid', async () => {
       lat = 100.5665;

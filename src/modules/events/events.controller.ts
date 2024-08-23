@@ -18,6 +18,8 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FindNearybyDto } from './dto/find-nearyby-events.dto';
+import { FindNearbyAllDto } from './dto/find-nearby-all.dto';
+import { Event } from './entities';
 
 @UseGuards(JwtAuthGuard)
 @Controller('events')
@@ -60,5 +62,13 @@ export class EventsController {
   ): Promise<void> {
     const memberId = req.user.id;
     await this.commentService.createComment(request, memberId);
+  }
+
+  @Get('/nearby/all')
+  async findNearybyAll(
+    @Query('lat') lat: string,
+    @Query('lng') lng: string,
+  ): Promise<FindNearbyAllDto> {
+    return await this.eventsService.findNearybyAll(+lat, +lng);
   }
 }

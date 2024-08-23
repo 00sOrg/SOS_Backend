@@ -57,7 +57,7 @@ export class CreateEventDto {
       .latitude(this.lat)
       .longitude(this.lng)
       .type(EventType.SECONDARY)
-      .si(region.city)
+      .si(region.si)
       .gu(region.gu)
       .dong(region.dong)
       .member(member)
