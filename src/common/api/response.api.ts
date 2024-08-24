@@ -1,6 +1,12 @@
-export default interface ApiResponse<T> {
-  success: boolean;
-  statusCode: number;
-  message: string;
-  data: T;
+import { ApiProperty } from '@nestjs/swagger';
+
+export default class ResponseDto<T> {
+  @ApiProperty()
+  success!: boolean;
+  @ApiProperty()
+  statusCode!: number;
+  @ApiProperty()
+  message!: string;
+  @ApiProperty()
+  data!: T;
 }

@@ -3,7 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { MembersService } from '../members/services/members.service';
 import { Member } from '../members/entities';
-import { CreateMemberDto } from '../auth/dto/create-member.dto';
+import { CreateMemberDto } from './dto/create-member.dto';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
 import { MembersRepository } from '../members/repository/members.repository';
@@ -57,10 +57,8 @@ export class AuthService {
     await this.checkNickName(createMemberDto.nickname);
 
     // 비밀번호 해시화
-    const hashedPassword = await bcrypt.hash(createMemberDto.password, 10);
-
     // 해시된 비밀번호를 CreateMemberDto에 설정
-    createMemberDto.password = hashedPassword;
+    createMemberDto.password = await bcrypt.hash(createMemberDto.password, 10);
 
     // CreateMemberDto를 그대로 create 메서드에 전달
     return this.membersService.create(createMemberDto);

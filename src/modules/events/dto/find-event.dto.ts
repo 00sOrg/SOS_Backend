@@ -1,12 +1,20 @@
 import { Event } from '../entities';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class FindEventDto {
+  @ApiProperty()
   id!: number;
+  @ApiProperty()
   title!: string;
+  @ApiProperty()
   content?: string;
+  @ApiProperty()
   media?: string;
+  @ApiProperty()
   likes: number = 0;
+  @ApiProperty()
   comments: number = 0;
+  @ApiProperty()
   createdAt!: Date;
 
   static of(event: Event): FindEventDto {

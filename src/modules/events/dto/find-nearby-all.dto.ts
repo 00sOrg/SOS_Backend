@@ -1,11 +1,17 @@
 import { Event } from '../entities';
 import { Region } from '../../../external/naver/dto/region.dto';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class FindNearbyAllDto {
+  @ApiProperty()
   si: string;
+  @ApiProperty()
   gu: string;
+  @ApiProperty()
   dong: string;
+  @ApiProperty()
   events: Events[];
+  @ApiProperty()
   eventsNumber: number;
   public constructor(
     si: string,
