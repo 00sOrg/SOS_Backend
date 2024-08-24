@@ -28,12 +28,12 @@ export class MemberDetail extends DefaultEntity {
   bloodType?: string;
 
   //250자 변경
-  @Column({ type: 'text', length: 250, nullable: true })
+  @Column({ type: 'varchar', length: 250, nullable: true })
   disease?: string;
 
-  @Column({ type: 'text', length: 250, nullable: true })
+  @Column({ type: 'varchar', length: 250, nullable: true })
   medication?: string;
 
-  @Column({ type: 'text', length: 250, nullable: true })
+  @Column({ type: 'varchar', length: 250, nullable: true })
   allergic?: string;
 }

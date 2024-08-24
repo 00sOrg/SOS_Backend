@@ -5,12 +5,12 @@ import {
   NestInterceptor,
 } from '@nestjs/common';
 import { map, Observable } from 'rxjs';
-import ApiResponse from '../api/response.api';
+import ResponseDto from '../api/response.api';
 import { SuccessStatus } from '../api/status/success.status';
 
 @Injectable()
 export class TransformInterceptor<T>
-  implements NestInterceptor<T, ApiResponse<T>>
+  implements NestInterceptor<T, ResponseDto<T>>
 {
   intercept(
     context: ExecutionContext,

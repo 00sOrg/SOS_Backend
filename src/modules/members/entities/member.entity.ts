@@ -24,10 +24,10 @@ export class Member extends DefaultEntity {
 
   //프로필 사진 추가
 
-  @Column({ type: 'decimal', precision: 13, scale: 13 })
+  @Column({ type: 'decimal', precision: 16, scale: 13 })
   latitude: number = 37.23974418506011;
-  
-  @Column({ type: 'decimal', precision: 13, scale: 13 })
+
+  @Column({ type: 'decimal', precision: 16, scale: 13 })
   longitude: number = 127.08342026545051;
 
   @OneToOne(() => MemberDetail, (memberDetail) => memberDetail.member, {

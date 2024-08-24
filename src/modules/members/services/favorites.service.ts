@@ -12,7 +12,7 @@ export class FavoritesService {
     private readonly favoritesRepository: FavoritesRepository,
   ) {}
   // 관심 사용자 요청 생성
-  async addFavorite(memberId: number, nickname: string): Promise<Favorite> {
+  async addFavorite(memberId: number, nickname: string): Promise<void> {
     // 추가하려는 사용자가 있는지
     const favoritedMember =
       await this.membersRepository.findByNickname(nickname);
@@ -43,7 +43,7 @@ export class FavoritesService {
     favorite.member = member;
     favorite.favoritedMember = favoritedMember;
 
-    return this.favoritesRepository.saveFavorite(favorite);
+    await this.favoritesRepository.saveFavorite(favorite);
   }
 
   // 관심 사용자 요청 수락 (여기서 memberId는 요청을 받은 사람의 Id)
@@ -58,7 +58,7 @@ export class FavoritesService {
 
     if (!favorite) {
       throw new ExceptionHandler(ErrorStatus.FAVORITE_REQUEST_NOT_FOUND);
-    } else if (favorite.isAccepted === true) {
+    } else if (favorite.isAccepted) {
       throw new ExceptionHandler(ErrorStatus.FAVORITE_ALREADY_EXISTS);
     }
 
