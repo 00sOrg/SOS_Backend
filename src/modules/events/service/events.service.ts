@@ -7,6 +7,8 @@ import { ErrorStatus } from 'src/common/api/status/error.status';
 import { Event } from '../entities';
 import { NaverService } from 'src/external/naver/naver.service';
 import { S3Service } from 'src/external/s3/s3.service';
+import { Region } from '../../../external/naver/dto/region.dto';
+import { FindNearbyAllDto } from '../dto/find-nearby-all.dto';
 
 @Injectable()
 export class EventsService {
@@ -65,5 +67,17 @@ export class EventsService {
       minLng,
       maxLng,
     );
+  }
+
+  async findNearybyAll(lat: number, lng: number): Promise<FindNearbyAllDto> {
+    if (!lat || !lng || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      throw new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION);
+    }
+    const region: Region = await this.naverService.getAddressFromCoordinate(
+      lat,
+      lng,
+    );
+    const events: Event[] = await this.eventsRepository.findNearbyAll(region);
+    return FindNearbyAllDto.of(events, region);
   }
 }

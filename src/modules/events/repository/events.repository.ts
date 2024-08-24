@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { Event } from '../entities';
+import { Region } from '../../../external/naver/dto/region.dto';
 
 @Injectable()
 export class EventsRepository {
@@ -37,6 +38,19 @@ export class EventsRepository {
         maxLng,
       })
       .andWhere('event.createdAt > :yesterday', { yesterday })
+      .getMany();
+  }
+
+  async findNearbyAll(region: Region): Promise<Event[]> {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return this.eventRepository
+      .createQueryBuilder('event')
+      .where('event.si = :si', { si: region.si })
+      .andWhere('event.gu = :gu', { gu: region.gu })
+      .andWhere('event.dong = :dong', { dong: region.dong })
+      .andWhere('event.createdAt > :yesterday', { yesterday })
+      .addOrderBy('event.likesCount', 'DESC')
       .getMany();
   }
 }

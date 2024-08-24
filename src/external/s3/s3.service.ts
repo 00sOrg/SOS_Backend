@@ -41,7 +41,6 @@ export class S3Service {
 
     const bucketName = this.configService.get<string>('BUCKET_NAME');
     const region = this.configService.get<string>('BUCKET_REGION');
-    const url = `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
-    return url;
+    return `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
   }
 }
