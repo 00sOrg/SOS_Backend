@@ -13,24 +13,27 @@ export class MemberDetail extends DefaultEntity {
   @JoinColumn()
   member!: Member;
 
+  // 성별 추가
+
   @Column({ type: 'varchar', length: 8, nullable: true })
   birthDate?: string;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'varchar', length: 5, nullable: true })
   height?: number;
 
-  @Column({ type: 'int', nullable: true })
+  @Column({ type: 'varchar', length: 5, nullable: true })
   weight?: number;
 
   @Column({ type: 'varchar', length: 5, nullable: true })
   bloodType?: string;
 
-  @Column({ type: 'text', nullable: true })
+  //250자 변경
+  @Column({ type: 'text', length: 250, nullable: true })
   disease?: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', length: 250, nullable: true })
   medication?: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text', length: 250, nullable: true })
   allergic?: string;
 }

@@ -7,7 +7,7 @@ export class Member extends DefaultEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: number;
 
-  @Column({ type: 'varchar', length: 25 })
+  @Column({ type: 'varchar', length: 80 })
   email!: string;
 
   @Column({ type: 'varchar', length: 100 })
@@ -16,17 +16,19 @@ export class Member extends DefaultEntity {
   @Column({ type: 'varchar', length: 10 })
   name!: string;
 
-  @Column({ type: 'varchar', length: 20 })
+  @Column({ type: 'varchar', length: 16 })
   nickname!: string;
 
   @Column({ type: 'varchar', length: 15 })
   phoneNumber!: string;
 
-  @Column({ type: 'decimal', precision: 13, scale: 13, nullable: true })
-  latitude?: number;
+  //프로필 사진 추가
+
+  @Column({ type: 'decimal', precision: 13, scale: 13 })
+  latitude: number = 37.23974418506011;
   
-  @Column({ type: 'decimal', precision: 13, scale: 13, nullable: true })
-  longitude?: number;
+  @Column({ type: 'decimal', precision: 13, scale: 13 })
+  longitude: number = 127.08342026545051;
 
   @OneToOne(() => MemberDetail, (memberDetail) => memberDetail.member, {
     cascade: true,

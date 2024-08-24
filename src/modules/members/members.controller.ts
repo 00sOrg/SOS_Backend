@@ -6,7 +6,7 @@ import {
   Get,
   ParseIntPipe,
   Request,
-  Body,
+  Query,
 } from '@nestjs/common';
 import { Member } from './entities';
 import { Favorite } from './entities';
@@ -66,21 +66,15 @@ export class MembersController {
     return this.favoritesService.getFavoritesForMember(memberId);
   }
 
-  // 사용자의 마지막 위치 조회 API
-  @Get('location/last')
-  async getLastLocation(@Request() req): Promise<MemberLocationDto | null> {
-    const memberId = req.user.id; // 현재 로그인된 사용자의 ID
-    return this.locationService.getLastLocation(memberId);
-  }
-
   // 사용자의 위치 업데이트 API
   @Post('location/update')
   async updateLocation(
     @Request() req,
-    @Body() memberLocationDto: MemberLocationDto,
+    @Query('lat') lat: string,
+    @Query('lng') lng: string,
   ): Promise<void> {
     const memberId = req.user.id; // 현재 로그인된 사용자의 ID
-    const { latitude, longitude } = memberLocationDto;
-    await this.locationService.updateLocation(memberId, latitude, longitude);
+
+    await this.locationService.updateLocation(memberId, +lat, +lng);
   }
 }
