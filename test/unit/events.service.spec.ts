@@ -112,8 +112,8 @@ describe('EventService', () => {
       expect(memberRepository.findById).toHaveBeenCalledWith(memberId);
       expect(s3Service.upload).toHaveBeenCalledWith(media);
       expect(naverService.getAddressFromCoordinate).toHaveBeenCalledWith(
-        request.lat,
-        request.lng,
+        request.latitude,
+        request.longitude,
       );
       expect(eventRepository.create).toHaveBeenCalled();
     });

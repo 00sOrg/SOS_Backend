@@ -14,6 +14,10 @@ export class MembersRepository {
     return this.memberRepository.save(member);
   }
 
+  async update(memberId: number, updateData: Partial<Member>): Promise<void> {
+    await this.memberRepository.update(memberId, updateData);
+  }
+
   async findById(memberId: number): Promise<Member | null> {
     return this.memberRepository.findOne({
       where: { id: memberId },
