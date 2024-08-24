@@ -31,4 +31,4 @@ export class Favorite extends DefaultEntity {
   // (내가 보이는) 상대방 닉네임 수정 가능
   @Column({ type: 'varchar', length: 16 })
   nickname!: string;
-} 
+}

@@ -7,7 +7,11 @@ import { ErrorStatus } from 'src/common/api/status/error.status';
 export class LocationService {
   constructor(private readonly membersRepository: MembersRepository) {}
 
-  async updateLocation(memberId: number, lat: number, lng: number): Promise<void> {
+  async updateLocation(
+    memberId: number,
+    lat: number,
+    lng: number,
+  ): Promise<void> {
     if (!lat || !lng || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
       throw new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION);
     }
@@ -18,6 +22,9 @@ export class LocationService {
     }
 
     // 해당 멤버의 위치 정보 업데이트
-    await this.membersRepository.update(memberId, {latitude: lat, longitude: lng });
+    await this.membersRepository.update(memberId, {
+      latitude: lat,
+      longitude: lng,
+    });
   }
 }

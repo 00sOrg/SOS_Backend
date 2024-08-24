@@ -14,7 +14,6 @@ import { AuthGuard } from '@nestjs/passport';
 import { MembersService } from './services/members.service';
 import { FavoritesService } from './services/favorites.service';
 import { LocationService } from './services/location.service';
-import { MemberLocationDto } from './dto/member-location.dto';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('members')
@@ -47,7 +46,10 @@ export class MembersController {
     @Param('requesterId', ParseIntPipe) requestMemberId: number,
   ): Promise<void> {
     const memberId = req.user.id; // 현재 로그인된 사용자의 ID
-    await this.favoritesService.acceptFavoriteRequest(memberId, requestMemberId);
+    await this.favoritesService.acceptFavoriteRequest(
+      memberId,
+      requestMemberId,
+    );
   }
 
   @Post('favorite/reject/:requestMemberId')
@@ -56,7 +58,10 @@ export class MembersController {
     @Param('requesterId', ParseIntPipe) requestMemberId: number,
   ): Promise<void> {
     const memberId = req.user.id; // 현재 로그인된 사용자의 ID
-    await this.favoritesService.rejectFavoriteRequest(memberId, requestMemberId);
+    await this.favoritesService.rejectFavoriteRequest(
+      memberId,
+      requestMemberId,
+    );
   }
 
   // 사용자가 추가한 친구 목록 조회 API
