@@ -19,7 +19,19 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FindNearybyDto } from './dto/find-nearyby-events.dto';
 import { FindNearbyAllDto } from './dto/find-nearby-all.dto';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
+import { ApiSuccessResponse } from '../../common/decorators/decorators.success.response';
+import { ApiFailureResponse } from '../../common/decorators/decoratos.failure.response';
+import { ErrorStatus } from '../../common/api/status/error.status';
 
+@ApiBearerAuth()
+@ApiTags('Events')
 @UseGuards(JwtAuthGuard)
 @Controller('events')
 export class EventsController {
@@ -30,6 +42,32 @@ export class EventsController {
 
   @UseInterceptors(FileInterceptor('media'))
   @Post()
+  @ApiOperation({ summary: 'Create Event' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        ...{
+          title: { type: 'string' },
+          content: { type: 'string' },
+          latitude: { type: 'number' },
+          longitude: { type: 'number' },
+        },
+        media: {
+          type: 'string',
+          format: 'binary',
+          description: 'Media file',
+        },
+      },
+    },
+  })
+  @ApiSuccessResponse()
+  @ApiFailureResponse(
+    ErrorStatus.MEMBER_NOT_FOUND,
+    ErrorStatus.EVENT_CONTENTS_NOT_FOUND,
+    ErrorStatus.S3_UPLOAD_FAILURE,
+  )
   async create(
     @Body() request: CreateEventDto,
     @Request() req,
@@ -40,6 +78,9 @@ export class EventsController {
   }
 
   @Get('nearby')
+  @ApiOperation({ summary: 'Get nearby events' })
+  @ApiSuccessResponse(FindNearybyDto)
+  @ApiFailureResponse(ErrorStatus.INVALID_GEO_LOCATION)
   async findNearyby(
     @Query('lat') lat: string,
     @Query('lng') lng: string,
@@ -49,12 +90,22 @@ export class EventsController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  @ApiOperation({ summary: 'Get event by id' })
+  @ApiSuccessResponse(FindEventDto)
+  @ApiFailureResponse(ErrorStatus.EVENT_NOT_FOUND)
+  async findOne(@Param('id') id: string): Promise<FindEventDto> {
     const event = await this.eventsService.findOne(+id);
     return FindEventDto.of(event);
   }
 
   @Post('comment')
+  @ApiOperation({ summary: 'Write a comment' })
+  @ApiBody({ type: CreateCommentDto })
+  @ApiSuccessResponse()
+  @ApiFailureResponse(
+    ErrorStatus.MEMBER_NOT_FOUND,
+    ErrorStatus.EVENT_CONTENTS_NOT_FOUND,
+  )
   async createComment(
     @Body() request: CreateCommentDto,
     @Request() req,
@@ -64,6 +115,9 @@ export class EventsController {
   }
 
   @Get('/nearby/all')
+  @ApiOperation({ summary: 'Get all the nearby events' })
+  @ApiSuccessResponse(FindNearbyAllDto)
+  @ApiFailureResponse(ErrorStatus.INVALID_GEO_LOCATION)
   async findNearybyAll(
     @Query('lat') lat: string,
     @Query('lng') lng: string,
