@@ -7,16 +7,20 @@ export class MemberDetail extends DefaultEntity {
   @PrimaryColumn({ type: 'bigint' })
   id!: number;
 
-  @OneToOne(() => Member, (member) => member.notification, {
+  @OneToOne(() => Member, (member) => member.memberDetail, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
   member!: Member;
 
-  // 성별 추가
+  @Column({ type: 'varchar', length: 8 })
+  sex!: string;
 
-  @Column({ type: 'varchar', length: 8, nullable: true })
-  birthDate?: string;
+  @Column({ type: 'date' })
+  birthDate!: Date;
+
+  @Column({ type: 'text', nullable: true })
+  profilePicture?: string;
 
   @Column({ type: 'varchar', length: 5, nullable: true })
   height?: number;
@@ -33,7 +37,4 @@ export class MemberDetail extends DefaultEntity {
 
   @Column({ type: 'varchar', length: 250, nullable: true })
   medication?: string;
-
-  @Column({ type: 'varchar', length: 250, nullable: true })
-  allergic?: string;
 }

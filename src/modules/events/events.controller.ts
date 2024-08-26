@@ -29,6 +29,7 @@ import {
 import { ApiSuccessResponse } from '../../common/decorators/decorators.success.response';
 import { ApiFailureResponse } from '../../common/decorators/decoratos.failure.response';
 import { ErrorStatus } from '../../common/api/status/error.status';
+
 @ApiBearerAuth()
 @ApiTags('Events')
 @UseGuards(JwtAuthGuard)

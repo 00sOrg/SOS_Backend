@@ -7,12 +7,12 @@ import { ErrorStatus } from 'src/common/api/status/error.status';
 
 @Injectable()
 export class MembersService {
-  constructor(
-    private readonly membersRepository: MembersRepository,
-  ) {}
+  constructor(private readonly membersRepository: MembersRepository) {}
 
   async create(request: CreateMemberDto): Promise<Member> {
     const member = request.toMember();
+    //member Detail -> builder
+    //member noti -> builder
     return await this.membersRepository.create(member);
   }
 

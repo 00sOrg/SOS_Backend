@@ -1,5 +1,5 @@
 import { MemberDetail } from '../memberDetail.entity';
-import { UserNotification } from '../userNotification.entity';
+import { MemberNotification } from '../memberNotification.entity';
 import { Member } from '../member.entity';
 
 export class MemberBuilder {
@@ -49,8 +49,8 @@ export class MemberBuilder {
     return this;
   }
 
-  notification(notification: UserNotification): this {
-    this._member.notification = notification;
+  memberNotification(memberNotification: MemberNotification): this {
+    this._member.memberNotification = memberNotification;
     return this;
   }
 
