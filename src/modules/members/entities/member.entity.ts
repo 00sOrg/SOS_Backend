@@ -1,6 +1,6 @@
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { DefaultEntity } from '../../../common/default.entity';
-import { MemberDetail, UserNotification } from '.';
+import { MemberDetail, MemberNotification } from '.';
 
 @Entity()
 export class Member extends DefaultEntity {
@@ -22,12 +22,10 @@ export class Member extends DefaultEntity {
   @Column({ type: 'varchar', length: 15 })
   phoneNumber!: string;
 
-  //프로필 사진 추가
-
-  @Column({ type: 'decimal', precision: 13, scale: 13 })
+  @Column({ type: 'decimal', precision: 16, scale: 13 })
   latitude: number = 37.23974418506011;
-  
-  @Column({ type: 'decimal', precision: 13, scale: 13 })
+
+  @Column({ type: 'decimal', precision: 16, scale: 13 })
   longitude: number = 127.08342026545051;
 
   @OneToOne(() => MemberDetail, (memberDetail) => memberDetail.member, {
@@ -35,8 +33,12 @@ export class Member extends DefaultEntity {
   })
   memberDetail?: MemberDetail;
 
-  @OneToOne(() => UserNotification, (notification) => notification.member, {
-    cascade: true,
-  })
-  notification?: UserNotification;
+  @OneToOne(
+    () => MemberNotification,
+    (memberNotification) => memberNotification.member,
+    {
+      cascade: true,
+    },
+  )
+  memberNotification?: MemberNotification;
 }

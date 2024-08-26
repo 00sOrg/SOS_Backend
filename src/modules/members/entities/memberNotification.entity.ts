@@ -9,11 +9,11 @@ import { Member } from '.';
 import { DefaultEntity } from 'src/common/default.entity';
 
 @Entity()
-export class UserNotification extends DefaultEntity {
+export class MemberNotification extends DefaultEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: number;
 
-  @OneToOne(() => Member, (member) => member.notification, {
+  @OneToOne(() => Member, (member) => member.memberNotification, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
@@ -26,7 +26,7 @@ export class UserNotification extends DefaultEntity {
   nearbyNotification: boolean = false;
 
   @Column({ type: 'boolean', default: false })
-  favoriteUserNotification: boolean = false;
+  favoriteMemberNotification: boolean = false;
 
   @Column({ type: 'boolean', default: false })
   nationalDisasterNotification: boolean = false;

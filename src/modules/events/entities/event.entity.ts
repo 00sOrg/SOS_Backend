@@ -29,10 +29,10 @@ export class Event extends DefaultEntity {
   @Column({ type: 'text', nullable: true })
   content?: string;
 
-  @Column({ type: 'decimal', precision: 13, scale: 13 })
+  @Column({ type: 'decimal', precision: 16, scale: 13 })
   latitude!: number;
-  
-  @Column({ type: 'decimal', precision: 13, scale: 13 })
+
+  @Column({ type: 'decimal', precision: 16, scale: 13 })
   longitude!: number;
 
   @Column({ type: 'varchar', length: 25 })

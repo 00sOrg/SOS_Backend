@@ -5,9 +5,12 @@ import {
   MinLength,
   MaxLength,
   IsPhoneNumber,
+  IsDate,
 } from 'class-validator';
 import { Member } from 'src/modules/members/entities';
 import { MemberBuilder } from 'src/modules/members/entities/builder/member.builder';
+import { MemberDetailBuilder } from 'src/modules/members/entities/builder/memberDetail.builder';
+import { MemberNotificationBuilder } from 'src/modules/members/entities/builder/memberNotification.builder';
 
 export class CreateMemberDto {
   @IsEmail({}, { message: '유효한 이메일 주소 형식을 입력해 주세요.' })
@@ -35,13 +38,30 @@ export class CreateMemberDto {
   @IsNotEmpty({ message: '전화번호는 필수 입력 항목입니다.' })
   phoneNumber!: string;
 
+  @IsString({ message: '유요한 성별 형식을 입력해 주세요.' })
+  @IsNotEmpty({ message: '성별 필수 입력 항목입니다.' })
+  sex!: string;
+
+  @IsDate({ message: '유효한 날짜 형식을 입력해 주세요.' })
+  @IsNotEmpty({ message: '생년월일은 필수 입력 항목입니다.' })
+  birthDate!: Date;
+
   toMember(): Member {
+    const memberDetail = new MemberDetailBuilder()
+      .sex(this.sex)
+      .birthDate(this.birthDate)
+      .build();
+
+    const memberNotification = new MemberNotificationBuilder().build();
+
     return new MemberBuilder()
       .email(this.email)
       .password(this.password)
       .name(this.name)
       .nickname(this.nickname)
       .phoneNumber(this.phoneNumber)
+      .memberDetail(memberDetail)
+      .memberNotification(memberNotification)
       .build();
   }
 }

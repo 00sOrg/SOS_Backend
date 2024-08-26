@@ -19,7 +19,6 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FindNearybyDto } from './dto/find-nearyby-events.dto';
 import { FindNearbyAllDto } from './dto/find-nearby-all.dto';
-import { Event } from './entities';
 
 @UseGuards(JwtAuthGuard)
 @Controller('events')
