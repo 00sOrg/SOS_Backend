@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsNumber, MaxLength, IsLatitude, IsLongitude} from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  MaxLength,
+  IsLatitude,
+  IsLongitude,
+} from 'class-validator';
 import { EventBuilder } from '../entities/builder/event.builder';
 import { Event } from '../entities';
 import { EventType } from '../enum/event-type.enum';
@@ -13,7 +19,6 @@ export class CreateEventDto {
     message: '제목은 최대 25자 입니다.',
   })
   title!: string;
-
   content!: string;
 
   @IsNotEmpty({
@@ -43,7 +48,6 @@ export class CreateEventDto {
     message: '유효한 경도를 입력해 주세요.',
   })
   longitude!: number;
-
 
   toEvent(region: Region, member: Member, mediaUrl?: string): Event {
     return new EventBuilder()

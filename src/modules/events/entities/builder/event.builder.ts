@@ -2,7 +2,7 @@ import { Event } from '../event.entity';
 import { Member } from '../../../members/entities';
 
 export class EventBuilder {
-  private _event: Event;
+  _event: Event;
 
   constructor() {
     this._event = new Event();

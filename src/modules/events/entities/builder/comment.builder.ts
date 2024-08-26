@@ -3,7 +3,7 @@ import { Comment } from '../comment.entity';
 import { Event } from '../event.entity';
 
 export class CommentBuilder {
-  private _comment: Comment;
+  _comment: Comment;
 
   constructor() {
     this._comment = new Comment();
