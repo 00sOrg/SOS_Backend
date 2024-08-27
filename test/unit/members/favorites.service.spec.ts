@@ -20,6 +20,7 @@ describe('FavoritesService', () => {
           useValue: {
             findByNickname: jest.fn(),
             findById: jest.fn(),
+            findByIds: jest.fn(),
           },
         },
         {
@@ -181,19 +182,86 @@ describe('FavoritesService', () => {
   });
 
   describe('getFavoritesForMember', () => {
-    it('should return the list of favorites for a member', async () => {
-      const favorites: Favorite[] = [{}, {}] as Favorite[];
+    it('should return an empty list if no favorites are found', async () => {
+      jest
+        .spyOn(favoritesRepository, 'findAllFavoritesForMember')
+        .mockResolvedValue([]);
+
+      const result = await favoritesService.getFavoritesForMember(1);
+
+      expect(result).toEqual([]);
+      expect(
+        favoritesRepository.findAllFavoritesForMember,
+      ).toHaveBeenCalledWith(1);
+    });
+
+    it('should return an empty list if no valid members are found', async () => {
+      const favorites: Favorite[] = [
+        {
+          favoritedMember: { id: 2 } as Member,
+        } as Favorite,
+      ];
 
       jest
         .spyOn(favoritesRepository, 'findAllFavoritesForMember')
         .mockResolvedValue(favorites);
+      jest.spyOn(membersRepository, 'findByIds').mockResolvedValue([]);
 
       const result = await favoritesService.getFavoritesForMember(1);
 
-      expect(result).toBe(favorites);
+      expect(result).toEqual([]);
       expect(
         favoritesRepository.findAllFavoritesForMember,
       ).toHaveBeenCalledWith(1);
+      expect(membersRepository.findByIds).toHaveBeenCalledWith([2]);
+    });
+
+    it('should filter out favorites with members who are no longer valid', async () => {
+      const favorites: Favorite[] = [
+        { favoritedMember: { id: 2 } as Member } as Favorite,
+        { favoritedMember: { id: 3 } as Member } as Favorite,
+      ];
+
+      const validMembers: Member[] = [{ id: 2 } as Member];
+
+      jest
+        .spyOn(favoritesRepository, 'findAllFavoritesForMember')
+        .mockResolvedValue(favorites);
+      jest
+        .spyOn(membersRepository, 'findByIds')
+        .mockResolvedValue(validMembers);
+
+      const result = await favoritesService.getFavoritesForMember(1);
+
+      expect(result).toEqual([favorites[0]]);
+      expect(
+        favoritesRepository.findAllFavoritesForMember,
+      ).toHaveBeenCalledWith(1);
+      expect(membersRepository.findByIds).toHaveBeenCalledWith([2, 3]);
+    });
+
+    it('should return the list of valid favorites', async () => {
+      const favorites: Favorite[] = [
+        { favoritedMember: { id: 2 } as Member } as Favorite,
+        { favoritedMember: { id: 3 } as Member } as Favorite,
+      ];
+
+      const validMembers: Member[] = [{ id: 2 } as Member, { id: 3 } as Member];
+
+      jest
+        .spyOn(favoritesRepository, 'findAllFavoritesForMember')
+        .mockResolvedValue(favorites);
+      jest
+        .spyOn(membersRepository, 'findByIds')
+        .mockResolvedValue(validMembers);
+
+      const result = await favoritesService.getFavoritesForMember(1);
+
+      expect(result).toEqual(favorites);
+      expect(
+        favoritesRepository.findAllFavoritesForMember,
+      ).toHaveBeenCalledWith(1);
+      expect(membersRepository.findByIds).toHaveBeenCalledWith([2, 3]);
     });
   });
 });

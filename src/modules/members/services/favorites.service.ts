@@ -11,6 +11,7 @@ export class FavoritesService {
     private readonly membersRepository: MembersRepository,
     private readonly favoritesRepository: FavoritesRepository,
   ) {}
+
   // 관심 사용자 요청 생성
   async addFavorite(memberId: number, nickname: string): Promise<void> {
     // 추가하려는 사용자가 있는지
@@ -84,8 +85,39 @@ export class FavoritesService {
     await this.favoritesRepository.removeFavorite(favorite);
   }
 
-  // 관심 사용자 조회
+  // 관심 사용자 조회 (관심 사용자 등록하면 나한테만 사용자가 뜨고, 관심 사용자에겐 내가 안뜬다.)
   async getFavoritesForMember(memberId: number): Promise<Favorite[]> {
-    return this.favoritesRepository.findAllFavoritesForMember(memberId);
+    // 1. 관심 사용자 리스트 가져오기
+    const favoritedMembers =
+      await this.favoritesRepository.findAllFavoritesForMember(memberId);
+
+    if (!favoritedMembers || favoritedMembers.length === 0) {
+      return [];
+    }
+
+    // 2. 관심 사용자들의 ID 추출
+    const favoritedMemberIds = favoritedMembers.map(
+      (favorite) => favorite.favoritedMember.id,
+    );
+
+    // 3. 회원 탈퇴 여부를 확인하기 위해 한 번에 조회 (TODO: 회원 탈퇴)
+    const validMembers =
+      await this.membersRepository.findByIds(favoritedMemberIds);
+
+    // 4. 유효한 회원이 없으면 빈 배열 반환
+    if (!validMembers || validMembers.length === 0) {
+      return [];
+    }
+
+    // 5. 유효한 회원 ID 리스트를 추출
+    const validMemberIds = new Set(validMembers.map((member) => member.id));
+
+    // 6. 유효한 관심 사용자만 필터링
+    const validFavorites = favoritedMembers.filter((favorite) =>
+      validMemberIds.has(favorite.favoritedMember.id),
+    );
+
+    // 7. 유효한 관심 사용자 리스트 반환
+    return validFavorites;
   }
 }

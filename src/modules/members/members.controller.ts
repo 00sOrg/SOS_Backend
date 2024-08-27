@@ -8,16 +8,17 @@ import {
   Request,
   Query,
 } from '@nestjs/common';
-import { Favorite, Member } from './entities';
+import { Member } from './entities';
 import { AuthGuard } from '@nestjs/passport';
 import { MembersService } from './services/members.service';
 import { FavoritesService } from './services/favorites.service';
 import { LocationService } from './services/location.service';
-
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiSuccessResponse } from '../../common/decorators/decorators.success.response';
 import { ApiFailureResponse } from '../../common/decorators/decoratos.failure.response';
 import { ErrorStatus } from '../../common/api/status/error.status';
+import { FindFavoriteListDto } from './dto/find-favorite-list.dto';
+
 @ApiTags('Members')
 @UseGuards(AuthGuard('jwt'))
 @Controller('members')
@@ -92,12 +93,14 @@ export class MembersController {
 
   // 사용자가 추가한 친구 목록 조회 API
   @Get('favorites')
-  // @ApiOperation({ summary: 'Get all the friends' })
-  // @ApiSuccessResponse(FindFavoriteListDto)
-  // @ApiFailureResponse(ErrorStatus.INTERNAL_SERVER_ERROR)
-  async getFavorites(@Request() req): Promise<Favorite[]> {
+  @ApiOperation({ summary: 'Get all the friends' })
+  @ApiSuccessResponse(FindFavoriteListDto)
+  @ApiFailureResponse(ErrorStatus.INTERNAL_SERVER_ERROR)
+  async getFavorites(@Request() req): Promise<FindFavoriteListDto> {
     const memberId = req.user.id; // 현재 로그인된 사용자의 ID
-    return await this.favoritesService.getFavoritesForMember(memberId);
+    const favoriteMembers =
+      await this.favoritesService.getFavoritesForMember(memberId);
+    return FindFavoriteListDto.of(favoriteMembers);
   }
 
   // 사용자의 위치 업데이트 API

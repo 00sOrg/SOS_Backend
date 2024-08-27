@@ -5,6 +5,7 @@ import {
   Post,
   Query,
   Request,
+  UploadedFile,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -15,6 +16,7 @@ import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiSuccessResponse } from '../../common/decorators/decorators.success.response';
 import { ApiFailureResponse } from '../../common/decorators/decoratos.failure.response';
 import { ErrorStatus } from '../../common/api/status/error.status';
+
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -50,8 +52,11 @@ export class AuthController {
     ErrorStatus.EMAIL_ALREADY_TAKEN,
     ErrorStatus.NICKNAME_ALREADY_TAKEN,
   )
-  async register(@Body() createMemberDto: CreateMemberDto): Promise<Member> {
-    return this.authService.register(createMemberDto);
+  async register(
+    @Body() request: CreateMemberDto,
+    @UploadedFile() media: Express.Multer.File,
+  ): Promise<void> {
+    await this.authService.register(request, media);
   }
 
   @ApiOperation({ summary: 'Check email' })

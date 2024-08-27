@@ -7,6 +7,7 @@ import { CreateMemberDto } from './dto/create-member.dto';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
 import { MembersRepository } from '../members/repository/members.repository';
+import { S3Service } from 'src/external/s3/s3.service';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +15,7 @@ export class AuthService {
     private readonly membersService: MembersService,
     private readonly membersRepository: MembersRepository,
     private readonly jwtService: JwtService,
+    private readonly s3Service: S3Service,
   ) {}
 
   async validateMember(email: string, password: string): Promise<Member> {
@@ -49,18 +51,23 @@ export class AuthService {
   }
 
   // 프론트에서 API로 중복확인 + 회원가입에서 중복확인 (동시에 중복되는 요소로 회원가입하는 경우 방지)
-  async register(createMemberDto: CreateMemberDto): Promise<Member> {
+  async register(
+    request: CreateMemberDto,
+    media?: Express.Multer.File,
+  ): Promise<void> {
     // 이메일 중복 확인
-    await this.checkEmail(createMemberDto.email);
+    await this.checkEmail(request.email);
 
     // 닉네임 중복 확인
-    await this.checkNickName(createMemberDto.nickname);
+    await this.checkNickName(request.nickname);
+
+    //프로필 사진 있으면 업로드
+    const url = media ? await this.s3Service.upload(media) : undefined;
 
     // 비밀번호 해시화
-    // 해시된 비밀번호를 CreateMemberDto에 설정
-    createMemberDto.password = await bcrypt.hash(createMemberDto.password, 10);
+    request.password = await bcrypt.hash(request.password, 10);
 
-    // CreateMemberDto를 그대로 create 메서드에 전달
-    return this.membersService.create(createMemberDto);
+    const member = request.toMember(url);
+    await this.membersService.create(member);
   }
 }

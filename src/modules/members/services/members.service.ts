@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { MembersRepository } from '../repository/members.repository';
-import { CreateMemberDto } from '../../auth/dto/create-member.dto';
 import { Member } from '../entities';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
@@ -9,11 +8,8 @@ import { ErrorStatus } from 'src/common/api/status/error.status';
 export class MembersService {
   constructor(private readonly membersRepository: MembersRepository) {}
 
-  async create(request: CreateMemberDto): Promise<Member> {
-    const member = request.toMember();
-    //member Detail -> builder
-    //member noti -> builder
-    return await this.membersRepository.create(member);
+  async create(member: Member): Promise<Member> {
+    return await this.membersRepository.save(member);
   }
 
   async findByEmail(email: string): Promise<Member> {

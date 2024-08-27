@@ -7,10 +7,12 @@ import { MembersModule } from '../members/members.module';
 import { LocalStrategy } from './strategies/local.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ExternalModule } from 'src/external/external.module';
 
 @Module({
   imports: [
     MembersModule,
+    ExternalModule,
     PassportModule.register({ defaultStrategy: 'jwt' }), // 기본 전략을 JWT로 설정
     JwtModule.registerAsync({
       imports: [ConfigModule],
