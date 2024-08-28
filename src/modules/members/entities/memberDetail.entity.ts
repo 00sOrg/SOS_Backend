@@ -1,10 +1,16 @@
-import { PrimaryColumn, Column, Entity, OneToOne, JoinColumn } from 'typeorm';
+import {
+  PrimaryGeneratedColumn,
+  Column,
+  Entity,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Member } from '.';
 import { DefaultEntity } from 'src/common/default.entity';
 
 @Entity()
 export class MemberDetail extends DefaultEntity {
-  @PrimaryColumn({ type: 'bigint' })
+  @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: number;
 
   @OneToOne(() => Member, (member) => member.memberDetail, {

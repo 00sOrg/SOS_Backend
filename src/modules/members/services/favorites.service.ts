@@ -27,7 +27,7 @@ export class FavoritesService {
       favoritedMember.id,
     );
 
-    // 이미 친구 관계이거나 요청이 존재하는 경우 처리
+    // 이미 관심사용자 관계이거나 요청이 존재하는 경우 처리
     if (existingFavorite) {
       if (existingFavorite.isAccepted) {
         throw new ExceptionHandler(ErrorStatus.FAVORITE_ALREADY_EXISTS);
