@@ -15,11 +15,12 @@ export class EventsRepository {
   }
 
   async findById(eventId: number): Promise<Event | null> {
-    return this.eventRepository.findOne({
-      where: {
-        id: eventId,
-      },
-    });
+    return this.eventRepository
+      .createQueryBuilder('event')
+      .leftJoinAndSelect('event.comments', 'comment')
+      .leftJoinAndSelect('comment.member', 'member')
+      .where('event.id=:eventId', { eventId })
+      .getOne();
   }
 
   async findNearby(

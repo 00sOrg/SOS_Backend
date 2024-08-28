@@ -4,9 +4,11 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Member } from '../../members/entities';
 import { DefaultEntity } from '../../../common/default.entity';
+import { Comment } from './comment.entity';
 
 @Entity()
 export class Event extends DefaultEntity {
@@ -52,4 +54,7 @@ export class Event extends DefaultEntity {
 
   @Column({ type: 'int', default: 0 })
   commentsCount: number = 0;
+
+  @OneToMany(() => Comment, (comment) => comment.event, { onDelete: 'CASCADE' })
+  comments?: Comment[];
 }
