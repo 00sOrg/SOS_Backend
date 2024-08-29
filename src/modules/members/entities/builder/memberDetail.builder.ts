@@ -22,7 +22,7 @@ export class MemberDetailBuilder {
     return this;
   }
 
-  profilePicture(profilePicture: string): this {
+  profilePicture(profilePicture?: string): this {
     this._memberDetail.profilePicture = profilePicture;
     return this;
   }

@@ -54,10 +54,11 @@ export class CreateMemberDto {
   @ApiProperty()
   birthDate!: Date;
 
-  toMember(): Member {
+  toMember(mediaUrl?: string): Member {
     const memberDetail = new MemberDetailBuilder()
       .sex(this.sex)
       .birthDate(this.birthDate)
+      .profilePicture(mediaUrl)
       .build();
 
     const memberNotification = new MemberNotificationBuilder().build();

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, Repository, In } from 'typeorm';
 import { Member } from '../entities/member.entity';
 
 @Injectable()
@@ -10,7 +10,7 @@ export class MembersRepository {
     this.memberRepository = this.dataSource.getRepository(Member);
   }
 
-  async create(member: Member): Promise<Member> {
+  async save(member: Member): Promise<Member> {
     return this.memberRepository.save(member);
   }
 
@@ -24,15 +24,23 @@ export class MembersRepository {
     });
   }
 
+  async findByIds(ids: number[]): Promise<Member[] | undefined> {
+    return this.memberRepository.find({
+      where: {
+        id: In(ids),
+      },
+    });
+  }
+
   async findByEmail(email: string): Promise<Member | null> {
     return this.memberRepository.findOne({
-      where: { email },
+      where: { email: email },
     });
   }
 
   async findByNickname(nickname: string): Promise<Member | null> {
     return this.memberRepository.findOne({
-      where: { nickname },
+      where: { nickname: nickname },
     });
   }
 }

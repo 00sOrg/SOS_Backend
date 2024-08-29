@@ -5,16 +5,20 @@ import {
   Post,
   Query,
   Request,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateMemberDto } from './dto/create-member.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { Member } from '../members/entities';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiSuccessResponse } from '../../common/decorators/decorators.success.response';
 import { ApiFailureResponse } from '../../common/decorators/decoratos.failure.response';
 import { ErrorStatus } from '../../common/api/status/error.status';
+import { FileInterceptor } from '@nestjs/platform-express';
+
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
@@ -42,16 +46,52 @@ export class AuthController {
     return await this.authService.login(req);
   }
 
+  @UseInterceptors(FileInterceptor('media'))
   @Post('register')
   @ApiOperation({ summary: 'Register' })
-  @ApiBody({ type: CreateMemberDto })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        email: {
+          type: 'string',
+          format: 'email',
+          description: 'Email address',
+        },
+        password: {
+          type: 'string',
+          format: 'password',
+          description: 'Password',
+        },
+        name: { type: 'string', description: 'Name' },
+        nickname: { type: 'string', description: 'Nickname' },
+        phoneNumber: { type: 'string', description: 'Phone number' },
+        sex: { type: 'string', description: 'Sex' },
+        birthDate: {
+          type: 'string',
+          format: 'date',
+          description: 'Birth date',
+        },
+        media: {
+          type: 'string',
+          format: 'binary',
+          description: 'Profile picture',
+        },
+      },
+    },
+  })
   @ApiSuccessResponse()
   @ApiFailureResponse(
     ErrorStatus.EMAIL_ALREADY_TAKEN,
     ErrorStatus.NICKNAME_ALREADY_TAKEN,
+    ErrorStatus.S3_UPLOAD_FAILURE,
   )
-  async register(@Body() createMemberDto: CreateMemberDto): Promise<Member> {
-    return this.authService.register(createMemberDto);
+  async register(
+    @Body() request: CreateMemberDto,
+    @UploadedFile() media: Express.Multer.File,
+  ): Promise<void> {
+    await this.authService.register(request, media);
   }
 
   @ApiOperation({ summary: 'Check email' })

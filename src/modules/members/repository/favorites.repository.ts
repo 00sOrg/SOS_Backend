@@ -43,6 +43,8 @@ export class FavoritesRepository {
   async findAllFavoritesForMember(memberId: number): Promise<Favorite[]> {
     return this.favoriteRepository.find({
       where: [{ member: { id: memberId }, isAccepted: true }],
+      relations: ['favoritedMember'],
+      order: { createdAt: 'DESC' }, // 최근 추가된 순으로 정렬
     });
   }
 }

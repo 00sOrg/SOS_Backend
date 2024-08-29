@@ -11,9 +11,9 @@ export class FavoritesService {
     private readonly membersRepository: MembersRepository,
     private readonly favoritesRepository: FavoritesRepository,
   ) {}
+
   // 관심 사용자 요청 생성
   async addFavorite(memberId: number, nickname: string): Promise<void> {
-    // 추가하려는 사용자가 있는지
     const favoritedMember =
       await this.membersRepository.findByNickname(nickname);
 
@@ -26,7 +26,7 @@ export class FavoritesService {
       favoritedMember.id,
     );
 
-    // 이미 친구 관계이거나 요청이 존재하는 경우 처리
+    // 이미 관심사용자 관계이거나 요청이 존재하는 경우 처리
     if (existingFavorite) {
       if (existingFavorite.isAccepted) {
         throw new ExceptionHandler(ErrorStatus.FAVORITE_ALREADY_EXISTS);
@@ -39,11 +39,12 @@ export class FavoritesService {
     if (!member) {
       throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
     }
-    const favorite = new Favorite();
-    favorite.member = member;
-    favorite.favoritedMember = favoritedMember;
+    const newFavorite = new Favorite();
+    newFavorite.member = member;
+    newFavorite.favoritedMember = favoritedMember;
+    newFavorite.nickname = favoritedMember.nickname;
 
-    await this.favoritesRepository.saveFavorite(favorite);
+    await this.favoritesRepository.saveFavorite(newFavorite);
   }
 
   // 관심 사용자 요청 수락 (여기서 memberId는 요청을 받은 사람의 Id)
@@ -84,8 +85,11 @@ export class FavoritesService {
     await this.favoritesRepository.removeFavorite(favorite);
   }
 
-  // 관심 사용자 조회
+  // 관심 사용자 조회 (관심 사용자 등록하면 나한테만 사용자가 뜨고, 관심 사용자에겐 내가 안뜬다.)
   async getFavoritesForMember(memberId: number): Promise<Favorite[]> {
-    return this.favoritesRepository.findAllFavoritesForMember(memberId);
+    const favoriteMembers =
+      await this.favoritesRepository.findAllFavoritesForMember(memberId);
+
+    return favoriteMembers;
   }
 }

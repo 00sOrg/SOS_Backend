@@ -11,12 +11,15 @@ import { ErrorStatus } from 'src/common/api/status/error.status';
 import { ConfigModule } from '@nestjs/config';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { S3Service } from 'src/external/s3/s3.service';
 
 describe('AuthService', () => {
   let authService: AuthService;
   let membersService: MembersService;
   let membersRepository: MembersRepository;
   let jwtService: JwtService;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let s3Service: S3Service;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -44,6 +47,12 @@ describe('AuthService', () => {
           },
         },
         {
+          provide: S3Service, // S3Service를 모킹된 객체로 제공
+          useValue: {
+            upload: jest.fn(),
+          },
+        },
+        {
           provide: getRepositoryToken(Member),
           useClass: Repository,
         },
@@ -54,6 +63,7 @@ describe('AuthService', () => {
     membersService = module.get<MembersService>(MembersService);
     membersRepository = module.get<MembersRepository>(MembersRepository);
     jwtService = module.get<JwtService>(JwtService);
+    s3Service = module.get<S3Service>(S3Service); // S3Service를 가져옴
   });
 
   it('should be defined', () => {
@@ -166,6 +176,8 @@ describe('AuthService', () => {
         name: 'Test',
         nickname: 'Tester',
         phoneNumber: '01012345678',
+        sex: 'M',
+        birthDate: new Date('1990-01-01'),
       });
 
       // Mock the hashed password value
@@ -181,10 +193,9 @@ describe('AuthService', () => {
       // Mock the membersService.create to return the member
       jest.spyOn(membersService, 'create').mockResolvedValueOnce(member);
 
-      const result = await authService.register(createMemberDto);
+      await authService.register(createMemberDto);
 
-      // Validate the result and expectations
-      expect(result).toEqual(member);
+      // Validate the expectations
       expect(membersService.create).toHaveBeenCalledWith(
         expect.objectContaining({
           email: 'test@example.com',
@@ -192,6 +203,54 @@ describe('AuthService', () => {
           name: 'Test',
           nickname: 'Tester',
           phoneNumber: '01012345678',
+          memberDetail: expect.objectContaining({
+            sex: 'M',
+            birthDate: new Date('1990-01-01'),
+          }),
+        }),
+      );
+    });
+
+    it('should handle profile picture upload if provided', async () => {
+      const createMemberDto = Object.assign(new CreateMemberDto(), {
+        email: 'test@example.com',
+        password: 'test1234',
+        name: 'Test',
+        nickname: 'Tester',
+        phoneNumber: '01012345678',
+        sex: 'M',
+        birthDate: new Date('1990-01-01'),
+      });
+
+      const hashedPassword =
+        '$2a$10$CwTycUXWue0Thq9StjUM0uJ8bNHVrEsSnj/Jg6c4pN4/Yk8rje3aK';
+
+      jest.spyOn(bcrypt, 'hash').mockImplementation(async () => hashedPassword);
+
+      const mockUrl = 'https://mock.url/profile-picture.jpg';
+      const mockFile = { originalname: 'profile.jpg' } as Express.Multer.File;
+
+      const member = createMemberDto.toMember(mockUrl);
+      member.password = hashedPassword;
+
+      jest.spyOn(membersService, 'create').mockResolvedValueOnce(member);
+      jest.spyOn(authService['s3Service'], 'upload').mockResolvedValue(mockUrl);
+
+      await authService.register(createMemberDto, mockFile);
+
+      expect(authService['s3Service'].upload).toHaveBeenCalledWith(mockFile);
+      expect(membersService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          email: 'test@example.com',
+          password: hashedPassword,
+          name: 'Test',
+          nickname: 'Tester',
+          phoneNumber: '01012345678',
+          memberDetail: expect.objectContaining({
+            sex: 'M',
+            birthDate: new Date('1990-01-01'),
+            profilePicture: mockUrl,
+          }),
         }),
       );
     });

@@ -10,6 +10,7 @@ import { CreateMemberDto } from 'src/modules/auth/dto/create-member.dto';
 describe('MembersService', () => {
   let service: MembersService;
   let membersRepository: MembersRepository;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let favoritesRepository: FavoritesRepository;
 
   beforeEach(async () => {
@@ -19,7 +20,7 @@ describe('MembersService', () => {
         {
           provide: MembersRepository,
           useValue: {
-            create: jest.fn(),
+            save: jest.fn(),
             findByEmail: jest.fn(),
             findByNickname: jest.fn(),
             findById: jest.fn(),
@@ -55,19 +56,31 @@ describe('MembersService', () => {
         name: 'Test',
         nickname: 'Tester',
         phoneNumber: '01012345678',
+        sex: 'M',
+        birthDate: new Date('1990-01-01'),
         toMember: function (): Member {
-          return {} as Member; // Simplified for the test case
+          return {
+            email: this.email,
+            password: this.password,
+            name: this.name,
+            nickname: this.nickname,
+            phoneNumber: this.phoneNumber,
+            memberDetail: {
+              sex: this.sex,
+              birthDate: this.birthDate,
+            },
+          } as Member;
         },
       };
 
       const member: Member = createMemberDto.toMember();
 
-      jest.spyOn(membersRepository, 'create').mockResolvedValue(member);
+      jest.spyOn(membersRepository, 'save').mockResolvedValue(member);
 
-      const result = await service.create(createMemberDto);
+      const result = await service.create(member);
 
       expect(result).toBe(member);
-      expect(membersRepository.create).toHaveBeenCalledWith(member);
+      expect(membersRepository.save).toHaveBeenCalledWith(member);
     });
   });
 
@@ -79,15 +92,17 @@ describe('MembersService', () => {
       const result = await service.findByEmail('test@example.com');
 
       expect(result).toBe(member);
-      expect(membersRepository.findByEmail).toHaveBeenCalledWith('test@example.com');
+      expect(membersRepository.findByEmail).toHaveBeenCalledWith(
+        'test@example.com',
+      );
     });
 
     it('should throw an exception when email does not exist', async () => {
       jest.spyOn(membersRepository, 'findByEmail').mockResolvedValue(null);
 
-      await expect(service.findByEmail('nonexistent@example.com')).rejects.toThrow(
-        new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND),
-      );
+      await expect(
+        service.findByEmail('nonexistent@example.com'),
+      ).rejects.toThrow(new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
     });
   });
 
