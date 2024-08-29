@@ -105,7 +105,6 @@ describe('EventService', () => {
       jest
         .spyOn(naverService, 'getAddressFromCoordinate')
         .mockResolvedValue(region);
-      // jest.spyOn(s3Service, 'upload').mockResolvedValue(null);
 
       await eventService.create(request, memberId, media);
 
