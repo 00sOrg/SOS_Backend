@@ -8,7 +8,6 @@ import {
   Request,
   Query,
 } from '@nestjs/common';
-import { Member } from './entities';
 import { AuthGuard } from '@nestjs/passport';
 import { MembersService } from './services/members.service';
 import { FavoritesService } from './services/favorites.service';
@@ -29,11 +28,6 @@ export class MembersController {
     private readonly favoritesService: FavoritesService,
     private readonly locationService: LocationService,
   ) {}
-
-  @Get(':email')
-  async findOneByEmail(@Param('email') email: string): Promise<Member> {
-    return this.membersService.findByEmail(email);
-  }
 
   // 친구 추가 요청 API
   @Post('favorite/:nickname')

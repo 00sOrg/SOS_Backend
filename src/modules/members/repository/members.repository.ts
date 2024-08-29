@@ -34,13 +34,13 @@ export class MembersRepository {
 
   async findByEmail(email: string): Promise<Member | null> {
     return this.memberRepository.findOne({
-      where: { email },
+      where: { email: email },
     });
   }
 
   async findByNickname(nickname: string): Promise<Member | null> {
     return this.memberRepository.findOne({
-      where: { nickname },
+      where: { nickname: nickname },
     });
   }
 }

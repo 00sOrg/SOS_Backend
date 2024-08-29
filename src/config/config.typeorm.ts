@@ -39,7 +39,7 @@ export async function createDatabase() {
   });
 
   await connection.query(
-    `CREATE DATABASE IF NOT EXISTS \`${process.env.DB_DATABASE || 'sos_database'}\`;`,
+    `CREATE DATABASE IF NOT EXISTS \`${process.env.DB_NAME || 'sos_database'}\`;`,
   );
   await connection.end();
 }
