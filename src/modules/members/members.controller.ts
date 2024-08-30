@@ -43,7 +43,7 @@ export class MembersController {
 
   // <Members Service 메서드 호출 API>
   @UseInterceptors(FileInterceptor('media'))
-  @Post('update')
+  @Patch('update')
   @ApiOperation({ summary: 'Update Member' })
   @ApiConsumes('multipart/form-data')
   @ApiSuccessResponse()

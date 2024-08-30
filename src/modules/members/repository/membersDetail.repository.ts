@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
-import { Member, MemberDetail } from '../entities';
+import { MemberDetail } from '../entities';
 
 @Injectable()
 export class MembersDetailRepository {
@@ -18,22 +18,9 @@ export class MembersDetailRepository {
     memberId: number,
     updateData: Partial<MemberDetail>,
   ): Promise<void> {
-    // 현재 memberId에 해당하는 MemberDetail이 있는지 확인
-    const memberDetail = await this.memberDetailRepository.findOne({
-      where: { member: { id: memberId } },
-    });
-
-    if (memberDetail) {
-      await this.memberDetailRepository.update(
-        { member: { id: memberId } },
-        updateData,
-      );
-    } else {
-      const newMemberDetail = this.memberDetailRepository.create({
-        ...updateData,
-        member: { id: memberId } as Member,
-      });
-      await this.memberDetailRepository.save(newMemberDetail);
-    }
+    await this.memberDetailRepository.update(
+      { member: { id: memberId } },
+      updateData,
+    );
   }
 }
