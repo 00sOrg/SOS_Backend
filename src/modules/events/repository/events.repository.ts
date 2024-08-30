@@ -54,4 +54,14 @@ export class EventsRepository {
       .addOrderBy('event.likesCount', 'DESC')
       .getMany();
   }
+
+  async findEventsOrderByLikes(): Promise<Event[]> {
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    return this.eventRepository
+      .createQueryBuilder('event')
+      .where('event.createdAt > :yesterday', { yesterday })
+      .addOrderBy('event.likesCount', 'DESC')
+      .getMany();
+  }
 }

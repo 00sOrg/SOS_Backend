@@ -9,6 +9,7 @@ import { NaverService } from 'src/external/naver/naver.service';
 import { S3Service } from 'src/external/s3/s3.service';
 import { Region } from '../../../external/naver/dto/region.dto';
 import { FindNearbyAllDto } from '../dto/find-nearby-all.dto';
+import { GetFeedsDto } from '../dto/get-feeds.dto';
 
 @Injectable()
 export class EventsService {
@@ -79,5 +80,10 @@ export class EventsService {
     );
     const events: Event[] = await this.eventsRepository.findNearbyAll(region);
     return FindNearbyAllDto.of(events, region);
+  }
+
+  async getFeeds(): Promise<GetFeedsDto[]> {
+    const events = await this.eventsRepository.findEventsOrderByLikes();
+    return GetFeedsDto.of(events);
   }
 }
