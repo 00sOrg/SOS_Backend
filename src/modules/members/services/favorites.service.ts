@@ -65,7 +65,11 @@ export class FavoritesService {
 
     favorite.isAccepted = true;
 
-    await this.favoritesRepository.updateFavorite(requestMemberId, favorite);
+    await this.favoritesRepository.updateFavorite(
+      requestMemberId,
+      memberId,
+      favorite,
+    );
   }
 
   // 관심 사용자 요청 거절
@@ -91,5 +95,29 @@ export class FavoritesService {
       await this.favoritesRepository.findAllFavoritesForMember(memberId);
 
     return favoriteMembers;
+  }
+
+  // 관심 사용자 (닉네임) 수정
+  async updateFavorite(
+    memberId: number,
+    favoritedMemberId: number,
+    nickname: string,
+  ): Promise<void> {
+    const favorite = await this.favoritesRepository.findFavorite(
+      memberId,
+      favoritedMemberId,
+    );
+
+    if (!favorite) {
+      throw new ExceptionHandler(ErrorStatus.FAVORITE_NOT_FOUND);
+    }
+
+    favorite.nickname = nickname;
+
+    await this.favoritesRepository.updateFavorite(
+      memberId,
+      favoritedMemberId,
+      favorite,
+    );
   }
 }

@@ -112,45 +112,79 @@ describe('FavoritesService', () => {
   });
 
   describe('acceptFavoriteRequest', () => {
-    it('should accept a favorite request if it exists and is not already accepted', async () => {
-      const favorite: Favorite = { isAccepted: false } as Favorite;
+    it('should accept the favorite request if it exists and is not already accepted', async () => {
+      const memberId = 1;
+      const requestMemberId = 2;
+      const existingFavorite: Favorite = {
+        id: 1,
+        member: { id: memberId } as Member,
+        favoritedMember: { id: requestMemberId } as Member,
+        isAccepted: false,
+      } as Favorite;
 
       jest
         .spyOn(favoritesRepository, 'findFavorite')
-        .mockResolvedValue(favorite);
-      jest.spyOn(favoritesRepository, 'updateFavorite').mockResolvedValue();
+        .mockResolvedValue(existingFavorite);
+      jest
+        .spyOn(favoritesRepository, 'updateFavorite')
+        .mockResolvedValue(undefined);
 
-      await favoritesService.acceptFavoriteRequest(1, 2);
+      await favoritesService.acceptFavoriteRequest(memberId, requestMemberId);
 
-      expect(favoritesRepository.findFavorite).toHaveBeenCalledWith(2, 1);
-      expect(favorite.isAccepted).toBe(true);
+      expect(favoritesRepository.findFavorite).toHaveBeenCalledWith(
+        requestMemberId,
+        memberId,
+      );
       expect(favoritesRepository.updateFavorite).toHaveBeenCalledWith(
-        2,
-        favorite,
+        requestMemberId,
+        memberId,
+        expect.objectContaining({
+          isAccepted: true,
+        }),
       );
     });
 
     it('should throw an error if the favorite request is not found', async () => {
+      const memberId = 1;
+      const requestMemberId = 2;
+
       jest.spyOn(favoritesRepository, 'findFavorite').mockResolvedValue(null);
 
       await expect(
-        favoritesService.acceptFavoriteRequest(1, 2),
+        favoritesService.acceptFavoriteRequest(memberId, requestMemberId),
       ).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.FAVORITE_REQUEST_NOT_FOUND),
+      );
+
+      expect(favoritesRepository.findFavorite).toHaveBeenCalledWith(
+        requestMemberId,
+        memberId,
       );
     });
 
     it('should throw an error if the favorite request is already accepted', async () => {
-      const favorite: Favorite = { isAccepted: true } as Favorite;
+      const memberId = 1;
+      const requestMemberId = 2;
+      const existingFavorite: Favorite = {
+        id: 1,
+        member: { id: memberId } as Member,
+        favoritedMember: { id: requestMemberId } as Member,
+        isAccepted: true,
+      } as Favorite;
 
       jest
         .spyOn(favoritesRepository, 'findFavorite')
-        .mockResolvedValue(favorite);
+        .mockResolvedValue(existingFavorite);
 
       await expect(
-        favoritesService.acceptFavoriteRequest(1, 2),
+        favoritesService.acceptFavoriteRequest(memberId, requestMemberId),
       ).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.FAVORITE_ALREADY_EXISTS),
+      );
+
+      expect(favoritesRepository.findFavorite).toHaveBeenCalledWith(
+        requestMemberId,
+        memberId,
       );
     });
   });
@@ -243,6 +277,66 @@ describe('FavoritesService', () => {
       expect(
         favoritesRepository.findAllFavoritesForMember,
       ).toHaveBeenCalledWith(1);
+    });
+  });
+
+  describe('updateFavorite', () => {
+    it('should update the favorite nickname if the favorite exists', async () => {
+      const memberId = 1;
+      const favoritedMemberId = 2;
+      const newNickname = 'NewNickname';
+      const existingFavorite: Favorite = {
+        id: 1,
+        member: { id: memberId } as Member,
+        favoritedMember: { id: favoritedMemberId } as Member,
+        nickname: 'OldNickname',
+      } as Favorite;
+
+      jest
+        .spyOn(favoritesRepository, 'findFavorite')
+        .mockResolvedValue(existingFavorite);
+      jest
+        .spyOn(favoritesRepository, 'updateFavorite')
+        .mockResolvedValue(undefined);
+
+      await favoritesService.updateFavorite(
+        memberId,
+        favoritedMemberId,
+        newNickname,
+      );
+
+      expect(favoritesRepository.findFavorite).toHaveBeenCalledWith(
+        memberId,
+        favoritedMemberId,
+      );
+      expect(favoritesRepository.updateFavorite).toHaveBeenCalledWith(
+        memberId,
+        favoritedMemberId,
+        expect.objectContaining({
+          nickname: newNickname,
+        }),
+      );
+    });
+
+    it('should throw an error if the favorite is not found', async () => {
+      const memberId = 1;
+      const favoritedMemberId = 2;
+      const newNickname = 'NewNickname';
+
+      jest.spyOn(favoritesRepository, 'findFavorite').mockResolvedValue(null);
+
+      await expect(
+        favoritesService.updateFavorite(
+          memberId,
+          favoritedMemberId,
+          newNickname,
+        ),
+      ).rejects.toThrow(new ExceptionHandler(ErrorStatus.FAVORITE_NOT_FOUND));
+
+      expect(favoritesRepository.findFavorite).toHaveBeenCalledWith(
+        memberId,
+        favoritedMemberId,
+      );
     });
   });
 });

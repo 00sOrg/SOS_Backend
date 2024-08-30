@@ -20,10 +20,11 @@ export class FavoritesRepository {
 
   async updateFavorite(
     memberId: number,
+    favoritedMemberId: number,
     updateData: Partial<Favorite>,
   ): Promise<void> {
     await this.favoriteRepository.update(
-      { member: { id: memberId } },
+      { member: { id: memberId }, favoritedMember: { id: favoritedMemberId } },
       updateData,
     );
   }

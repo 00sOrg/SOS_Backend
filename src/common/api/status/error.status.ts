@@ -55,6 +55,11 @@ export class ErrorStatus implements BaseCode {
     400,
     '관심 사용자 등록 요청이 존재하지 않습니다.',
   );
+  static readonly FAVORITE_NOT_FOUND = new ErrorStatus(
+    false,
+    400,
+    '관심 사용자를 찾을 수 없습니다.',
+  );
 
   //이벤트 에러
   static readonly EVENT_CONTENTS_NOT_FOUND = new ErrorStatus(
