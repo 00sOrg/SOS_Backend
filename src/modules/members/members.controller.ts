@@ -7,16 +7,28 @@ import {
   ParseIntPipe,
   Request,
   Query,
+  UseInterceptors,
+  Body,
+  Patch,
+  UploadedFile,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { MembersService } from './services/members.service';
 import { FavoritesService } from './services/favorites.service';
 import { LocationService } from './services/location.service';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiConsumes,
+  ApiOperation,
+  ApiTags,
+  ApiBody,
+} from '@nestjs/swagger';
 import { ApiSuccessResponse } from '../../common/decorators/decorators.success.response';
 import { ApiFailureResponse } from '../../common/decorators/decoratos.failure.response';
 import { ErrorStatus } from '../../common/api/status/error.status';
 import { FindFavoriteListDto } from './dto/find-favorite-list.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateMemberDto } from './dto/update-member.dto';
 
 @ApiTags('Members')
 @UseGuards(AuthGuard('jwt'))
@@ -110,5 +122,39 @@ export class MembersController {
     const memberId = req.user.id; // 현재 로그인된 사용자의 ID
 
     await this.locationService.updateLocation(memberId, +lat, +lng);
+  }
+
+  @UseInterceptors(FileInterceptor('media'))
+  @Patch('update')
+  @ApiOperation({ summary: 'Update Member' })
+  @ApiConsumes('multipart/form-data')
+  @ApiSuccessResponse()
+  @ApiFailureResponse(
+    ErrorStatus.MEMBER_NOT_FOUND,
+    ErrorStatus.NICKNAME_ALREADY_TAKEN,
+    ErrorStatus.S3_UPLOAD_FAILURE,
+  )
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        nickname: { type: 'string' },
+        password: { type: 'string' },
+        sex: { type: 'string' },
+        birthDate: { type: 'string', format: 'date' },
+        media: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  async updateMember(
+    @Request() req,
+    @Body() request: UpdateMemberDto,
+    @UploadedFile() media: Express.Multer.File,
+  ): Promise<void> {
+    const memberId = req.user.id;
+    await this.membersService.updateMember(memberId, request, media);
   }
 }

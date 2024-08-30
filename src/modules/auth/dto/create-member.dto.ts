@@ -2,10 +2,10 @@ import {
   IsEmail,
   IsNotEmpty,
   IsString,
-  MinLength,
   MaxLength,
   IsPhoneNumber,
   IsDate,
+  Matches,
 } from 'class-validator';
 import { Member } from 'src/modules/members/entities';
 import { MemberBuilder } from 'src/modules/members/entities/builder/member.builder';
@@ -22,8 +22,10 @@ export class CreateMemberDto {
 
   @IsString({ message: '유효한 비밀번호 형식을 입력해 주세요.' })
   @IsNotEmpty({ message: '비밀번호는 필수 입력 항목입니다.' })
-  @MinLength(6, { message: '비밀번호는 최소 6자 입니다.' })
-  @MaxLength(20, { message: '비밀번호는 최대 20자 입니다.' })
+  @Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,20}$/, {
+    message:
+      '비밀번호는 6자에서 20자 사이의 길이로, 문자와 숫자를 포함해야 합니다.',
+  })
   @ApiProperty()
   password!: string;
 
@@ -35,7 +37,7 @@ export class CreateMemberDto {
 
   @IsString({ message: '유효한 닉네임 형식을 입력해 주세요.' })
   @IsNotEmpty({ message: '닉네임은 필수 입력 항목입니다.' })
-  @MaxLength(20, { message: '닉네임은 최대 25자 입니다. ' })
+  @MaxLength(25, { message: '닉네임은 최대 25자 입니다. ' })
   @ApiProperty()
   nickname!: string;
 
