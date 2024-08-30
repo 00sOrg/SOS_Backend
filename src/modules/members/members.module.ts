@@ -7,13 +7,16 @@ import { MembersRepository } from './repository/members.repository';
 import { FavoritesRepository } from './repository/favorites.repository';
 import { Member } from './entities';
 import { LocationService } from './services/location.service';
+import { ExternalModule } from 'src/external/external.module';
+import { MembersDetailRepository } from './repository/membersDetail.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Member])],
+  imports: [TypeOrmModule.forFeature([Member]), ExternalModule],
   providers: [
     MembersService,
     MembersRepository,
     FavoritesRepository,
+    MembersDetailRepository,
     FavoritesService,
     LocationService,
   ],
@@ -22,6 +25,7 @@ import { LocationService } from './services/location.service';
     MembersService,
     MembersRepository,
     FavoritesRepository,
+    MembersDetailRepository,
     FavoritesService,
     LocationService,
   ],
