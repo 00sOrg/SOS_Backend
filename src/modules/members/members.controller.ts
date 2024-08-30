@@ -9,6 +9,7 @@ import {
   Query,
   UseInterceptors,
   Body,
+  Patch,
   UploadedFile,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
@@ -124,7 +125,7 @@ export class MembersController {
   }
 
   @UseInterceptors(FileInterceptor('media'))
-  @Post('update')
+  @Patch('update')
   @ApiOperation({ summary: 'Update Member' })
   @ApiConsumes('multipart/form-data')
   @ApiSuccessResponse()
