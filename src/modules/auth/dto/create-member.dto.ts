@@ -22,9 +22,9 @@ export class CreateMemberDto {
 
   @IsString({ message: '유효한 비밀번호 형식을 입력해 주세요.' })
   @IsNotEmpty({ message: '비밀번호는 필수 입력 항목입니다.' })
-  @Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,20}$/, {
+  @Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{6,20}$/, {
     message:
-      '비밀번호는 6자에서 20자 사이의 길이로, 문자와 숫자를 포함해야 합니다.',
+      '비밀번호는 6자에서 20자 사이의 길이로, 문자와 숫자를 포함해야 하며, 허용된 특수 문자는 @, $, !, %, *, ?, & 입니다.',
   })
   @ApiProperty()
   password!: string;
