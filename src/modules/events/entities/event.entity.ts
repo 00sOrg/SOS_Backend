@@ -5,7 +5,6 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
-  AfterLoad,
 } from 'typeorm';
 import { Member } from '../../members/entities';
 import { DefaultEntity } from '../../../common/default.entity';
@@ -61,5 +60,9 @@ export class Event extends DefaultEntity {
 
   addCommentCount(): void {
     this.commentsCount++;
+  }
+
+  addLikeCount() {
+    this.likesCount++;
   }
 }

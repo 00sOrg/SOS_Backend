@@ -10,6 +10,8 @@ import { S3Service } from 'src/external/s3/s3.service';
 import { Region } from '../../../external/naver/dto/region.dto';
 import { FindNearbyAllDto } from '../dto/find-nearby-all.dto';
 import { GetFeedsDto } from '../dto/get-feeds.dto';
+import { LikeRepository } from '../repository/like.repository';
+import { LikeBuilder } from '../entities/builder/like.builder';
 
 @Injectable()
 export class EventsService {
@@ -18,6 +20,7 @@ export class EventsService {
     private readonly membersRepository: MembersRepository,
     private readonly naverService: NaverService,
     private readonly s3Service: S3Service,
+    private readonly likeRepository: LikeRepository,
   ) {}
 
   async create(
@@ -85,5 +88,24 @@ export class EventsService {
   async getFeeds(): Promise<GetFeedsDto[]> {
     const events = await this.eventsRepository.findEventsOrderByLikes();
     return GetFeedsDto.of(events);
+  }
+
+  async likeEvent(eventId: number, memberId: number): Promise<void> {
+    const member = await this.membersRepository.findById(memberId);
+    if (!member) {
+      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
+    }
+    const event = await this.eventsRepository.findOne(eventId);
+    if (!event) {
+      throw new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND);
+    }
+    const isLiked = await this.likeRepository.isLiked(eventId, memberId);
+    if (isLiked) {
+      throw new ExceptionHandler(ErrorStatus.EVENT_ALREADY_LIKED);
+    }
+    event.addLikeCount();
+    const like = new LikeBuilder().event(event).member(member).build();
+    await this.likeRepository.create(like);
+    await this.eventsRepository.update(event);
   }
 }

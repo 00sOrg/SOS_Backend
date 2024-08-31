@@ -133,4 +133,18 @@ export class EventsController {
   async getFeeds() {
     return await this.eventsService.getFeeds();
   }
+
+  @Post('/like/:eventId')
+  @ApiOperation({ summary: 'Like a event' })
+  @ApiSuccessResponse()
+  @ApiFailureResponse(
+    ErrorStatus.INTERNAL_SERVER_ERROR,
+    ErrorStatus.MEMBER_NOT_FOUND,
+    ErrorStatus.EVENT_NOT_FOUND,
+    ErrorStatus.EVENT_ALREADY_LIKED,
+  )
+  async likeEvents(@Param('eventId') eventId: string, @Request() req) {
+    const memberId = req.user.id;
+    await this.eventsService.likeEvent(+eventId, memberId);
+  }
 }
