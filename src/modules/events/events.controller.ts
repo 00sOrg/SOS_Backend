@@ -29,6 +29,7 @@ import {
 import { ApiSuccessResponse } from '../../common/decorators/decorators.success.response';
 import { ApiFailureResponse } from '../../common/decorators/decoratos.failure.response';
 import { ErrorStatus } from '../../common/api/status/error.status';
+import { GetFeedsDto } from './dto/get-feeds.dto';
 
 @ApiBearerAuth()
 @ApiTags('Events')
@@ -89,7 +90,7 @@ export class EventsController {
     return FindNearybyDto.of(events);
   }
 
-  @Get(':id')
+  @Get(':id(\\d+)')
   @ApiOperation({ summary: 'Get event by id' })
   @ApiSuccessResponse(FindEventDto)
   @ApiFailureResponse(ErrorStatus.EVENT_NOT_FOUND)
@@ -123,5 +124,13 @@ export class EventsController {
     @Query('lng') lng: string,
   ): Promise<FindNearbyAllDto> {
     return await this.eventsService.findNearybyAll(+lat, +lng);
+  }
+
+  @Get('/feeds')
+  @ApiOperation({ summary: 'Get all feeds' })
+  @ApiSuccessResponse(GetFeedsDto)
+  @ApiFailureResponse(ErrorStatus.INTERNAL_SERVER_ERROR)
+  async getFeeds() {
+    return await this.eventsService.getFeeds();
   }
 }

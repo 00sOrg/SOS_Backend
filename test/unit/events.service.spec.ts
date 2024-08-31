@@ -10,6 +10,7 @@ import { Event } from 'src/modules/events/entities';
 import { NaverService } from 'src/external/naver/naver.service';
 import { S3Service } from 'src/external/s3/s3.service';
 import { Region } from '../../src/external/naver/dto/region.dto';
+import { GetFeedsDto } from '../../src/modules/events/dto/get-feeds.dto';
 
 describe('EventService', () => {
   let eventService: EventsService;
@@ -35,6 +36,7 @@ describe('EventService', () => {
             findById: jest.fn(),
             findNearby: jest.fn(),
             findNearbyAll: jest.fn(),
+            findEventsOrderByLikes: jest.fn(),
           },
         },
         {
@@ -243,6 +245,51 @@ describe('EventService', () => {
       await expect(eventService.findNearby(lat, lng)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION),
       );
+    });
+  });
+
+  describe('getFeeds', () => {
+    let events: Event[];
+    let getFeedDto: GetFeedsDto[];
+
+    beforeEach(() => {
+      events = [
+        {
+          id: 1,
+          title: 'Event 1',
+          content: 'Content 1',
+          likesCount: 10,
+        } as Event,
+        {
+          id: 2,
+          title: 'Event 2',
+          content: 'Content 2',
+          likesCount: 20,
+        } as Event,
+        {
+          id: 3,
+          title: 'Event 3',
+          content: 'Content 3',
+          likesCount: 5,
+        } as Event,
+      ];
+      getFeedDto = events.map(
+        (event) =>
+          ({
+            eventId: event.id,
+            title: event.title,
+            content: event.content,
+            media: event.media,
+          }) as GetFeedsDto,
+      );
+    });
+    it('should return feeds ordered by likes', async () => {
+      jest
+        .spyOn(eventRepository, 'findEventsOrderByLikes')
+        .mockResolvedValue(events);
+      const result = await eventService.getFeeds();
+      expect(eventRepository.findEventsOrderByLikes).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(getFeedDto);
     });
   });
 });
