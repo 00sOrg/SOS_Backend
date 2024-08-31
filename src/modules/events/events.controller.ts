@@ -94,9 +94,12 @@ export class EventsController {
   @ApiOperation({ summary: 'Get event by id' })
   @ApiSuccessResponse(FindEventDto)
   @ApiFailureResponse(ErrorStatus.EVENT_NOT_FOUND)
-  async findOne(@Param('id') id: string): Promise<FindEventDto> {
-    const event = await this.eventsService.findOne(+id);
-    return FindEventDto.of(event);
+  async findOne(
+    @Param('id') id: string,
+    @Request() req,
+  ): Promise<FindEventDto> {
+    const memberId = req.user.id;
+    return await this.eventsService.findOne(+id, +memberId);
   }
 
   @Post('comment')
@@ -132,5 +135,19 @@ export class EventsController {
   @ApiFailureResponse(ErrorStatus.INTERNAL_SERVER_ERROR)
   async getFeeds() {
     return await this.eventsService.getFeeds();
+  }
+
+  @Post('/like/:eventId')
+  @ApiOperation({ summary: 'Like a event' })
+  @ApiSuccessResponse()
+  @ApiFailureResponse(
+    ErrorStatus.INTERNAL_SERVER_ERROR,
+    ErrorStatus.MEMBER_NOT_FOUND,
+    ErrorStatus.EVENT_NOT_FOUND,
+    ErrorStatus.EVENT_ALREADY_LIKED,
+  )
+  async likeEvents(@Param('eventId') eventId: string, @Request() req) {
+    const memberId = req.user.id;
+    await this.eventsService.likeEvent(+eventId, memberId);
   }
 }

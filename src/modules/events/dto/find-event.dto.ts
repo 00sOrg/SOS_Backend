@@ -38,12 +38,14 @@ export class FindEventDto {
   likeCount: number = 0;
   @ApiProperty()
   commentCount: number = 0;
+  @ApiProperty()
+  liked!: boolean;
   @ApiProperty({ type: [CommentDto] })
   comments?: CommentDto[];
   @ApiProperty()
   createdAt!: Date;
 
-  static of(event: Event): FindEventDto {
+  static of(event: Event, isLiked: boolean): FindEventDto {
     const dto = new FindEventDto();
     const commentDtos = (event.comments ?? []).map((comment) => {
       return new CommentDto(comment);
@@ -55,6 +57,7 @@ export class FindEventDto {
     dto.media = event.media;
     dto.likeCount = event.likesCount;
     dto.commentCount = event.commentsCount;
+    dto.liked = isLiked;
     dto.comments = commentDtos;
     dto.createdAt = event.createdAt;
     return dto;

@@ -95,4 +95,10 @@ export class ErrorStatus implements BaseCode {
     400,
     'S3 설정 정보가 잘못되었습니다.',
   );
+
+  static readonly EVENT_ALREADY_LIKED = new ErrorStatus(
+    false,
+    400,
+    '이미 좋아요 누른 게시물입니다.',
+  );
 }
