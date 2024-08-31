@@ -5,6 +5,7 @@ import {
   ManyToOne,
   JoinColumn,
   OneToMany,
+  AfterLoad,
 } from 'typeorm';
 import { Member } from '../../members/entities';
 import { DefaultEntity } from '../../../common/default.entity';
@@ -57,4 +58,8 @@ export class Event extends DefaultEntity {
 
   @OneToMany(() => Comment, (comment) => comment.event, { onDelete: 'CASCADE' })
   comments?: Comment[];
+
+  addCommentCount(): void {
+    this.commentsCount++;
+  }
 }

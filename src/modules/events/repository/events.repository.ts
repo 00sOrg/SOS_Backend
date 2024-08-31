@@ -64,4 +64,12 @@ export class EventsRepository {
       .addOrderBy('event.likesCount', 'DESC')
       .getMany();
   }
+
+  async update(event: Partial<Event>): Promise<void> {
+    await this.eventRepository.update({ id: event.id }, { ...event });
+  }
+
+  async findOne(eventId: number): Promise<Event | null> {
+    return this.eventRepository.findOne({ where: { id: eventId } });
+  }
 }

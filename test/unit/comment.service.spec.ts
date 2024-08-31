@@ -9,7 +9,7 @@ import { CommentService } from 'src/modules/events/service/comment.service';
 import { Member } from 'src/modules/members/entities';
 import { MembersRepository } from 'src/modules/members/repository/members.repository';
 
-describe('CommmentSerivce', () => {
+describe('CommentService', () => {
   let commentService: CommentService;
   let memberRepository: Partial<jest.Mocked<MembersRepository>>;
   let eventsRepository: Partial<jest.Mocked<EventsRepository>>;
@@ -29,6 +29,8 @@ describe('CommmentSerivce', () => {
           provide: EventsRepository,
           useValue: {
             findById: jest.fn(),
+            findOne: jest.fn(),
+            update: jest.fn(),
           },
         },
         {
@@ -52,17 +54,18 @@ describe('CommmentSerivce', () => {
         eventId: 1,
         content: 'test',
       });
-      const memberid = 1;
+      const memberId = 1;
       const member = new Member();
       const event = new Event();
 
       jest.spyOn(memberRepository, 'findById').mockResolvedValue(member);
-      jest.spyOn(eventsRepository, 'findById').mockResolvedValue(event);
+      jest.spyOn(eventsRepository, 'findOne').mockResolvedValue(event);
 
-      await commentService.createComment(request, memberid);
+      await commentService.createComment(request, memberId);
 
       expect(memberRepository.findById).toHaveBeenCalledWith(1);
-      expect(eventsRepository.findById).toHaveBeenCalledWith(1);
+      expect(eventsRepository.findOne).toHaveBeenCalledWith(1);
+      expect(eventsRepository.update).toHaveBeenCalledTimes(1);
       expect(commentRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
           content: 'test',
@@ -70,6 +73,7 @@ describe('CommmentSerivce', () => {
           member: member,
         }),
       );
+      expect(event.commentsCount).toBe(1);
     });
 
     it('should throw MEMBER_NOT_FOUND if member does not exist', async () => {
