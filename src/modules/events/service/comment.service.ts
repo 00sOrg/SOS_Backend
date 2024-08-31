@@ -28,7 +28,6 @@ export class CommentService {
     }
     const comment = request.toComment(member, event);
     event.addCommentCount();
-    console.log(event);
     await this.eventsRepository.update(event);
     await this.commentRepository.create(comment);
   }
