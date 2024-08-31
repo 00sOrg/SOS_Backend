@@ -22,12 +22,14 @@ export class CommentService {
     if (!member) {
       throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
     }
-    const event = await this.eventsRepository.findById(request.eventId);
+    const event = await this.eventsRepository.findOne(request.eventId);
     if (!event) {
       throw new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND);
     }
-
     const comment = request.toComment(member, event);
+    event.addCommentCount();
+    console.log(event);
+    await this.eventsRepository.update(event);
     await this.commentRepository.create(comment);
   }
 }
