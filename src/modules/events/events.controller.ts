@@ -94,9 +94,12 @@ export class EventsController {
   @ApiOperation({ summary: 'Get event by id' })
   @ApiSuccessResponse(FindEventDto)
   @ApiFailureResponse(ErrorStatus.EVENT_NOT_FOUND)
-  async findOne(@Param('id') id: string): Promise<FindEventDto> {
-    const event = await this.eventsService.findOne(+id);
-    return FindEventDto.of(event);
+  async findOne(
+    @Param('id') id: string,
+    @Request() req,
+  ): Promise<FindEventDto> {
+    const memberId = req.user.id;
+    return await this.eventsService.findOne(+id, +memberId);
   }
 
   @Post('comment')

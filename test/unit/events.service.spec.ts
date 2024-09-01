@@ -15,6 +15,7 @@ import { MemberBuilder } from '../../src/modules/members/entities/builder/member
 import { EventBuilder } from '../../src/modules/events/entities/builder/event.builder';
 import { LikeRepository } from '../../src/modules/events/repository/like.repository';
 import { LikeBuilder } from '../../src/modules/events/entities/builder/like.builder';
+import { FindEventDto } from '../../src/modules/events/dto/find-event.dto';
 
 describe('EventService', () => {
   let eventService: EventsService;
@@ -136,25 +137,32 @@ describe('EventService', () => {
   });
 
   describe('fineOne', () => {
-    let id: number;
+    let eventId: number;
+    let memberId: number;
     let event: Event;
+    let findEventDto: FindEventDto;
     beforeEach(() => {
-      id = 1;
+      eventId = 1;
+      memberId = 1;
       event = new Event();
+      findEventDto = FindEventDto.of(event, true);
     });
 
     it('should return the event successfully', async () => {
       jest.spyOn(eventRepository, 'findById').mockResolvedValue(event);
+      jest.spyOn(likeRepository, 'isLiked').mockResolvedValue(true);
 
-      const result = await eventService.findOne(id);
+      const result = await eventService.findOne(eventId, memberId);
+
       expect(eventRepository.findById).toHaveBeenCalledWith(1);
-      expect(result).toBe(event);
+      expect(likeRepository.isLiked).toHaveBeenCalledWith(eventId, memberId);
+      expect(result).toEqual(findEventDto);
     });
 
     it('should throw EVENT_NOT_FOUND if the event is not found', async () => {
       jest.spyOn(eventRepository, 'findById').mockResolvedValue(null);
 
-      await expect(eventService.findOne(id)).rejects.toThrow(
+      await expect(eventService.findOne(eventId, memberId)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND),
       );
     });
@@ -191,7 +199,7 @@ describe('EventService', () => {
         } as Event,
       ];
     });
-    it('should retrun the events nearby', async () => {
+    it('should return the events nearby', async () => {
       jest.spyOn(eventRepository, 'findNearby').mockResolvedValue(events);
       const result = await eventService.findNearby(lat, lng);
       expect(result).toEqual(events);

@@ -12,6 +12,7 @@ import { FindNearbyAllDto } from '../dto/find-nearby-all.dto';
 import { GetFeedsDto } from '../dto/get-feeds.dto';
 import { LikeRepository } from '../repository/like.repository';
 import { LikeBuilder } from '../entities/builder/like.builder';
+import { FindEventDto } from '../dto/find-event.dto';
 
 @Injectable()
 export class EventsService {
@@ -44,12 +45,13 @@ export class EventsService {
     await this.eventsRepository.create(event);
   }
 
-  async findOne(id: number): Promise<Event> {
-    const event = await this.eventsRepository.findById(id);
+  async findOne(eventId: number, memberId: number): Promise<FindEventDto> {
+    const event = await this.eventsRepository.findById(eventId);
+    const isLiked = await this.likeRepository.isLiked(eventId, memberId);
     if (!event) {
       throw new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND);
     }
-    return event;
+    return FindEventDto.of(event, isLiked);
   }
 
   async findNearby(lat: number, lng: number): Promise<Event[]> {
