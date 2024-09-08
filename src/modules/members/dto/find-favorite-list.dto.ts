@@ -13,6 +13,7 @@ export class FindFavoriteListDto {
     const favoriteDtos = favoriteList.map((favorite, index) => {
       const favoriteDto = new FavoriteDto();
       favoriteDto.favoriteMemberId = favorite.favoritedMember.id;
+      favoriteDto.isAccepted = favorite.isAccepted;
       favoriteDto.nickname = favorite.favoritedMember.nickname;
       favoriteDto.modifiedNickname = favorite.nickname;
       favoriteDto.lastLocation = regions[index].toString();
@@ -29,6 +30,9 @@ export class FindFavoriteListDto {
 export class FavoriteDto {
   @ApiProperty()
   favoriteMemberId!: number;
+
+  @ApiProperty()
+  isAccepted!: boolean;
 
   @ApiProperty()
   nickname!: string;
