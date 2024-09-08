@@ -28,7 +28,7 @@ export class Favorite extends DefaultEntity {
   @Column({ type: 'boolean', default: false })
   isAccepted: boolean = false;
 
-  // (내가 보이는) 상대방 닉네임 수정 가능
+  // 사용자가 보는 관심 사용자 닉네임
   @Column({ type: 'varchar', length: 16 })
   nickname!: string;
 }

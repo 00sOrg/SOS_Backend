@@ -4,12 +4,15 @@ import { FavoritesRepository } from '../repository/favorites.repository';
 import { Favorite } from '../entities';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
+import { FindFavoriteListDto } from '../dto/find-favorite-list.dto';
+import { NaverService } from 'src/external/naver/naver.service';
 
 @Injectable()
 export class FavoritesService {
   constructor(
     private readonly membersRepository: MembersRepository,
     private readonly favoritesRepository: FavoritesRepository,
+    private readonly naverService: NaverService,
   ) {}
 
   // 관심 사용자 요청 생성
@@ -90,11 +93,18 @@ export class FavoritesService {
   }
 
   // 관심 사용자 조회 (관심 사용자 등록하면 나한테만 사용자가 뜨고, 관심 사용자에겐 내가 안뜬다.)
-  async getFavoritesForMember(memberId: number): Promise<Favorite[]> {
+  async getFavoritesForMember(memberId: number): Promise<FindFavoriteListDto> {
     const favoriteMembers =
       await this.favoritesRepository.findAllFavoritesForMember(memberId);
 
-    return favoriteMembers;
+    const regions = await Promise.all(
+      favoriteMembers.map(async (favorite) => {
+        const { latitude, longitude } = favorite.favoritedMember;
+        return this.naverService.getAddressFromCoordinate(latitude, longitude);
+      }),
+    );
+
+    return FindFavoriteListDto.of(favoriteMembers, regions);
   }
 
   // 관심 사용자 (닉네임) 수정

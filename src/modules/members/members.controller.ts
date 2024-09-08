@@ -141,9 +141,7 @@ export class MembersController {
   @ApiFailureResponse(ErrorStatus.INTERNAL_SERVER_ERROR)
   async getFavorites(@Request() req): Promise<FindFavoriteListDto> {
     const memberId = req.user.id; // 현재 로그인된 사용자의 ID
-    const favoriteMembers =
-      await this.favoritesService.getFavoritesForMember(memberId);
-    return FindFavoriteListDto.of(favoriteMembers);
+    return this.favoritesService.getFavoritesForMember(memberId);
   }
 
   // 관심 사용자 정보 수정 API
