@@ -2,8 +2,25 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Favorite } from '../entities';
 import { Region } from 'src/external/naver/dto/region.dto';
 
-export class FindFavoriteListDto {
+export class FavoriteDto {
   @ApiProperty()
+  favoriteMemberId!: number;
+
+  @ApiProperty()
+  isAccepted!: boolean;
+
+  @ApiProperty()
+  nickname!: string;
+
+  @ApiProperty()
+  modifiedNickname!: string;
+
+  @ApiProperty()
+  lastLocation!: string;
+}
+
+export class FindFavoriteListDto {
+  @ApiProperty({ type: [FavoriteDto] })
   favorites!: FavoriteDto[];
 
   public static of(
@@ -25,21 +42,4 @@ export class FindFavoriteListDto {
 
     return findFavoriteListDto;
   }
-}
-
-export class FavoriteDto {
-  @ApiProperty()
-  favoriteMemberId!: number;
-
-  @ApiProperty()
-  isAccepted!: boolean;
-
-  @ApiProperty()
-  nickname!: string;
-
-  @ApiProperty()
-  modifiedNickname!: string;
-
-  @ApiProperty()
-  lastLocation!: string;
 }
