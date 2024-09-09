@@ -8,4 +8,8 @@ export class Region {
     this.gu = gu;
     this.dong = dong;
   }
+
+  public toString(): string {
+    return `${this.si} ${this.gu} ${this.dong}`;
+  }
 }

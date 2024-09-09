@@ -5,11 +5,14 @@ import { FavoritesRepository } from 'src/modules/members/repository/favorites.re
 import { Favorite, Member } from 'src/modules/members/entities';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
+import { NaverService } from 'src/external/naver/naver.service';
+import { Region } from 'src/external/naver/dto/region.dto';
 
 describe('FavoritesService', () => {
   let favoritesService: FavoritesService;
   let membersRepository: MembersRepository;
   let favoritesRepository: FavoritesRepository;
+  let naverService: NaverService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -33,12 +36,19 @@ describe('FavoritesService', () => {
             findAllFavoritesForMember: jest.fn(),
           },
         },
+        {
+          provide: NaverService,
+          useValue: {
+            getAddressFromCoordinate: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     favoritesService = module.get<FavoritesService>(FavoritesService);
     membersRepository = module.get<MembersRepository>(MembersRepository);
     favoritesRepository = module.get<FavoritesRepository>(FavoritesRepository);
+    naverService = module.get<NaverService>(NaverService);
   });
 
   describe('addFavorite', () => {
@@ -223,60 +233,63 @@ describe('FavoritesService', () => {
 
       const result = await favoritesService.getFavoritesForMember(1);
 
-      expect(result).toEqual([]);
+      expect(result.favorites).toEqual([]);
       expect(
         favoritesRepository.findAllFavoritesForMember,
       ).toHaveBeenCalledWith(1);
     });
 
-    it('should return the list of favorites even if no valid members are found (since no filtering is done in this version)', async () => {
+    it('should return a list of favorites with location data', async () => {
       const favorites: Favorite[] = [
         {
-          favoritedMember: { id: 2 } as Member,
-          member: { id: 1 } as Member,
-          isAccepted: true,
-          nickname: 'Test',
-        } as Favorite,
-      ];
-
-      jest
-        .spyOn(favoritesRepository, 'findAllFavoritesForMember')
-        .mockResolvedValue(favorites);
-
-      const result = await favoritesService.getFavoritesForMember(1);
-
-      expect(result).toEqual(favorites);
-      expect(
-        favoritesRepository.findAllFavoritesForMember,
-      ).toHaveBeenCalledWith(1);
-    });
-
-    it('should return the list of valid favorites when members are valid', async () => {
-      const favorites: Favorite[] = [
-        {
-          favoritedMember: { id: 2 } as Member,
+          favoritedMember: {
+            id: 2,
+            latitude: 37.5665,
+            longitude: 126.978,
+          } as Member,
           member: { id: 1 } as Member,
           isAccepted: true,
           nickname: 'Test1',
         } as Favorite,
         {
-          favoritedMember: { id: 3 } as Member,
+          favoritedMember: {
+            id: 3,
+            latitude: 35.1796,
+            longitude: 129.0756,
+          } as Member,
           member: { id: 1 } as Member,
           isAccepted: true,
           nickname: 'Test2',
         } as Favorite,
       ];
 
+      const regions: Region[] = [
+        new Region('Seoul', 'Jongno-gu', 'Jongno'),
+        new Region('Busan', 'Jung-gu', 'Nampo-dong'),
+      ];
+
       jest
         .spyOn(favoritesRepository, 'findAllFavoritesForMember')
         .mockResolvedValue(favorites);
 
+      jest
+        .spyOn(naverService, 'getAddressFromCoordinate')
+        .mockResolvedValueOnce(regions[0])
+        .mockResolvedValueOnce(regions[1]);
+
       const result = await favoritesService.getFavoritesForMember(1);
 
-      expect(result).toEqual(favorites);
+      expect(result.favorites.length).toBe(2);
+      expect(result.favorites[0].lastLocation).toEqual(
+        'Seoul Jongno-gu Jongno',
+      );
+      expect(result.favorites[1].lastLocation).toEqual(
+        'Busan Jung-gu Nampo-dong',
+      );
       expect(
         favoritesRepository.findAllFavoritesForMember,
       ).toHaveBeenCalledWith(1);
+      expect(naverService.getAddressFromCoordinate).toHaveBeenCalledTimes(2);
     });
   });
 
