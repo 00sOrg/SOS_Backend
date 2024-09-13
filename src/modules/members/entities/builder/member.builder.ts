@@ -54,6 +54,11 @@ export class MemberBuilder {
     return this;
   }
 
+  device(device: string): this {
+    this._member.device = device;
+    return this;
+  }
+
   // events(events: Event[]): this {
   //   this._member.events = events as Event[];
   //   return this;
