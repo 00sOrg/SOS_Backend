@@ -28,6 +28,9 @@ export class Member extends DefaultEntity {
   @Column({ type: 'decimal', precision: 16, scale: 13 })
   longitude: number = 127.08342026545051;
 
+  @Column({ type: 'text' })
+  device!: string;
+
   @OneToOne(() => MemberDetail, (memberDetail) => memberDetail.member, {
     cascade: true,
   })

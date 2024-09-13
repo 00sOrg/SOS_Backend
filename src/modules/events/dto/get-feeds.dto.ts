@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Event } from '../entities';
+
 export class GetFeedsDto {
   constructor(
     eventId: number,

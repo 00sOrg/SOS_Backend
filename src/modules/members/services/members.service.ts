@@ -94,4 +94,24 @@ export class MembersService {
       );
     }
   }
+
+  async findNearbyMembers(lat: number, lng: number): Promise<Member[]> {
+    if (!lat || !lng || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      throw new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION);
+    }
+    const earthRadius = 6371000;
+    const latDistance = 200 / earthRadius;
+    const lngDistance = 200 / (earthRadius * Math.cos((Math.PI * lat) / 180));
+
+    const minLat = lat - (latDistance * 180) / Math.PI;
+    const maxLat = lat + (latDistance * 180) / Math.PI;
+    const minLng = lng - (lngDistance * 180) / Math.PI;
+    const maxLng = lng + (lngDistance * 180) / Math.PI;
+    return await this.membersRepository.findNearby(
+      minLat,
+      maxLat,
+      minLng,
+      maxLng,
+    );
+  }
 }

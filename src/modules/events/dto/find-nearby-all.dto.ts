@@ -2,6 +2,32 @@ import { Event } from '../entities';
 import { Region } from '../../../external/naver/dto/region.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
+class Events {
+  @ApiProperty()
+  id: number;
+  @ApiProperty()
+  title: string;
+  @ApiProperty()
+  content?: string;
+  @ApiProperty()
+  media?: string;
+  @ApiProperty()
+  createdAt: Date;
+  public constructor(
+    id: number,
+    title: string,
+    createdAt: Date,
+    content?: string,
+    media?: string,
+  ) {
+    this.id = id;
+    this.title = title;
+    this.content = content;
+    this.media = media;
+    this.createdAt = createdAt;
+  }
+}
+
 export class FindNearbyAllDto {
   @ApiProperty()
   si: string;
@@ -9,7 +35,7 @@ export class FindNearbyAllDto {
   gu: string;
   @ApiProperty()
   dong: string;
-  @ApiProperty()
+  @ApiProperty({ type: [Events] })
   events: Events[];
   @ApiProperty()
   eventsNumber: number;
@@ -44,26 +70,5 @@ export class FindNearbyAllDto {
       eventList,
       eventList.length,
     );
-  }
-}
-
-class Events {
-  id: number;
-  title: string;
-  content?: string;
-  media?: string;
-  createdAt: Date;
-  public constructor(
-    id: number,
-    title: string,
-    createdAt: Date,
-    content?: string,
-    media?: string,
-  ) {
-    this.id = id;
-    this.title = title;
-    this.content = content;
-    this.media = media;
-    this.createdAt = createdAt;
   }
 }

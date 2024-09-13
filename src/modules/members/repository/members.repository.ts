@@ -43,4 +43,20 @@ export class MembersRepository {
       where: { nickname: nickname },
     });
   }
+
+  async findNearby(
+    minLat: number,
+    maxLat: number,
+    minLng: number,
+    maxLng: number,
+  ) {
+    return this.memberRepository
+      .createQueryBuilder('member')
+      .where('member.latitude between :minLat AND :maxLat', { minLat, maxLat })
+      .andWhere('member.longitude between :minLng AND :maxLng', {
+        minLng,
+        maxLng,
+      })
+      .getMany();
+  }
 }
