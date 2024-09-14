@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { Event } from '../entities';
 import { Region } from '../../../external/naver/dto/region.dto';
+import { DisasterLevel } from '../entities/enum/disaster-level.enum';
 
 @Injectable()
 export class EventsRepository {
@@ -31,18 +32,27 @@ export class EventsRepository {
     maxLat: number,
     minLng: number,
     maxLng: number,
+    level: string,
   ) {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
-    return this.eventRepository
+    const query = this.eventRepository
       .createQueryBuilder('event')
       .where('event.latitude between :minLat AND :maxLat', { minLat, maxLat })
       .andWhere('event.longitude between :minLng AND :maxLng', {
         minLng,
         maxLng,
       })
-      .andWhere('event.createdAt > :yesterday', { yesterday })
-      .getMany();
+      .andWhere('event.createdAt > :yesterday', { yesterday });
+
+    if (
+      level.toUpperCase() === DisasterLevel.PRIMARY ||
+      level.toUpperCase() === DisasterLevel.SECONDARY
+    ) {
+      query.andWhere('event.disasterLevel = :level', { level });
+    }
+
+    return query.getMany();
   }
 
   async findNearbyAll(region: Region): Promise<Event[]> {
