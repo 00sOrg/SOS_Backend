@@ -17,8 +17,11 @@ export class EventsRepository {
   async findById(eventId: number): Promise<Event | null> {
     return this.eventRepository
       .createQueryBuilder('event')
+      .leftJoinAndSelect('event.member', 'eventMember')
+      .leftJoinAndSelect('eventMember.memberDetail', 'eventMemberDetail')
       .leftJoinAndSelect('event.comments', 'comment')
-      .leftJoinAndSelect('comment.member', 'member')
+      .leftJoinAndSelect('comment.member', 'commentMember')
+      .leftJoinAndSelect('commentMember.memberDetail', 'commentMemberDetail')
       .where('event.id=:eventId', { eventId })
       .getOne();
   }
