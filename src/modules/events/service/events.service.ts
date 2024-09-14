@@ -13,6 +13,7 @@ import { GetFeedsDto } from '../dto/get-feeds.dto';
 import { LikeRepository } from '../repository/like.repository';
 import { LikeBuilder } from '../entities/builder/like.builder';
 import { FindEventDto } from '../dto/find-event.dto';
+import { Member } from '../../members/entities';
 
 @Injectable()
 export class EventsService {
@@ -26,22 +27,14 @@ export class EventsService {
 
   async create(
     request: CreateEventDto,
-    memberId: number,
+    member: Member,
     media: Express.Multer.File | null,
   ): Promise<void> {
-    const member = await this.membersRepository.findById(memberId);
-    if (!member) {
-      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
-    }
     if (!request.content && !media) {
       throw new ExceptionHandler(ErrorStatus.EVENT_CONTENTS_NOT_FOUND);
     }
     const url = media ? await this.s3Service.upload(media) : undefined;
-    const region = await this.naverService.getAddressFromCoordinate(
-      request.latitude,
-      request.longitude,
-    );
-    const event = request.toEvent(region, member, url);
+    const event = request.toEvent(member, url);
     await this.eventsRepository.create(event);
   }
 

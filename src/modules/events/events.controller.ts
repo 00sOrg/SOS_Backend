@@ -30,6 +30,7 @@ import { ApiSuccessResponse } from '../../common/decorators/decorators.success.r
 import { ApiFailureResponse } from '../../common/decorators/decoratos.failure.response';
 import { ErrorStatus } from '../../common/api/status/error.status';
 import { GetFeedsDto } from './dto/get-feeds.dto';
+import { EventType } from './entities/enum/event-type.enum';
 
 @ApiBearerAuth()
 @ApiTags('Events')
@@ -54,6 +55,14 @@ export class EventsController {
           content: { type: 'string' },
           latitude: { type: 'number' },
           longitude: { type: 'number' },
+          address: { type: 'string' },
+          type: {
+            type: 'string',
+            description:
+              Object.values(EventType)
+                .map((type) => `${type}`)
+                .join(', ') + '.',
+          },
         },
         media: {
           type: 'string',
@@ -74,8 +83,8 @@ export class EventsController {
     @Request() req,
     @UploadedFile() media: Express.Multer.File,
   ): Promise<void> {
-    const memberId = req.user.id;
-    await this.eventsService.create(request, memberId, media);
+    const member = req.user;
+    await this.eventsService.create(request, member, media);
   }
 
   @Get('nearby')

@@ -1,5 +1,7 @@
 import { Event } from '../event.entity';
 import { Member } from '../../../members/entities';
+import { EventType } from '../enum/event-type.enum';
+import { DisasterLevel } from '../enum/disaster-level.enum';
 
 export class EventBuilder {
   _event: Event;
@@ -18,7 +20,7 @@ export class EventBuilder {
     return this;
   }
 
-  type(type: string): this {
+  type(type: EventType): this {
     this._event.type = type;
     return this;
   }
@@ -48,22 +50,12 @@ export class EventBuilder {
     return this;
   }
 
-  si(si: string): this {
-    this._event.si = si;
+  address(address: string): this {
+    this._event.address = address;
     return this;
   }
 
-  gu(gu: string): this {
-    this._event.gu = gu;
-    return this;
-  }
-
-  dong(dong: string): this {
-    this._event.dong = dong;
-    return this;
-  }
-
-  disasterLevel(disasterLevel: string): this {
+  disasterLevel(disasterLevel: DisasterLevel): this {
     this._event.disasterLevel = disasterLevel;
     return this;
   }

@@ -1,15 +1,16 @@
 import {
+  IsEnum,
+  IsLatitude,
+  IsLongitude,
   IsNotEmpty,
   IsNumber,
   MaxLength,
-  IsLatitude,
-  IsLongitude,
 } from 'class-validator';
 import { EventBuilder } from '../entities/builder/event.builder';
 import { Event } from '../entities';
-import { EventType } from '../enum/event-type.enum';
-import { Region } from 'src/external/naver/dto/region.dto';
 import { Member } from 'src/modules/members/entities';
+import { DisasterLevel } from '../entities/enum/disaster-level.enum';
+import { EventType } from '../entities/enum/event-type.enum';
 
 export class CreateEventDto {
   @IsNotEmpty({
@@ -49,16 +50,25 @@ export class CreateEventDto {
   })
   longitude!: number;
 
-  toEvent(region: Region, member: Member, mediaUrl?: string): Event {
+  @IsNotEmpty({
+    message: '주소는 필수 입력 항목입니다.',
+  })
+  address!: string;
+
+  @IsEnum(EventType, {
+    message: '유효한 이벤트 타입을 입력해 주세요.',
+  })
+  type!: EventType;
+
+  toEvent(member: Member, mediaUrl?: string): Event {
     return new EventBuilder()
       .title(this.title)
       .content(this.content)
       .latitude(this.latitude)
       .longitude(this.longitude)
-      .type(EventType.SECONDARY)
-      .si(region.si)
-      .gu(region.gu)
-      .dong(region.dong)
+      .disasterLevel(DisasterLevel.SECONDARY)
+      .address(this.address)
+      .type(this.type)
       .member(member)
       .media(mediaUrl)
       .build();

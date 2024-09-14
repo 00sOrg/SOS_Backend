@@ -1,4 +1,4 @@
-export enum EventType {
+export enum DisasterLevel {
   PRIMARY = 'PRIMARY',
   SECONDARY = 'SECONDARY',
 }

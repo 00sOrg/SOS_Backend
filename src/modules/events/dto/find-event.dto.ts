@@ -62,7 +62,7 @@ export class FindEventDto {
     dto.id = event.id;
     dto.memberNickname = event.member.nickname;
     dto.memberProfile = event.member.memberDetail?.profilePicture;
-    dto.address = `${event.si} ${event.gu} ${event.dong}` as string;
+    dto.address = event.address;
     dto.title = event.title;
     dto.content = event.content;
     dto.media = event.media;
