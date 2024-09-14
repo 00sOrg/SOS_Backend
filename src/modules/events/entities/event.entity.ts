@@ -9,6 +9,8 @@ import {
 import { Member } from '../../members/entities';
 import { DefaultEntity } from '../../../common/default.entity';
 import { Comment } from './comment.entity';
+import { DisasterLevel } from './enum/disaster-level.enum';
+import { EventType } from './enum/event-type.enum';
 
 @Entity()
 export class Event extends DefaultEntity {
@@ -20,7 +22,7 @@ export class Event extends DefaultEntity {
   member!: Member;
 
   @Column({ type: 'varchar', length: 10, nullable: true })
-  type!: string;
+  type?: EventType;
 
   @Column({ type: 'text', nullable: true })
   media?: string;
@@ -37,17 +39,11 @@ export class Event extends DefaultEntity {
   @Column({ type: 'decimal', precision: 16, scale: 13 })
   longitude!: number;
 
-  @Column({ type: 'varchar', length: 25 })
-  si!: string;
-
-  @Column({ type: 'varchar', length: 25 })
-  gu!: string;
-
-  @Column({ type: 'varchar', length: 25 })
-  dong!: string;
+  @Column({ type: 'varchar', length: 255 })
+  address!: string;
 
   @Column({ type: 'varchar', length: 25, nullable: true })
-  disasterLevel?: string;
+  disasterLevel!: DisasterLevel;
 
   @Column({ type: 'int', default: 0 })
   likesCount: number = 0;

@@ -80,13 +80,10 @@ describe('EventService', () => {
   describe('create', () => {
     let request: CreateEventDto;
     let member: Member;
-    let memberId: number;
     let media: Express.Multer.File;
-    let region: any;
     let event: Event;
 
     beforeEach(() => {
-      memberId = 1;
       media = { originalname: 'test.jpg', buffer: Buffer.from('test') } as any;
 
       request = Object.assign(new CreateEventDto(), {
@@ -98,40 +95,21 @@ describe('EventService', () => {
 
       member = new Member();
       event = new Event();
-      region = { city: 'Seoul', gu: 'gu', dong: 'dong' };
-    });
-    it('should throw MEMBER_NOT_FOUND if member does not exist', async () => {
-      jest.spyOn(memberRepository, 'findById').mockResolvedValue(null);
-      await expect(
-        eventService.create(request, memberId, media),
-      ).rejects.toThrow(new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
     });
 
     it('should throw EVENT_CONTENTS_NOT_FOUND if both image and content are empty', async () => {
-      jest.spyOn(memberRepository, 'findById').mockResolvedValue(member);
       request.content = '';
-      await expect(
-        eventService.create(request, memberId, null),
-      ).rejects.toThrow(
+      await expect(eventService.create(request, member, null)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.EVENT_CONTENTS_NOT_FOUND),
       );
     });
 
     it('should create an event successfully', async () => {
-      jest.spyOn(memberRepository, 'findById').mockResolvedValue(member);
       jest.spyOn(eventRepository, 'create').mockResolvedValue(event);
-      jest
-        .spyOn(naverService, 'getAddressFromCoordinate')
-        .mockResolvedValue(region);
 
-      await eventService.create(request, memberId, media);
+      await eventService.create(request, member, media);
 
-      expect(memberRepository.findById).toHaveBeenCalledWith(memberId);
       expect(s3Service.upload).toHaveBeenCalledWith(media);
-      expect(naverService.getAddressFromCoordinate).toHaveBeenCalledWith(
-        request.latitude,
-        request.longitude,
-      );
       expect(eventRepository.create).toHaveBeenCalled();
     });
   });
