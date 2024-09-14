@@ -1,19 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Event } from '../entities';
 
-export class GetFeedsDto {
-  constructor(
-    eventId: number,
-    title: string,
-    content?: string,
-    media?: string,
-  ) {
-    this.eventId = eventId;
-    this.title = title;
-    this.content = content;
-    this.media = media;
-  }
-
+class EventData {
   @ApiProperty()
   eventId!: number;
 
@@ -26,9 +14,31 @@ export class GetFeedsDto {
   @ApiProperty()
   media?: string;
 
-  static of(events: Event[]): GetFeedsDto[] {
-    return events.map((event) => {
-      return new GetFeedsDto(event.id, event.title, event.content, event.media);
+  constructor(
+    eventId: number,
+    title: string,
+    content?: string,
+    media?: string,
+  ) {
+    this.eventId = eventId;
+    this.title = title;
+    this.content = content;
+    this.media = media;
+  }
+}
+
+export class GetFeedsDto {
+  @ApiProperty({ type: [EventData] })
+  events: EventData[];
+
+  constructor(events: EventData[]) {
+    this.events = events;
+  }
+
+  static of(events: Event[]): GetFeedsDto {
+    const eventDatas = events.map((event) => {
+      return new EventData(event.id, event.title, event.content, event.media);
     });
+    return new GetFeedsDto(eventDatas);
   }
 }

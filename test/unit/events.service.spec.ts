@@ -5,7 +5,7 @@ import { EventsRepository } from 'src/modules/events/repository/events.repositor
 import { CreateEventDto } from 'src/modules/events/dto/create-event.dto';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
-import { Member } from 'src/modules/members/entities';
+import { Member, MemberDetail } from 'src/modules/members/entities';
 import { Event, Like } from 'src/modules/events/entities';
 import { NaverService } from 'src/external/naver/naver.service';
 import { S3Service } from 'src/external/s3/s3.service';
@@ -139,12 +139,16 @@ describe('EventService', () => {
   describe('fineOne', () => {
     let eventId: number;
     let memberId: number;
+    let member: Member;
+    let memberDetail: MemberDetail;
     let event: Event;
     let findEventDto: FindEventDto;
     beforeEach(() => {
       eventId = 1;
       memberId = 1;
-      event = new Event();
+      memberDetail = new MemberDetail();
+      member = new MemberBuilder().memberDetail(memberDetail).build();
+      event = new EventBuilder().member(member).build();
       findEventDto = FindEventDto.of(event, true);
     });
 
@@ -273,7 +277,7 @@ describe('EventService', () => {
 
   describe('getFeeds', () => {
     let events: Event[];
-    let getFeedDto: GetFeedsDto[];
+    let getFeedDto: GetFeedsDto;
 
     beforeEach(() => {
       events = [
@@ -281,13 +285,13 @@ describe('EventService', () => {
           id: 1,
           title: 'Event 1',
           content: 'Content 1',
-          likesCount: 10,
+          likesCount: 20,
         } as Event,
         {
           id: 2,
           title: 'Event 2',
           content: 'Content 2',
-          likesCount: 20,
+          likesCount: 10,
         } as Event,
         {
           id: 3,
@@ -296,15 +300,7 @@ describe('EventService', () => {
           likesCount: 5,
         } as Event,
       ];
-      getFeedDto = events.map(
-        (event) =>
-          ({
-            eventId: event.id,
-            title: event.title,
-            content: event.content,
-            media: event.media,
-          }) as GetFeedsDto,
-      );
+      getFeedDto = GetFeedsDto.of(events);
     });
     it('should return feeds ordered by likes', async () => {
       jest
@@ -312,6 +308,7 @@ describe('EventService', () => {
         .mockResolvedValue(events);
       const result = await eventService.getFeeds();
       expect(eventRepository.findEventsOrderByLikes).toHaveBeenCalledTimes(1);
+      expect(result.events[0].eventId).toEqual(1);
       expect(result).toEqual(getFeedDto);
     });
   });

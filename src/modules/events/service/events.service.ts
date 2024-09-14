@@ -87,7 +87,7 @@ export class EventsService {
     return FindNearbyAllDto.of(events, region);
   }
 
-  async getFeeds(): Promise<GetFeedsDto[]> {
+  async getFeeds(): Promise<GetFeedsDto> {
     const events = await this.eventsRepository.findEventsOrderByLikes();
     return GetFeedsDto.of(events);
   }
