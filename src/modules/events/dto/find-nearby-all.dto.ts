@@ -29,31 +29,16 @@ class Events {
 }
 
 export class FindNearbyAllDto {
-  @ApiProperty()
-  si: string;
-  @ApiProperty()
-  gu: string;
-  @ApiProperty()
-  dong: string;
   @ApiProperty({ type: [Events] })
   events: Events[];
   @ApiProperty()
   eventsNumber: number;
-  public constructor(
-    si: string,
-    gu: string,
-    dong: string,
-    events: Events[],
-    eventsNumber: number,
-  ) {
-    this.si = si;
-    this.gu = gu;
-    this.dong = dong;
+  public constructor(events: Events[], eventsNumber: number) {
     this.events = events;
     this.eventsNumber = eventsNumber;
   }
 
-  public static of(events: Event[], region: Region): FindNearbyAllDto {
+  public static of(events: Event[]): FindNearbyAllDto {
     const eventList = events.map((event) => {
       return new Events(
         event.id,
@@ -63,12 +48,6 @@ export class FindNearbyAllDto {
         event.media,
       );
     });
-    return new FindNearbyAllDto(
-      region.si,
-      region.gu,
-      region.dong,
-      eventList,
-      eventList.length,
-    );
+    return new FindNearbyAllDto(eventList, eventList.length);
   }
 }

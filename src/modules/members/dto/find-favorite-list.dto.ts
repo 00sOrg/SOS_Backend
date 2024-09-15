@@ -25,7 +25,7 @@ export class FindFavoriteListDto {
 
   public static of(
     favoriteList: Favorite[],
-    regions: Region[],
+    address: string[],
   ): FindFavoriteListDto {
     const favoriteDtos = favoriteList.map((favorite, index) => {
       const favoriteDto = new FavoriteDto();
@@ -33,7 +33,7 @@ export class FindFavoriteListDto {
       favoriteDto.isAccepted = favorite.isAccepted;
       favoriteDto.nickname = favorite.favoritedMember.nickname;
       favoriteDto.modifiedNickname = favorite.nickname;
-      favoriteDto.lastLocation = regions[index].toString();
+      favoriteDto.lastLocation = address[index];
       return favoriteDto;
     });
 

@@ -263,9 +263,9 @@ describe('FavoritesService', () => {
         } as Favorite,
       ];
 
-      const regions: Region[] = [
-        new Region('Seoul', 'Jongno-gu', 'Jongno'),
-        new Region('Busan', 'Jung-gu', 'Nampo-dong'),
+      const addresses: string[] = [
+        '서울특별시 강남구 역삼동',
+        '경기도 용인시 기흥구 하갈동',
       ];
 
       jest
@@ -274,18 +274,13 @@ describe('FavoritesService', () => {
 
       jest
         .spyOn(naverService, 'getAddressFromCoordinate')
-        .mockResolvedValueOnce(regions[0])
-        .mockResolvedValueOnce(regions[1]);
+        .mockResolvedValueOnce(addresses[0])
+        .mockResolvedValueOnce(addresses[1]);
 
       const result = await favoritesService.getFavoritesForMember(1);
-
       expect(result.favorites.length).toBe(2);
-      expect(result.favorites[0].lastLocation).toEqual(
-        'Seoul Jongno-gu Jongno',
-      );
-      expect(result.favorites[1].lastLocation).toEqual(
-        'Busan Jung-gu Nampo-dong',
-      );
+      expect(result.favorites[0].lastLocation).toEqual(addresses[0]);
+      expect(result.favorites[1].lastLocation).toEqual(addresses[1]);
       expect(
         favoritesRepository.findAllFavoritesForMember,
       ).toHaveBeenCalledWith(1);

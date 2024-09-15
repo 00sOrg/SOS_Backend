@@ -86,12 +86,9 @@ export class EventsService {
     if (!lat || !lng || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
       throw new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION);
     }
-    const region: Region = await this.naverService.getAddressFromCoordinate(
-      lat,
-      lng,
-    );
-    const events: Event[] = await this.eventsRepository.findNearbyAll(region);
-    return FindNearbyAllDto.of(events, region);
+    const address = await this.naverService.getAddressFromCoordinate(lat, lng);
+    const events: Event[] = await this.eventsRepository.findNearbyAll(address);
+    return FindNearbyAllDto.of(events);
   }
 
   async getFeeds(): Promise<GetFeedsDto> {

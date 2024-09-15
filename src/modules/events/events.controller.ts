@@ -24,7 +24,6 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
-  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { ApiSuccessResponse } from '../../common/decorators/decorators.success.response';
@@ -32,7 +31,6 @@ import { ApiFailureResponse } from '../../common/decorators/decoratos.failure.re
 import { ErrorStatus } from '../../common/api/status/error.status';
 import { GetFeedsDto } from './dto/get-feeds.dto';
 import { EventType } from './entities/enum/event-type.enum';
-import { DisasterLevel } from './entities/enum/disaster-level.enum';
 
 @ApiBearerAuth()
 @ApiTags('Events')
@@ -92,7 +90,7 @@ export class EventsController {
     await this.eventsService.create(request, member, media);
   }
 
-  @Get('nearby')
+  @Get('map')
   @ApiOperation({
     summary: 'Get nearby events',
     description: 'level은 primary, secondary, all이 있습니다.',
