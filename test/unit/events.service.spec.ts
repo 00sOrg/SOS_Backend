@@ -9,7 +9,6 @@ import { Member, MemberDetail } from 'src/modules/members/entities';
 import { Event, Like } from 'src/modules/events/entities';
 import { NaverService } from 'src/external/naver/naver.service';
 import { S3Service } from 'src/external/s3/s3.service';
-import { Region } from '../../src/external/naver/dto/region.dto';
 import { GetFeedsDto } from '../../src/modules/events/dto/get-feeds.dto';
 import { MemberBuilder } from '../../src/modules/members/entities/builder/member.builder';
 import { EventBuilder } from '../../src/modules/events/entities/builder/event.builder';
@@ -206,7 +205,7 @@ describe('EventService', () => {
     let lat: number;
     let lng: number;
     let events: Event[];
-    let region: Region;
+    let address: string;
     beforeEach(() => {
       lat = 37.5665;
       lng = 126.978;
@@ -233,12 +232,12 @@ describe('EventService', () => {
           media: 'media3.jpg',
         } as Event,
       ];
-      region = { si: 'si', gu: 'gu', dong: 'dong' };
+      address = 'si gu dong';
     });
     it('should return all the events nearby', async () => {
       jest
         .spyOn(naverService, 'getAddressFromCoordinate')
-        .mockResolvedValue(region);
+        .mockResolvedValue(address);
       jest.spyOn(eventRepository, 'findNearbyAll').mockResolvedValue(events);
       const result = await eventService.findNearybyAll(lat, lng);
       result.events.forEach((event, index) => {
@@ -247,9 +246,6 @@ describe('EventService', () => {
         expect(event.media).toEqual(events[index].media);
         expect(event.createdAt).toEqual(events[index].createdAt);
       });
-      expect(result.si).toEqual(region.si);
-      expect(result.gu).toEqual(region.gu);
-      expect(result.dong).toEqual(region.dong);
       expect(result.eventsNumber).toEqual(events.length);
     });
     it('should throw INVALID_GEO_LOCATION if the lat or lng is not valid', async () => {

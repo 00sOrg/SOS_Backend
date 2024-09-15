@@ -55,14 +55,12 @@ export class EventsRepository {
     return query.getMany();
   }
 
-  async findNearbyAll(region: Region): Promise<Event[]> {
+  async findNearbyAll(address: string): Promise<Event[]> {
     const yesterday = new Date();
     yesterday.setDate(yesterday.getDate() - 1);
     return this.eventRepository
       .createQueryBuilder('event')
-      .where('event.si = :si', { si: region.si })
-      .andWhere('event.gu = :gu', { gu: region.gu })
-      .andWhere('event.dong = :dong', { dong: region.dong })
+      .where('event.address = :address', { address })
       .andWhere('event.createdAt > :yesterday', { yesterday })
       .addOrderBy('event.likesCount', 'DESC')
       .getMany();

@@ -14,7 +14,7 @@ export class NaverService {
     private readonly configService: ConfigService,
   ) {}
 
-  async getAddressFromCoordinate(lat: number, lng: number): Promise<Region> {
+  async getAddressFromCoordinate(lat: number, lng: number): Promise<string> {
     const params = {
       coords: `${lng},${lat}`,
       output: 'json',
@@ -35,11 +35,10 @@ export class NaverService {
       }),
     );
     const result = response.data.results[0];
-
     const city = result.region.area1.name;
     const gu = result.region.area2.name;
     const dong = result.region.area3.name;
 
-    return new Region(city, gu, dong);
+    return `${city} ${gu} ${dong}`;
   }
 }

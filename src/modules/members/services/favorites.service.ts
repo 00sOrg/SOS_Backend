@@ -97,14 +97,14 @@ export class FavoritesService {
     const favoriteMembers =
       await this.favoritesRepository.findAllFavoritesForMember(memberId);
 
-    const regions = await Promise.all(
+    const addresses = await Promise.all(
       favoriteMembers.map(async (favorite) => {
         const { latitude, longitude } = favorite.favoritedMember;
         return this.naverService.getAddressFromCoordinate(latitude, longitude);
       }),
     );
 
-    return FindFavoriteListDto.of(favoriteMembers, regions);
+    return FindFavoriteListDto.of(favoriteMembers, addresses);
   }
 
   // 관심 사용자 (닉네임) 수정
