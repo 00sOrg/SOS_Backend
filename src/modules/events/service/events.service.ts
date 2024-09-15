@@ -14,6 +14,7 @@ import { LikeRepository } from '../repository/like.repository';
 import { LikeBuilder } from '../entities/builder/like.builder';
 import { FindEventDto } from '../dto/find-event.dto';
 import { Member } from '../../members/entities';
+import { DisasterLevel } from '../entities/enum/disaster-level.enum';
 
 @Injectable()
 export class EventsService {
@@ -47,9 +48,21 @@ export class EventsService {
     return FindEventDto.of(event, isLiked);
   }
 
-  async findNearby(lat: number, lng: number): Promise<Event[]> {
-    if (!lat || !lng || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+  async findNearby(lat: number, lng: number, level: string): Promise<Event[]> {
+    if (
+      lat === undefined ||
+      lat === null ||
+      lat < -90 ||
+      lat > 90 ||
+      lng === undefined ||
+      lng === null ||
+      lng < -180 ||
+      lng > 180
+    ) {
       throw new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION);
+    }
+    if (!(level.toUpperCase() in DisasterLevel)) {
+      throw new ExceptionHandler(ErrorStatus.INVALID_DISASTER_LEVEL);
     }
     const earthRadius = 6371000;
     const latDistance = 200 / earthRadius;
@@ -65,6 +78,7 @@ export class EventsService {
       maxLat,
       minLng,
       maxLng,
+      level,
     );
   }
 

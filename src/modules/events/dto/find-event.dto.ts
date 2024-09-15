@@ -11,7 +11,7 @@ class CommentDto {
   @ApiProperty()
   memberNickname: string;
   @ApiProperty()
-  memberProfile: string | null;
+  memberProfile: string;
   @ApiProperty()
   createdAt: Date;
   @ApiProperty()
@@ -22,7 +22,7 @@ class CommentDto {
     this.content = comment.content;
     this.memberId = comment.member.id;
     this.memberNickname = comment.member.nickname;
-    this.memberProfile = comment.member.memberDetail?.profilePicture ?? null;
+    this.memberProfile = comment.member.memberDetail!.profilePicture!;
     this.createdAt = comment.createdAt;
     this.updatedAt = comment.updatedAt;
   }
@@ -34,7 +34,7 @@ export class FindEventDto {
   @ApiProperty()
   memberNickname!: string;
   @ApiProperty()
-  memberProfile?: string;
+  memberProfile!: string;
   @ApiProperty()
   address!: string;
   @ApiProperty()
@@ -61,7 +61,7 @@ export class FindEventDto {
     });
     dto.id = event.id;
     dto.memberNickname = event.member.nickname;
-    dto.memberProfile = event.member.memberDetail?.profilePicture;
+    dto.memberProfile = event.member.memberDetail!.profilePicture!;
     dto.address = event.address;
     dto.title = event.title;
     dto.content = event.content;

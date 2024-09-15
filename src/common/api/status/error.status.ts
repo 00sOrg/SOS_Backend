@@ -82,6 +82,11 @@ export class ErrorStatus implements BaseCode {
     400,
     '유효한 위도와 경도를 입력해 주세요.',
   );
+  static readonly INVALID_DISASTER_LEVEL = new ErrorStatus(
+    false,
+    400,
+    '유효한 재난 단계를 입력해 주세요.',
+  );
 
   //S3 에러
   static readonly S3_UPLOAD_FAILURE = new ErrorStatus(

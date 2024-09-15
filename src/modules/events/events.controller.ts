@@ -24,6 +24,7 @@ import {
   ApiBody,
   ApiConsumes,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { ApiSuccessResponse } from '../../common/decorators/decorators.success.response';
@@ -31,6 +32,7 @@ import { ApiFailureResponse } from '../../common/decorators/decoratos.failure.re
 import { ErrorStatus } from '../../common/api/status/error.status';
 import { GetFeedsDto } from './dto/get-feeds.dto';
 import { EventType } from './entities/enum/event-type.enum';
+import { DisasterLevel } from './entities/enum/disaster-level.enum';
 
 @ApiBearerAuth()
 @ApiTags('Events')
@@ -44,7 +46,10 @@ export class EventsController {
 
   @UseInterceptors(FileInterceptor('media'))
   @Post()
-  @ApiOperation({ summary: 'Create Event' })
+  @ApiOperation({
+    summary: 'Create Event',
+    description: '만약 type이 없다면 NONE 으로 보내주세요',
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -88,14 +93,25 @@ export class EventsController {
   }
 
   @Get('nearby')
-  @ApiOperation({ summary: 'Get nearby events' })
+  @ApiOperation({
+    summary: 'Get nearby events',
+    description: 'level은 primary, secondary, all이 있습니다.',
+  })
   @ApiSuccessResponse(FindNearybyDto)
-  @ApiFailureResponse(ErrorStatus.INVALID_GEO_LOCATION)
+  @ApiFailureResponse(
+    ErrorStatus.INVALID_GEO_LOCATION,
+    ErrorStatus.INVALID_DISASTER_LEVEL,
+  )
   async findNearyby(
+    @Query('level') level: string,
     @Query('lat') lat: string,
     @Query('lng') lng: string,
   ): Promise<FindNearybyDto> {
-    const events = await this.eventsService.findNearby(+lat, +lng);
+    const events = await this.eventsService.findNearby(
+      Number(lat),
+      Number(lng),
+      level,
+    );
     return FindNearybyDto.of(events);
   }
 
@@ -108,7 +124,7 @@ export class EventsController {
     @Request() req,
   ): Promise<FindEventDto> {
     const memberId = req.user.id;
-    return await this.eventsService.findOne(+id, +memberId);
+    return await this.eventsService.findOne(Number(id), +memberId);
   }
 
   @Post('comment')
@@ -135,7 +151,7 @@ export class EventsController {
     @Query('lat') lat: string,
     @Query('lng') lng: string,
   ): Promise<FindNearbyAllDto> {
-    return await this.eventsService.findNearybyAll(+lat, +lng);
+    return await this.eventsService.findNearybyAll(Number(lat), Number(lng));
   }
 
   @Get('/feeds')
@@ -157,6 +173,6 @@ export class EventsController {
   )
   async likeEvents(@Param('eventId') eventId: string, @Request() req) {
     const memberId = req.user.id;
-    await this.eventsService.likeEvent(+eventId, memberId);
+    await this.eventsService.likeEvent(Number(eventId), memberId);
   }
 }
