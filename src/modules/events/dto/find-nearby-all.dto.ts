@@ -1,5 +1,4 @@
 import { Event } from '../entities';
-import { Region } from '../../../external/naver/dto/region.dto';
 import { ApiProperty } from '@nestjs/swagger';
 
 class Events {

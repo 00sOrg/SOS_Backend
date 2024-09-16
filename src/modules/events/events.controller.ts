@@ -149,7 +149,7 @@ export class EventsController {
     @Query('lat') lat: string,
     @Query('lng') lng: string,
   ): Promise<FindNearbyAllDto> {
-    return await this.eventsService.findNearybyAll(Number(lat), Number(lng));
+    return await this.eventsService.findNearbyAll(Number(lat), Number(lng));
   }
 
   @Get('/feeds')
