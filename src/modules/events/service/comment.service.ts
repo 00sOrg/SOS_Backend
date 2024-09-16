@@ -5,6 +5,7 @@ import { ExceptionHandler } from 'src/common/filters/exception/exception.handler
 import { ErrorStatus } from 'src/common/api/status/error.status';
 import { CreateCommentDto } from '../dto/create-comment.dto';
 import { EventsRepository } from '../repository/events.repository';
+import { Member } from '../../members/entities';
 
 @Injectable()
 export class CommentService {
@@ -16,12 +17,8 @@ export class CommentService {
 
   async createComment(
     request: CreateCommentDto,
-    memberId: number,
+    member: Member,
   ): Promise<void> {
-    const member = await this.membersRepository.findById(memberId);
-    if (!member) {
-      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
-    }
     const event = await this.eventsRepository.findOne(request.eventId);
     if (!event) {
       throw new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND);

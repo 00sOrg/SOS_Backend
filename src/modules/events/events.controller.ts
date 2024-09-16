@@ -31,6 +31,7 @@ import { ApiFailureResponse } from '../../common/decorators/decoratos.failure.re
 import { ErrorStatus } from '../../common/api/status/error.status';
 import { GetFeedsDto } from './dto/get-feeds.dto';
 import { EventType } from './entities/enum/event-type.enum';
+import { LikeEventDto } from './dto/like-event.dto';
 
 @ApiBearerAuth()
 @ApiTags('Events')
@@ -121,8 +122,8 @@ export class EventsController {
     @Param('id') id: string,
     @Request() req,
   ): Promise<FindEventDto> {
-    const memberId = req.user.id;
-    return await this.eventsService.findOne(Number(id), +memberId);
+    const member = req.user;
+    return await this.eventsService.findOne(Number(id), member);
   }
 
   @Post('comment')
@@ -137,8 +138,8 @@ export class EventsController {
     @Body() request: CreateCommentDto,
     @Request() req,
   ): Promise<void> {
-    const memberId = req.user.id;
-    await this.commentService.createComment(request, memberId);
+    const member = req.user;
+    await this.commentService.createComment(request, member);
   }
 
   @Get('/nearby/all')
@@ -161,16 +162,22 @@ export class EventsController {
   }
 
   @Post('/like/:eventId')
-  @ApiOperation({ summary: 'Like a event' })
-  @ApiSuccessResponse()
+  @ApiOperation({
+    summary: 'Like event or cancel like',
+    description:
+      'isLiked가 true이면 좋아요가 추가되었고, false이면 좋아요가 취소된 것입니다.',
+  })
+  @ApiSuccessResponse(LikeEventDto)
   @ApiFailureResponse(
     ErrorStatus.INTERNAL_SERVER_ERROR,
     ErrorStatus.MEMBER_NOT_FOUND,
     ErrorStatus.EVENT_NOT_FOUND,
-    ErrorStatus.EVENT_ALREADY_LIKED,
   )
-  async likeEvents(@Param('eventId') eventId: string, @Request() req) {
-    const memberId = req.user.id;
-    await this.eventsService.likeEvent(Number(eventId), memberId);
+  async likeEvents(
+    @Param('eventId') eventId: string,
+    @Request() req,
+  ): Promise<LikeEventDto> {
+    const member = req.user;
+    return await this.eventsService.likeEvent(Number(eventId), member);
   }
 }

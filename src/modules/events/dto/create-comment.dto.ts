@@ -9,6 +9,11 @@ export class CreateCommentDto {
   @ApiProperty()
   content!: string;
 
+  constructor(eventId: number, content: string) {
+    this.eventId = eventId;
+    this.content = content;
+  }
+
   toComment(member: Member, event: Event): Comment {
     return new CommentBuilder()
       .member(member)

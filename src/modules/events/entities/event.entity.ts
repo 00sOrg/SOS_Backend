@@ -61,4 +61,8 @@ export class Event extends DefaultEntity {
   addLikeCount() {
     this.likesCount++;
   }
+
+  removeLikeCount() {
+    this.likesCount = this.likesCount > 0 ? this.likesCount - 1 : 0;
+  }
 }

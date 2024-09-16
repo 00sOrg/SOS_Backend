@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { Like } from '../entities';
-import e from 'express';
 
 @Injectable()
 export class LikeRepository {
@@ -14,13 +13,19 @@ export class LikeRepository {
     return this.likeRepository.save(like);
   }
 
-  async isLiked(eventId: number, memberId: number): Promise<boolean> {
-    const result = await this.likeRepository.findOne({
+  async findByEventAndMember(
+    eventId: number,
+    memberId: number,
+  ): Promise<Like | null> {
+    return await this.likeRepository.findOne({
       where: {
         member: { id: memberId },
         event: { id: eventId },
       },
     });
-    return result ? true : false;
+  }
+
+  async delete(like: Like): Promise<void> {
+    await this.likeRepository.remove(like);
   }
 }

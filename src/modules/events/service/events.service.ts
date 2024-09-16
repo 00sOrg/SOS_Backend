@@ -15,6 +15,7 @@ import { LikeBuilder } from '../entities/builder/like.builder';
 import { FindEventDto } from '../dto/find-event.dto';
 import { Member } from '../../members/entities';
 import { DisasterLevel } from '../entities/enum/disaster-level.enum';
+import { LikeEventDto } from '../dto/like-event.dto';
 
 @Injectable()
 export class EventsService {
@@ -39,12 +40,16 @@ export class EventsService {
     await this.eventsRepository.create(event);
   }
 
-  async findOne(eventId: number, memberId: number): Promise<FindEventDto> {
+  async findOne(eventId: number, member: Member): Promise<FindEventDto> {
     const event = await this.eventsRepository.findById(eventId);
-    const isLiked = await this.likeRepository.isLiked(eventId, memberId);
+    const like = await this.likeRepository.findByEventAndMember(
+      eventId,
+      member.id,
+    );
     if (!event) {
       throw new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND);
     }
+    const isLiked = like ? true : false;
     return FindEventDto.of(event, isLiked);
   }
 
@@ -96,22 +101,24 @@ export class EventsService {
     return GetFeedsDto.of(events);
   }
 
-  async likeEvent(eventId: number, memberId: number): Promise<void> {
-    const member = await this.membersRepository.findById(memberId);
-    if (!member) {
-      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
-    }
+  async likeEvent(eventId: number, member: Member): Promise<LikeEventDto> {
     const event = await this.eventsRepository.findOne(eventId);
     if (!event) {
       throw new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND);
     }
-    const isLiked = await this.likeRepository.isLiked(eventId, memberId);
-    if (isLiked) {
-      throw new ExceptionHandler(ErrorStatus.EVENT_ALREADY_LIKED);
+    const like = await this.likeRepository.findByEventAndMember(
+      eventId,
+      member.id,
+    );
+    if (like) {
+      await this.likeRepository.delete(like);
+      event.removeLikeCount();
+    } else {
+      const newLike = new LikeBuilder().event(event).member(member).build();
+      await this.likeRepository.create(newLike);
+      event.addLikeCount();
     }
-    event.addLikeCount();
-    const like = new LikeBuilder().event(event).member(member).build();
-    await this.likeRepository.create(like);
     await this.eventsRepository.update(event);
+    return LikeEventDto.of(like ? true : false);
   }
 }
