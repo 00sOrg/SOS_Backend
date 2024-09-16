@@ -15,6 +15,7 @@ import { LikeBuilder } from '../entities/builder/like.builder';
 import { FindEventDto } from '../dto/find-event.dto';
 import { Member } from '../../members/entities';
 import { DisasterLevel } from '../entities/enum/disaster-level.enum';
+import { SearchEventDto } from '../dto/search-event.dto';
 
 @Injectable()
 export class EventsService {
@@ -113,5 +114,10 @@ export class EventsService {
     const like = new LikeBuilder().event(event).member(member).build();
     await this.likeRepository.create(like);
     await this.eventsRepository.update(event);
+  }
+
+  async searchEvent(keyword: string): Promise<SearchEventDto> {
+    const events = await this.eventsRepository.findByTitleLike(keyword);
+    return SearchEventDto.of(events);
   }
 }
