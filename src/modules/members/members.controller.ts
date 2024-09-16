@@ -29,6 +29,7 @@ import { ErrorStatus } from '../../common/api/status/error.status';
 import { FindFavoriteListDto } from './dto/find-favorite-list.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateMemberDto } from './dto/update-member.dto';
+import { SearchMemberDto } from './dto/search-member.dto';
 
 @ApiTags('Members')
 @UseGuards(AuthGuard('jwt'))
@@ -179,5 +180,18 @@ export class MembersController {
     const memberId = req.user.id; // 현재 로그인된 사용자의 ID
 
     await this.locationService.updateLocation(memberId, +lat, +lng);
+  }
+
+  @Get('search')
+  @ApiOperation({ summary: 'search user by nickname' })
+  @ApiSuccessResponse(SearchMemberDto)
+  @ApiFailureResponse(
+    ErrorStatus.MEMBER_NOT_FOUND,
+    ErrorStatus.INTERNAL_SERVER_ERROR,
+  )
+  async findMemberByNickname(
+    @Query('nickname') nickname: string,
+  ): Promise<SearchMemberDto> {
+    return await this.membersService.findMemberAndAddressByNickname(nickname);
   }
 }

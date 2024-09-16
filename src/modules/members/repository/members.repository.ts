@@ -39,9 +39,14 @@ export class MembersRepository {
   }
 
   async findByNickname(nickname: string): Promise<Member | null> {
-    return this.memberRepository.findOne({
-      where: { nickname: nickname },
-    });
+    // return this.memberRepository.findOne({
+    //   where: { nickname: nickname }
+    //   ,
+    // });
+    return this.memberRepository.createQueryBuilder('member')
+    .where('member.nickname = :nickname', {nickname})
+    .leftJoinAndSelect('member.memberDetail', 'memberDetail')
+    .getOne();
   }
 
   async findNearby(

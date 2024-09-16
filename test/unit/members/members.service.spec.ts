@@ -7,12 +7,17 @@ import { MembersRepository } from 'src/modules/members/repository/members.reposi
 import { S3Service } from 'src/external/s3/s3.service';
 import * as bcrypt from 'bcryptjs';
 import { MembersDetailRepository } from 'src/modules/members/repository/membersDetail.repository';
+import { MemberBuilder } from '../../../src/modules/members/entities/builder/member.builder';
+import { NaverService } from '../../../src/external/naver/naver.service';
+import { SearchMemberDto } from '../../../src/modules/members/dto/search-member.dto';
+import { MemberDetailBuilder } from '../../../src/modules/members/entities/builder/memberDetail.builder';
 
 describe('MembersService', () => {
   let service: MembersService;
   let membersRepository: MembersRepository;
   let membersDetailRepository: MembersDetailRepository;
   let s3Service: S3Service;
+  let naverService: NaverService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -41,6 +46,12 @@ describe('MembersService', () => {
             upload: jest.fn(),
           },
         },
+        {
+          provide: NaverService,
+          useValue: {
+            getAddressFromCoordinate: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -50,6 +61,7 @@ describe('MembersService', () => {
       MembersDetailRepository,
     );
     s3Service = module.get<S3Service>(S3Service);
+    naverService = module.get<NaverService>(NaverService);
   });
 
   it('should be defined', () => {
@@ -135,6 +147,48 @@ describe('MembersService', () => {
         sex: 'F',
         birthDate: new Date('1990-01-01'),
       });
+    });
+  });
+  describe('findMemberAndAddressByNickname', () => {
+    let nickname: string;
+    let member: Member;
+    let address: string;
+    let searchMemberDto: SearchMemberDto;
+    beforeEach(() => {
+      nickname = 'test';
+      address = 'test';
+      const memberDetail = new MemberDetailBuilder()
+        .id(1)
+        .profilePicture('profile')
+        .build();
+      member = new MemberBuilder()
+        .id(1)
+        .nickname('test')
+        .logitude(0)
+        .logitude(0)
+        .memberDetail(memberDetail)
+        .build();
+      searchMemberDto = SearchMemberDto.of(member, address);
+    });
+    it('should return SearchMemberDto successfully', async () => {
+      jest.spyOn(membersRepository, 'findByNickname').mockResolvedValue(member);
+      jest
+        .spyOn(naverService, 'getAddressFromCoordinate')
+        .mockResolvedValue(address);
+      const result = await service.findMemberAndAddressByNickname(nickname);
+
+      expect(result).toEqual(searchMemberDto);
+      expect(membersRepository.findByNickname).toHaveBeenCalledWith(nickname);
+      expect(naverService.getAddressFromCoordinate).toHaveBeenCalledWith(
+        member.latitude,
+        member.longitude,
+      );
+    });
+    it('should throw MEBEr_NOT_FOUND if member does not exist', async () => {
+      jest.spyOn(membersRepository, 'findByNickname').mockResolvedValue(null);
+      await expect(
+        service.findMemberAndAddressByNickname(nickname),
+      ).rejects.toThrow(new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
     });
   });
 });

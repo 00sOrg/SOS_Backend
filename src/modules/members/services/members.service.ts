@@ -7,6 +7,9 @@ import * as bcrypt from 'bcryptjs';
 import { UpdateMemberDto } from '../dto/update-member.dto';
 import { S3Service } from 'src/external/s3/s3.service';
 import { MembersDetailRepository } from '../repository/membersDetail.repository';
+import { LikeRepository } from '../../events/repository/like.repository';
+import { NaverService } from '../../../external/naver/naver.service';
+import { SearchMemberDto } from '../dto/search-member.dto';
 
 @Injectable()
 export class MembersService {
@@ -14,6 +17,7 @@ export class MembersService {
     private readonly membersRepository: MembersRepository,
     private readonly membersDetailRepository: MembersDetailRepository,
     private readonly s3Service: S3Service,
+    private readonly naverService: NaverService,
   ) {}
 
   async create(member: Member): Promise<Member> {
@@ -113,5 +117,19 @@ export class MembersService {
       minLng,
       maxLng,
     );
+  }
+
+  async findMemberAndAddressByNickname(
+    nickname: string,
+  ): Promise<SearchMemberDto> {
+    const member = await this.membersRepository.findByNickname(nickname);
+    if (!member) {
+      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
+    }
+    const address = await this.naverService.getAddressFromCoordinate(
+      member.latitude,
+      member.longitude,
+    );
+    return SearchMemberDto.of(member, address);
   }
 }
