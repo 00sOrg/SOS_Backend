@@ -19,7 +19,6 @@ import { SearchEventDto } from '../../src/modules/events/dto/search-event.dto';
 
 describe('EventService', () => {
   let eventService: EventsService;
-  let memberRepository: MembersRepository;
   let eventRepository: EventsRepository;
   let naverService: NaverService;
   let s3Service: S3Service;
@@ -64,14 +63,14 @@ describe('EventService', () => {
           provide: LikeRepository,
           useValue: {
             create: jest.fn(),
-            isLiked: jest.fn(),
+            findByEventAndMember: jest.fn(),
+            delete: jest.fn(),
           },
         },
       ],
     }).compile();
 
     eventService = module.get<EventsService>(EventsService);
-    memberRepository = module.get(MembersRepository);
     eventRepository = module.get(EventsRepository);
     naverService = module.get<NaverService>(NaverService);
     s3Service = module.get<S3Service>(S3Service);
@@ -117,35 +116,40 @@ describe('EventService', () => {
 
   describe('fineOne', () => {
     let eventId: number;
-    let memberId: number;
     let member: Member;
     let memberDetail: MemberDetail;
     let event: Event;
     let findEventDto: FindEventDto;
+    let like: Like;
     beforeEach(() => {
       eventId = 1;
-      memberId = 1;
       memberDetail = new MemberDetail();
-      member = new MemberBuilder().memberDetail(memberDetail).build();
+      member = new MemberBuilder().id(1).memberDetail(memberDetail).build();
       event = new EventBuilder().member(member).build();
+      like = new LikeBuilder().build();
       findEventDto = FindEventDto.of(event, true);
     });
 
     it('should return the event successfully', async () => {
       jest.spyOn(eventRepository, 'findById').mockResolvedValue(event);
-      jest.spyOn(likeRepository, 'isLiked').mockResolvedValue(true);
+      jest
+        .spyOn(likeRepository, 'findByEventAndMember')
+        .mockResolvedValue(like);
 
-      const result = await eventService.findOne(eventId, memberId);
+      const result = await eventService.findOne(eventId, member);
 
       expect(eventRepository.findById).toHaveBeenCalledWith(1);
-      expect(likeRepository.isLiked).toHaveBeenCalledWith(eventId, memberId);
+      expect(likeRepository.findByEventAndMember).toHaveBeenCalledWith(
+        eventId,
+        member.id,
+      );
       expect(result).toEqual(findEventDto);
     });
 
     it('should throw EVENT_NOT_FOUND if the event is not found', async () => {
       jest.spyOn(eventRepository, 'findById').mockResolvedValue(null);
 
-      await expect(eventService.findOne(eventId, memberId)).rejects.toThrow(
+      await expect(eventService.findOne(eventId, member)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND),
       );
     });
@@ -304,51 +308,58 @@ describe('EventService', () => {
     let like: Like;
     beforeEach(() => {
       member = new MemberBuilder().id(1).build();
-      event = new EventBuilder().id(1).build();
+      event = new EventBuilder().id(1).likesCount(1).build();
       like = new LikeBuilder().event(event).member(member).build();
     });
     it('should like the event successfully', async () => {
-      const memberId = 1;
       const eventId = 1;
 
-      jest.spyOn(memberRepository, 'findById').mockResolvedValue(member);
       jest.spyOn(eventRepository, 'findOne').mockResolvedValue(event);
-      jest.spyOn(likeRepository, 'isLiked').mockResolvedValue(false);
+      jest
+        .spyOn(likeRepository, 'findByEventAndMember')
+        .mockResolvedValue(null);
+      jest.spyOn(likeRepository, 'create').mockResolvedValue(like);
+      jest.spyOn(eventRepository, 'update').mockResolvedValue(undefined);
 
-      await eventService.likeEvent(eventId, memberId);
-      expect(memberRepository.findById).toHaveBeenCalledWith(memberId);
+      const result = await eventService.likeEvent(eventId, member);
+
       expect(eventRepository.findOne).toHaveBeenCalledWith(eventId);
-      expect(likeRepository.isLiked).toHaveBeenCalledWith(eventId, memberId);
-      expect(eventRepository.update).toHaveBeenCalledWith(event);
-      expect(likeRepository.create).toHaveBeenCalledWith(like);
-    });
-    it('should throw MEMBER_NOT_FOUND if member does not exist', async () => {
-      const memberId = 1;
-      const eventId = 1;
-      jest.spyOn(memberRepository, 'findById').mockResolvedValue(null);
-      await expect(eventService.likeEvent(eventId, memberId)).rejects.toThrow(
-        new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND),
+      expect(likeRepository.findByEventAndMember).toHaveBeenCalledWith(
+        eventId,
+        member.id,
       );
+      expect(likeRepository.create).toHaveBeenCalledWith(expect.any(Like));
+      expect(event.likesCount).toBe(2);
+      expect(eventRepository.update).toHaveBeenCalledWith(event);
+      expect(result.isLiked).toBe(false);
+    });
+
+    it('should cancel like successfully if the event is already liked', async () => {
+      const eventId = 1;
+
+      jest.spyOn(eventRepository, 'findOne').mockResolvedValue(event);
+      jest
+        .spyOn(likeRepository, 'findByEventAndMember')
+        .mockResolvedValue(like);
+      jest.spyOn(likeRepository, 'delete').mockResolvedValue(undefined);
+      jest.spyOn(eventRepository, 'update').mockResolvedValue(undefined);
+
+      const result = await eventService.likeEvent(eventId, member);
+
+      expect(likeRepository.findByEventAndMember).toHaveBeenCalledWith(
+        eventId,
+        member.id,
+      );
+      expect(likeRepository.delete).toHaveBeenCalledWith(like);
+      expect(eventRepository.update).toHaveBeenCalledWith(event);
+      expect(result.isLiked).toBe(true);
     });
 
     it('should throw EVENT_NOT_FOUND if event does not exist', async () => {
-      const memberId = 1;
       const eventId = 1;
-      jest.spyOn(memberRepository, 'findById').mockResolvedValue(member);
       jest.spyOn(eventRepository, 'findOne').mockResolvedValue(null);
-      await expect(eventService.likeEvent(eventId, memberId)).rejects.toThrow(
+      await expect(eventService.likeEvent(eventId, member)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND),
-      );
-    });
-
-    it('should throw EVENT_ALREADY_LIKED if isLiked is true', async () => {
-      const memberId = 1;
-      const eventId = 1;
-      jest.spyOn(memberRepository, 'findById').mockResolvedValue(member);
-      jest.spyOn(eventRepository, 'findOne').mockResolvedValue(event);
-      jest.spyOn(likeRepository, 'isLiked').mockResolvedValue(true);
-      await expect(eventService.likeEvent(eventId, memberId)).rejects.toThrow(
-        new ExceptionHandler(ErrorStatus.EVENT_ALREADY_LIKED),
       );
     });
   });

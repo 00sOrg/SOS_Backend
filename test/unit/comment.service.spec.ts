@@ -8,6 +8,8 @@ import { EventsRepository } from 'src/modules/events/repository/events.repositor
 import { CommentService } from 'src/modules/events/service/comment.service';
 import { Member } from 'src/modules/members/entities';
 import { MembersRepository } from 'src/modules/members/repository/members.repository';
+import { MemberBuilder } from '../../src/modules/members/entities/builder/member.builder';
+import { EventBuilder } from '../../src/modules/events/entities/builder/event.builder';
 
 describe('CommentService', () => {
   let commentService: CommentService;
@@ -49,57 +51,34 @@ describe('CommentService', () => {
   });
 
   describe('createComment', () => {
-    it('should create a comment successfully', async () => {
-      const request = Object.assign(new CreateCommentDto(), {
-        eventId: 1,
-        content: 'test',
-      });
-      const memberId = 1;
-      const member = new Member();
-      const event = new Event();
+    let member: Member;
 
-      jest.spyOn(memberRepository, 'findById').mockResolvedValue(member);
+    beforeEach(async () => {
+      member = new MemberBuilder().id(1).build();
+    });
+
+    it('should create a comment successfully', async () => {
+      const request = new CreateCommentDto(1, 'test');
+      const event = new EventBuilder().id(1).commentsCount(1).build();
+
       jest.spyOn(eventsRepository, 'findOne').mockResolvedValue(event);
 
-      await commentService.createComment(request, memberId);
+      await commentService.createComment(request, member);
 
-      expect(memberRepository.findById).toHaveBeenCalledWith(1);
       expect(eventsRepository.findOne).toHaveBeenCalledWith(1);
       expect(eventsRepository.update).toHaveBeenCalledTimes(1);
       expect(commentRepository.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          content: 'test',
-          event: event,
-          member: member,
-        }),
+        request.toComment(member, event),
       );
-      expect(event.commentsCount).toBe(1);
+      expect(event.commentsCount).toBe(2);
     });
 
     it('should throw MEMBER_NOT_FOUND if member does not exist', async () => {
-      const request = Object.assign(new CreateCommentDto(), {
-        eventId: 1,
-        content: 'test',
-      });
-      const memberid = 1;
-      jest.spyOn(memberRepository, 'findById').mockResolvedValue(null);
-      await expect(
-        commentService.createComment(request, memberid),
-      ).rejects.toThrow(new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
-    });
-
-    it('should throw MEMBER_NOT_FOUND if member does not exist', async () => {
-      const request = Object.assign(new CreateCommentDto(), {
-        eventId: 1,
-        content: 'test',
-      });
-      const memberid = 1;
-      const member = new Member();
-      jest.spyOn(memberRepository, 'findById').mockResolvedValue(member);
+      const request = new CreateCommentDto(1, 'test');
       jest.spyOn(eventsRepository, 'findById').mockResolvedValue(null);
 
       await expect(
-        commentService.createComment(request, memberid),
+        commentService.createComment(request, member),
       ).rejects.toThrow(new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND));
     });
   });
