@@ -72,6 +72,7 @@ export class EventsRepository {
       .createQueryBuilder('event')
       .where('event.createdAt > :yesterday', { yesterday })
       .addOrderBy('event.likesCount', 'DESC')
+      .addOrderBy('event.createdAt', 'DESC')
       .getMany();
   }
 
