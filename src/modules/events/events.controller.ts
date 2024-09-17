@@ -31,6 +31,7 @@ import { ApiFailureResponse } from '../../common/decorators/decoratos.failure.re
 import { ErrorStatus } from '../../common/api/status/error.status';
 import { GetFeedsDto } from './dto/get-feeds.dto';
 import { EventType } from './entities/enum/event-type.enum';
+import { SearchEventDto } from './dto/search-event.dto';
 
 @ApiBearerAuth()
 @ApiTags('Events')
@@ -172,5 +173,15 @@ export class EventsController {
   async likeEvents(@Param('eventId') eventId: string, @Request() req) {
     const memberId = req.user.id;
     await this.eventsService.likeEvent(Number(eventId), memberId);
+  }
+
+  @Get('/map/search')
+  @ApiOperation({ summary: 'Search events' })
+  @ApiSuccessResponse(SearchEventDto)
+  @ApiFailureResponse(ErrorStatus.INTERNAL_SERVER_ERROR)
+  async searchEvents(
+    @Query('keyword') keyword: string,
+  ): Promise<SearchEventDto> {
+    return await this.eventsService.searchEvent(keyword);
   }
 }
