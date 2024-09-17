@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { Event } from '../entities';
-import { Region } from '../../../external/naver/dto/region.dto';
 import { DisasterLevel } from '../entities/enum/disaster-level.enum';
 
 @Injectable()

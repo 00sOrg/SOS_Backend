@@ -242,7 +242,7 @@ describe('EventService', () => {
         .spyOn(naverService, 'getAddressFromCoordinate')
         .mockResolvedValue(address);
       jest.spyOn(eventRepository, 'findNearbyAll').mockResolvedValue(events);
-      const result = await eventService.findNearybyAll(lat, lng);
+      const result = await eventService.findNearbyAll(lat, lng);
       result.events.forEach((event, index) => {
         expect(event.id).toEqual(events[index].id);
         expect(event.title).toEqual(events[index].title);
@@ -254,7 +254,7 @@ describe('EventService', () => {
     it('should throw INVALID_GEO_LOCATION if the lat or lng is not valid', async () => {
       lat = 100.5665;
       lng = 186.978;
-      await expect(eventService.findNearybyAll(lat, lng)).rejects.toThrow(
+      await expect(eventService.findNearbyAll(lat, lng)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION),
       );
     });

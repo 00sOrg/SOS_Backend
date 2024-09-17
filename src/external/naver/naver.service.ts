@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
-import { Region } from './dto/region.dto';
 import { ConfigService } from '@nestjs/config';
+import { ExceptionHandler } from '../../common/filters/exception/exception.handler';
+import { ErrorStatus } from '../../common/api/status/error.status';
 
 @Injectable()
 export class NaverService {
@@ -35,6 +36,9 @@ export class NaverService {
       }),
     );
     const result = response.data.results[0];
+    if (!result) {
+      throw new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION);
+    }
     const city = result.region.area1.name;
     const gu = result.region.area2.name;
     const dong = result.region.area3.name;
