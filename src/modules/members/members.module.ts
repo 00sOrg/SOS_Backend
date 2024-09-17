@@ -11,7 +11,7 @@ import { ExternalModule } from 'src/external/external.module';
 import { MembersDetailRepository } from './repository/membersDetail.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Member]), ExternalModule],
+  imports: [ExternalModule],
   providers: [
     MembersService,
     MembersRepository,

@@ -59,6 +59,16 @@ export class MemberBuilder {
     return this;
   }
 
+  logitude(logitude: number): this {
+    this._member.longitude = logitude;
+    return this;
+  }
+
+  latitude(latitude: number): this {
+    this._member.latitude = latitude;
+    return this;
+  }
+
   // events(events: Event[]): this {
   //   this._member.events = events as Event[];
   //   return this;

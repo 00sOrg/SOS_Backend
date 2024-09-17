@@ -83,4 +83,11 @@ export class EventsRepository {
   async findOne(eventId: number): Promise<Event | null> {
     return this.eventRepository.findOne({ where: { id: eventId } });
   }
+
+  async findByTitleLike(keyword: string): Promise<Event[]> {
+    return this.eventRepository
+      .createQueryBuilder('event')
+      .where('event.title LIKE :keyword', { keyword: `%${keyword}%` })
+      .getMany();
+  }
 }

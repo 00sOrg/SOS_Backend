@@ -15,6 +15,7 @@ import { EventBuilder } from '../../src/modules/events/entities/builder/event.bu
 import { LikeRepository } from '../../src/modules/events/repository/like.repository';
 import { LikeBuilder } from '../../src/modules/events/entities/builder/like.builder';
 import { FindEventDto } from '../../src/modules/events/dto/find-event.dto';
+import { SearchEventDto } from '../../src/modules/events/dto/search-event.dto';
 
 describe('EventService', () => {
   let eventService: EventsService;
@@ -43,6 +44,7 @@ describe('EventService', () => {
             findEventsOrderByLikes: jest.fn(),
             findOne: jest.fn(),
             update: jest.fn(),
+            findByTitleLike: jest.fn(),
           },
         },
         {
@@ -205,6 +207,7 @@ describe('EventService', () => {
       );
     });
   });
+
   describe('findNearbyAll', () => {
     let lat: number;
     let lng: number;
@@ -358,6 +361,22 @@ describe('EventService', () => {
       await expect(eventService.likeEvent(eventId, member)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND),
       );
+    });
+  });
+
+  describe('searchEvent', () => {
+    it('should return search results successfully', async () => {
+      const keyword = 'test';
+      const events = [
+        new EventBuilder().title('test event 1').build(),
+        new EventBuilder().title('test event 2').build(),
+      ];
+      const searchEventDto = SearchEventDto.of(events);
+      jest.spyOn(eventRepository, 'findByTitleLike').mockResolvedValue(events);
+      const result = await eventService.searchEvent(keyword);
+
+      expect(eventRepository.findByTitleLike).toHaveBeenCalledWith(keyword);
+      expect(result).toEqual(searchEventDto);
     });
   });
 });

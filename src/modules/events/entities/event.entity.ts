@@ -21,8 +21,8 @@ export class Event extends DefaultEntity {
   @JoinColumn()
   member!: Member;
 
-  @Column({ type: 'varchar', length: 10, nullable: true })
-  type?: EventType;
+  @Column({ type: 'varchar', length: 25, nullable: true })
+  type!: EventType;
 
   @Column({ type: 'text', nullable: true })
   media?: string;
