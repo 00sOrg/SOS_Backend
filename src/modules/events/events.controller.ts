@@ -10,10 +10,10 @@ import {
   UseInterceptors,
   UploadedFile,
 } from '@nestjs/common';
-import { EventsService } from './service/events.service';
+import { EventsService } from './services/events.service';
 import { CreateEventDto } from './dto/create-event.dto';
 import { FindEventDto } from './dto/find-event.dto';
-import { CommentService } from './service/comment.service';
+import { CommentService } from './services/comment.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { FileInterceptor } from '@nestjs/platform-express';

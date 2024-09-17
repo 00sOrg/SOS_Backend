@@ -49,4 +49,13 @@ export class FavoritesRepository {
       .orderBy('favorite.createdAt', 'DESC')
       .getMany();
   }
+
+  async findById(id: number): Promise<Favorite | null> {
+    return this.favoriteRepository
+      .createQueryBuilder('favorite')
+      .where('favorite.id=:favoriteId ', { favoriteId: id })
+      .leftJoinAndSelect('favorite.member', 'member')
+      .leftJoinAndSelect('favorite.favoritedMember', 'favoritedMember')
+      .getOne();
+  }
 }

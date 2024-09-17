@@ -6,7 +6,7 @@ import { Favorite, Member } from 'src/modules/members/entities';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
 import { NaverService } from 'src/external/naver/naver.service';
-import { AlarmRepository } from '../../../src/modules/alarm/alarm.repository';
+import { NotificationRepository } from '../../../src/modules/alarm/notification.repository';
 import { MemberBuilder } from '../../../src/modules/members/entities/builder/member.builder';
 import { FavoriteBuilder } from '../../../src/modules/members/entities/builder/favorite.builder';
 import { NotificationType } from '../../../src/modules/alarm/entities/enums/notificationType.enum';
@@ -16,7 +16,7 @@ describe('FavoritesService', () => {
   let membersRepository: MembersRepository;
   let favoritesRepository: FavoritesRepository;
   let naverService: NaverService;
-  let alarmRepository: AlarmRepository;
+  let alarmRepository: NotificationRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -47,7 +47,7 @@ describe('FavoritesService', () => {
           },
         },
         {
-          provide: AlarmRepository,
+          provide: NotificationRepository,
           useValue: {
             create: jest.fn(),
           },
@@ -59,7 +59,9 @@ describe('FavoritesService', () => {
     membersRepository = module.get<MembersRepository>(MembersRepository);
     favoritesRepository = module.get<FavoritesRepository>(FavoritesRepository);
     naverService = module.get<NaverService>(NaverService);
-    alarmRepository = module.get<AlarmRepository>(AlarmRepository);
+    alarmRepository = module.get<NotificationRepository>(
+      NotificationRepository,
+    );
   });
 
   describe('addFavorite', () => {
@@ -184,15 +186,6 @@ describe('FavoritesService', () => {
       );
       expect(favoritesRepository.updateFavorite).toHaveBeenCalledWith(favorite);
       expect(favorite.isAccepted).toBe(true);
-      expect(alarmRepository.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: NotificationType.FAVORITE_ACCEPT,
-          member: favorite.member,
-          referenceTable: 'favorite',
-          referenceId: favorite.id,
-          isRead: false,
-        }),
-      );
     });
 
     it('should throw an error if the favorite request is not found', async () => {

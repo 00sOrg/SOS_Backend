@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { EventsService } from 'src/modules/events/service/events.service';
+import { EventsService } from 'src/modules/events/services/events.service';
 import { MembersRepository } from 'src/modules/members/repository/members.repository';
 import { EventsRepository } from 'src/modules/events/repository/events.repository';
 import { CreateEventDto } from 'src/modules/events/dto/create-event.dto';

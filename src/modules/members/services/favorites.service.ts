@@ -7,7 +7,7 @@ import { ErrorStatus } from 'src/common/api/status/error.status';
 import { FindFavoriteListDto } from '../dto/find-favorite-list.dto';
 import { NaverService } from 'src/external/naver/naver.service';
 import { FavoriteBuilder } from '../entities/builder/favorite.builder';
-import { AlarmRepository } from '../../alarm/alarm.repository';
+import { NotificationRepository } from '../../alarm/notification.repository';
 import { NotificationBuilder } from '../../alarm/entities/builder/notification.builder';
 import { NotificationType } from '../../alarm/entities/enums/notificationType.enum';
 
@@ -17,7 +17,7 @@ export class FavoritesService {
     private readonly membersRepository: MembersRepository,
     private readonly favoritesRepository: FavoritesRepository,
     private readonly naverService: NaverService,
-    private readonly alarmRepository: AlarmRepository,
+    private readonly alarmRepository: NotificationRepository,
   ) {}
 
   // 관심 사용자 요청 생성
@@ -78,14 +78,6 @@ export class FavoritesService {
 
     favorite.isAccepted = true;
     await this.favoritesRepository.updateFavorite(favorite);
-    const notification = new NotificationBuilder()
-      .type(NotificationType.FAVORITE_ACCEPT)
-      .member(favorite.member)
-      .referenceTable('favorite')
-      .referenceId(favorite.id)
-      .isRead(false)
-      .build();
-    await this.alarmRepository.create(notification);
   }
 
   // 관심 사용자 요청 거절

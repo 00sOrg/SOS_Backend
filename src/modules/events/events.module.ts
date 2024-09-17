@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { EventsService } from './service/events.service';
+import { EventsService } from './services/events.service';
 import { EventsController } from './events.controller';
 import { EventsRepository } from './repository/events.repository';
-import { CommentService } from './service/comment.service';
+import { CommentService } from './services/comment.service';
 import { CommentRepository } from './repository/comment.repository';
 import { MembersModule } from '../members/members.module';
 import { ExternalModule } from 'src/external/external.module';

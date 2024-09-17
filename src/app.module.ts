@@ -6,7 +6,7 @@ import { EventsModule } from './modules/events/events.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { MembersModule } from './modules/members/members.module';
 import { ExternalModule } from './external/external.module';
-import { AlarmModule } from './modules/alarm/alarm.module';
+import { NotificationModule } from './modules/alarm/notification.module';
 
 @Module({
   imports: [
@@ -18,7 +18,7 @@ import { AlarmModule } from './modules/alarm/alarm.module';
     AuthModule,
     MembersModule,
     ExternalModule,
-    AlarmModule,
+    NotificationModule,
   ],
 })
 export class AppModule {}
