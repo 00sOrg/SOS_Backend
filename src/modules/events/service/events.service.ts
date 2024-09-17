@@ -129,7 +129,7 @@ export class EventsService {
       event.addLikeCount();
     }
     await this.eventsRepository.update(event);
-    return LikeEventDto.of(like ? true : false);
+    return LikeEventDto.of(like ? false : true);
   }
 
   async searchEvent(keyword: string): Promise<SearchEventDto> {
