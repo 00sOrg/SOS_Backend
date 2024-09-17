@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { MembersRepository } from '../repository/members.repository';
 import { FavoritesRepository } from '../repository/favorites.repository';
-import { Favorite } from '../entities';
+import { Member } from '../entities';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
 import { FindFavoriteListDto } from '../dto/find-favorite-list.dto';
 import { NaverService } from 'src/external/naver/naver.service';
+import { FavoriteBuilder } from '../entities/builder/favorite.builder';
+import { AlarmRepository } from '../../alarm/alarm.repository';
+import { NotificationBuilder } from '../../alarm/entities/builder/notification.builder';
+import { NotificationType } from '../../alarm/entities/enums/notificationType.enum';
 
 @Injectable()
 export class FavoritesService {
@@ -13,20 +17,20 @@ export class FavoritesService {
     private readonly membersRepository: MembersRepository,
     private readonly favoritesRepository: FavoritesRepository,
     private readonly naverService: NaverService,
+    private readonly alarmRepository: AlarmRepository,
   ) {}
 
   // 관심 사용자 요청 생성
-  async addFavorite(memberId: number, nickname: string): Promise<void> {
-    const favoritedMember =
-      await this.membersRepository.findByNickname(nickname);
+  async addFavorite(member: Member, nickname: string): Promise<void> {
+    const targetMember = await this.membersRepository.findByNickname(nickname);
 
-    if (!favoritedMember) {
+    if (!targetMember) {
       throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
     }
 
     const existingFavorite = await this.favoritesRepository.findFavorite(
-      memberId,
-      favoritedMember.id,
+      member.id,
+      targetMember.id,
     );
 
     // 이미 관심사용자 관계이거나 요청이 존재하는 경우 처리
@@ -38,16 +42,21 @@ export class FavoritesService {
       }
     }
 
-    const member = await this.membersRepository.findById(memberId);
-    if (!member) {
-      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
-    }
-    const newFavorite = new Favorite();
-    newFavorite.member = member;
-    newFavorite.favoritedMember = favoritedMember;
-    newFavorite.nickname = favoritedMember.nickname;
+    const newFavorite = new FavoriteBuilder()
+      .member(member)
+      .favoritedMember(targetMember)
+      .nickname(targetMember.nickname)
+      .build();
 
-    await this.favoritesRepository.saveFavorite(newFavorite);
+    const result = await this.favoritesRepository.saveFavorite(newFavorite);
+    const notification = new NotificationBuilder()
+      .type(NotificationType.FAVORITE_REQUEST)
+      .member(targetMember)
+      .referenceTable('favorite')
+      .referenceId(result.id)
+      .isRead(false)
+      .build();
+    await this.alarmRepository.create(notification);
   }
 
   // 관심 사용자 요청 수락 (여기서 memberId는 요청을 받은 사람의 Id)

@@ -92,8 +92,8 @@ export class MembersController {
     @Request() req,
     @Param('nickname') nickname: string,
   ): Promise<void> {
-    const memberId = req.user.id; // 현재 로그인된 사용자의 ID
-    await this.favoritesService.addFavorite(memberId, nickname);
+    const member = req.user; // 현재 로그인된 사용자
+    await this.favoritesService.addFavorite(member, nickname);
   }
 
   // 관심 사용자 요청 수락 API
