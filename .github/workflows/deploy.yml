@@ -1,0 +1,85 @@
+name: CI/CD
+
+on:
+  push:
+    branches: ["main", "dev"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to Docker hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_USERNAME }}/sos:latest
+          build-args: |
+            DB_HOST=${{ secrets.DB_HOST }}
+            DB_PORT=${{ secrets.DB_PORT }}
+            DB_USER=${{ secrets.DB_USER }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            DB_NAME=${{ secrets.DB_NAME }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            NODE_ENV=${{ secrets.NODE_ENV }}
+            NAVER_MAP_API_ID=${{ secrets.NAVER_MAP_API_ID }}
+            NAVER_MAP_API_SECRET=${{ secrets.NAVER_MAP_API_SECRET }}
+            BUCKET_ACCESS_KEY=${{ secrets.BUCKET_ACCESS_KEY }}
+            BUCKET_NAME=${{ secrets.BUCKET_NAME }}
+            BUCKET_SECRET_KEY=${{ secrets.BUCKET_SECRET_KEY }}
+            BUCKET_REGION=${{ secrets.BUCKET_REGION }}
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: SSH and deploy
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 22
+          script: |
+            cd ~/project
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/sos:latest
+            sudo docker stop sos || true
+            sudo docker rm sos || true
+            sudo docker image prune -f
+            sudo docker run -d --name sos -p 3000:3000 \
+              --mount type=bind,source=/home/ubuntu/project/firebase-service-account.json,target=/usr/src/app/firebase-service-account.json \
+              ${{ secrets.DOCKER_USERNAME }}/sos:latest
+
+      - name: Check Docker logs
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 22
+          script: |
+            sudo docker logs sos
+
+      - name: Check Docker container status
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 22
+          script: |
+            sudo docker ps -a
