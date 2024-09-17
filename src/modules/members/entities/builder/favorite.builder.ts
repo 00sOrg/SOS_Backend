@@ -18,7 +18,7 @@ export class FavoriteBuilder {
   }
 
   favoritedMember(member: Member): this {
-    this._favorite.member = member;
+    this._favorite.favoritedMember = member;
     return this;
   }
 

@@ -30,8 +30,10 @@ export class AuthService {
   async login(member: Member): Promise<object> {
     const payload = { email: member.email, sub: member.id };
 
+    const token = await this.jwtService.signAsync(payload);
+
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      access_token: token,
     };
   }
 

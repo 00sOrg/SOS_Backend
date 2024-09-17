@@ -12,7 +12,6 @@ import {
 import { AuthService } from './auth.service';
 import { CreateMemberDto } from './dto/create-member.dto';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { Member } from '../members/entities';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ApiSuccessResponse } from '../../common/decorators/decorators.success.response';
 import { ApiFailureResponse } from '../../common/decorators/decoratos.failure.response';
@@ -42,8 +41,9 @@ export class AuthController {
     ErrorStatus.INVALID_PASSWORD,
     ErrorStatus.MEMBER_NOT_FOUND,
   )
-  async login(@Request() req: Member): Promise<object> {
-    return await this.authService.login(req);
+  async login(@Request() req): Promise<object> {
+    const member = req.user;
+    return await this.authService.login(member);
   }
 
   @UseInterceptors(FileInterceptor('media'))

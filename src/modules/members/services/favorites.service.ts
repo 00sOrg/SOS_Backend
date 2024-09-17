@@ -59,14 +59,15 @@ export class FavoritesService {
     await this.alarmRepository.create(notification);
   }
 
-  // 관심 사용자 요청 수락 (여기서 memberId는 요청을 받은 사람의 Id)
+  // 관심 사용자 요청 수락 (여기서 member는 요청을 받은 사람)
   async acceptFavoriteRequest(
-    memberId: number,
-    requestMemberId: number,
+    memberReceivingRequestId: number, // 요청을 받은 사람
+    memberSendingRequestId: number, // 요청을 보낸 사람의 ID
   ): Promise<void> {
+    // 요청을 보낸 사람과 요청을 받은 사람 간의 관심 사용자 요청 조회
     const favorite = await this.favoritesRepository.findFavorite(
-      requestMemberId,
-      memberId,
+      memberSendingRequestId, // 요청을 보낸 사람의 ID
+      memberReceivingRequestId, // 요청을 받은 사람의 ID
     );
 
     if (!favorite) {
@@ -76,12 +77,15 @@ export class FavoritesService {
     }
 
     favorite.isAccepted = true;
-
-    await this.favoritesRepository.updateFavorite(
-      requestMemberId,
-      memberId,
-      favorite,
-    );
+    await this.favoritesRepository.updateFavorite(favorite);
+    const notification = new NotificationBuilder()
+      .type(NotificationType.FAVORITE_ACCEPT)
+      .member(favorite.member)
+      .referenceTable('favorite')
+      .referenceId(favorite.id)
+      .isRead(false)
+      .build();
+    await this.alarmRepository.create(notification);
   }
 
   // 관심 사용자 요청 거절
@@ -105,7 +109,7 @@ export class FavoritesService {
   async getFavoritesForMember(memberId: number): Promise<FindFavoriteListDto> {
     const favoriteMembers =
       await this.favoritesRepository.findAllFavoritesForMember(memberId);
-
+    console.log(favoriteMembers);
     const addresses = await Promise.all(
       favoriteMembers.map(async (favorite) => {
         const { latitude, longitude } = favorite.favoritedMember;
@@ -133,10 +137,6 @@ export class FavoritesService {
 
     favorite.nickname = nickname;
 
-    await this.favoritesRepository.updateFavorite(
-      memberId,
-      favoritedMemberId,
-      favorite,
-    );
+    await this.favoritesRepository.updateFavorite(favorite);
   }
 }

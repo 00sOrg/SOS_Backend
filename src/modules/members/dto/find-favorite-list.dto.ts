@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Favorite } from '../entities';
-import { Region } from 'src/external/naver/dto/region.dto';
 
 export class FavoriteDto {
   @ApiProperty()
@@ -17,6 +16,9 @@ export class FavoriteDto {
 
   @ApiProperty()
   lastLocation!: string;
+
+  @ApiProperty()
+  profile!: string;
 }
 
 export class FindFavoriteListDto {
@@ -34,6 +36,8 @@ export class FindFavoriteListDto {
       favoriteDto.nickname = favorite.favoritedMember.nickname;
       favoriteDto.modifiedNickname = favorite.nickname;
       favoriteDto.lastLocation = address[index];
+      favoriteDto.profile =
+        favorite.favoritedMember.memberDetail!.profilePicture!;
       return favoriteDto;
     });
 
