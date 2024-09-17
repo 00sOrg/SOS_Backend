@@ -1,17 +1,19 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { forwardRef, Module } from '@nestjs/common';
 import { MembersService } from './services/members.service';
 import { FavoritesService } from './services/favorites.service';
 import { MembersController } from './members.controller';
 import { MembersRepository } from './repository/members.repository';
 import { FavoritesRepository } from './repository/favorites.repository';
-import { Member } from './entities';
 import { LocationService } from './services/location.service';
 import { ExternalModule } from 'src/external/external.module';
 import { MembersDetailRepository } from './repository/membersDetail.repository';
+import { AlarmModule } from '../alarm/alarm.module';
 
 @Module({
-  imports: [ExternalModule],
+  imports: [
+    ExternalModule,
+    forwardRef(() => AlarmModule), // forwardRef로 수정
+  ],
   providers: [
     MembersService,
     MembersRepository,

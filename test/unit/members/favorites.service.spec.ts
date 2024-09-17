@@ -6,13 +6,18 @@ import { Favorite, Member } from 'src/modules/members/entities';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
 import { NaverService } from 'src/external/naver/naver.service';
-import { Region } from 'src/external/naver/dto/region.dto';
+import { AlarmRepository } from '../../../src/modules/alarm/alarm.repository';
+import { MemberBuilder } from '../../../src/modules/members/entities/builder/member.builder';
+import { FavoriteBuilder } from '../../../src/modules/members/entities/builder/favorite.builder';
+import { NotificationBuilder } from '../../../src/modules/alarm/entities/builder/notification.builder';
+import { NotificationType } from '../../../src/modules/alarm/entities/enums/notificationType.enum';
 
 describe('FavoritesService', () => {
   let favoritesService: FavoritesService;
   let membersRepository: MembersRepository;
   let favoritesRepository: FavoritesRepository;
   let naverService: NaverService;
+  let alarmRepository: AlarmRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -42,6 +47,12 @@ describe('FavoritesService', () => {
             getAddressFromCoordinate: jest.fn(),
           },
         },
+        {
+          provide: AlarmRepository,
+          useValue: {
+            create: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -49,72 +60,95 @@ describe('FavoritesService', () => {
     membersRepository = module.get<MembersRepository>(MembersRepository);
     favoritesRepository = module.get<FavoritesRepository>(FavoritesRepository);
     naverService = module.get<NaverService>(NaverService);
+    alarmRepository = module.get<AlarmRepository>(AlarmRepository);
   });
 
   describe('addFavorite', () => {
-    it('should add a new favorite if it does not already exist', async () => {
-      const memberId = 1;
-      const nickname = 'favoritedUser';
-      const favoritedMember: Member = { id: 2, nickname } as Member;
-      const member: Member = { id: memberId } as Member;
+    let targetMember: Member;
+    let member: Member;
+    let favorite: Favorite;
 
+    beforeEach(() => {
+      targetMember = new MemberBuilder().id(2).nickname('member2').build();
+      member = new MemberBuilder().id(1).build();
+      favorite = new FavoriteBuilder()
+        .id(1)
+        .member(member)
+        .favoritedMember(targetMember)
+        .nickname(targetMember.nickname)
+        .build();
+    });
+
+    it('should add a new favorite if it does not already exist', async () => {
+      const nickname = 'member2';
+      const newFavorite = new FavoriteBuilder()
+        .member(member)
+        .favoritedMember(targetMember)
+        .nickname(targetMember.nickname)
+        .build();
       jest
         .spyOn(membersRepository, 'findByNickname')
-        .mockResolvedValue(favoritedMember);
+        .mockResolvedValue(targetMember);
       jest.spyOn(membersRepository, 'findById').mockResolvedValue(member);
       jest.spyOn(favoritesRepository, 'findFavorite').mockResolvedValue(null);
       jest
         .spyOn(favoritesRepository, 'saveFavorite')
-        .mockResolvedValue({} as Favorite);
+        .mockResolvedValue(favorite);
 
-      await favoritesService.addFavorite(memberId, nickname);
+      await favoritesService.addFavorite(member, nickname);
 
       expect(membersRepository.findByNickname).toHaveBeenCalledWith(nickname);
       expect(favoritesRepository.findFavorite).toHaveBeenCalledWith(
-        memberId,
-        favoritedMember.id,
+        member.id,
+        targetMember.id,
       );
-      expect(favoritesRepository.saveFavorite).toHaveBeenCalled();
+      expect(favoritesRepository.saveFavorite).toHaveBeenCalledWith(
+        newFavorite,
+      );
+      expect(alarmRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: NotificationType.FAVORITE_REQUEST,
+          member: targetMember,
+          referenceTable: 'favorite',
+          referenceId: favorite.id,
+          isRead: false,
+        }),
+      );
     });
 
-    it('should throw an error if the favorited member is not found', async () => {
+    it('should throw an error if the target member does not found', async () => {
       jest.spyOn(membersRepository, 'findByNickname').mockResolvedValue(null);
       await expect(
-        favoritesService.addFavorite(1, 'nonexistentUser'),
+        favoritesService.addFavorite(member, 'nonexistentUser'),
       ).rejects.toThrow(new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
     });
 
     it('should throw an error if the favorite already exists and is accepted', async () => {
-      const favoritedMember: Member = { id: 2 } as Member;
-      const existingFavorite: Favorite = { isAccepted: true } as Favorite;
-
+      favorite.isAccepted = true;
       jest
         .spyOn(membersRepository, 'findByNickname')
-        .mockResolvedValue(favoritedMember);
+        .mockResolvedValue(targetMember);
       jest
         .spyOn(favoritesRepository, 'findFavorite')
-        .mockResolvedValue(existingFavorite);
+        .mockResolvedValue(favorite);
 
       await expect(
-        favoritesService.addFavorite(1, 'favoritedUser'),
+        favoritesService.addFavorite(member, 'favoritedUser'),
       ).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.FAVORITE_ALREADY_EXISTS),
       );
     });
 
     it('should throw an error if the favorite request is already sent', async () => {
-      const favoritedMember: Member = { id: 2 } as Member;
-      const existingFavorite: Favorite = { isAccepted: false } as Favorite;
-
       jest
         .spyOn(membersRepository, 'findByNickname')
-        .mockResolvedValue(favoritedMember);
+        .mockResolvedValue(targetMember);
       jest
         .spyOn(favoritesRepository, 'findFavorite')
-        .mockResolvedValue(existingFavorite);
+        .mockResolvedValue(favorite);
 
       await expect(
-        favoritesService.addFavorite(1, 'favoritedUser'),
+        favoritesService.addFavorite(member, 'favoritedUser'),
       ).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.FAVORITE_REQUEST_ALREADY_SENT),
       );
