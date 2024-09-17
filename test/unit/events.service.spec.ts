@@ -331,7 +331,7 @@ describe('EventService', () => {
       expect(likeRepository.create).toHaveBeenCalledWith(expect.any(Like));
       expect(event.likesCount).toBe(2);
       expect(eventRepository.update).toHaveBeenCalledWith(event);
-      expect(result.isLiked).toBe(false);
+      expect(result.isLiked).toBe(true);
     });
 
     it('should cancel like successfully if the event is already liked', async () => {
@@ -352,7 +352,7 @@ describe('EventService', () => {
       );
       expect(likeRepository.delete).toHaveBeenCalledWith(like);
       expect(eventRepository.update).toHaveBeenCalledWith(event);
-      expect(result.isLiked).toBe(true);
+      expect(result.isLiked).toBe(false);
     });
 
     it('should throw EVENT_NOT_FOUND if event does not exist', async () => {
