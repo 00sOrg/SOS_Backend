@@ -16,6 +16,9 @@ import { LikeRepository } from '../../src/modules/events/repository/like.reposit
 import { LikeBuilder } from '../../src/modules/events/entities/builder/like.builder';
 import { FindEventDto } from '../../src/modules/events/dto/find-event.dto';
 import { SearchEventDto } from '../../src/modules/events/dto/search-event.dto';
+import { EventType } from '../../src/modules/events/entities/enum/event-type.enum';
+import { DisasterLevel } from '../../src/modules/events/entities/enum/disaster-level.enum';
+import { FindEventOverviewDto } from '../../src/modules/events/dto/find-event-overview.dto';
 
 describe('EventService', () => {
   let eventService: EventsService;
@@ -150,6 +153,33 @@ describe('EventService', () => {
       jest.spyOn(eventRepository, 'findById').mockResolvedValue(null);
 
       await expect(eventService.findOne(eventId, member)).rejects.toThrow(
+        new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND),
+      );
+    });
+  });
+  describe('findOneOverview', () => {
+    let eventId: number;
+    let event: Event;
+    beforeEach(() => {
+      eventId = 1;
+      event = new EventBuilder()
+        .id(1)
+        .title('title')
+        .content('content')
+        .media('media')
+        .type(EventType.NONE)
+        .disasterLevel(DisasterLevel.SECONDARY)
+        .build();
+    });
+    it('should return the overview of event successfully', async () => {
+      jest.spyOn(eventRepository, 'findById').mockResolvedValue(event);
+      const result = await eventService.findOneOverview(eventId);
+      expect(result).toBeInstanceOf(FindEventOverviewDto);
+      expect(eventRepository.findById).toHaveBeenCalledWith(eventId);
+    });
+    it('should throw EVENT_NOT_FOUND if the event is not found', async () => {
+      jest.spyOn(eventRepository, 'findById').mockResolvedValue(null);
+      await expect(eventService.findOneOverview(eventId)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND),
       );
     });

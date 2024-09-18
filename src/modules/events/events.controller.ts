@@ -33,6 +33,7 @@ import { GetFeedsDto } from './dto/get-feeds.dto';
 import { EventType } from './entities/enum/event-type.enum';
 import { LikeEventDto } from './dto/like-event.dto';
 import { SearchEventDto } from './dto/search-event.dto';
+import { FindEventOverviewDto } from './dto/find-event-overview.dto';
 
 @ApiBearerAuth()
 @ApiTags('Events')
@@ -125,6 +126,19 @@ export class EventsController {
   ): Promise<FindEventDto> {
     const member = req.user;
     return await this.eventsService.findOne(Number(id), member);
+  }
+
+  @Get(':id(\\d+)/overview')
+  @ApiOperation({ summary: 'Get overview event by id' })
+  @ApiSuccessResponse(FindEventOverviewDto)
+  @ApiFailureResponse(
+    ErrorStatus.EVENT_NOT_FOUND,
+    ErrorStatus.INTERNAL_SERVER_ERROR,
+  )
+  async findOneOverview(
+    @Param('id') id: string,
+  ): Promise<FindEventOverviewDto> {
+    return await this.eventsService.findOneOverview(Number(id));
   }
 
   @Post('comment')
