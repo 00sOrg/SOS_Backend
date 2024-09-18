@@ -11,6 +11,7 @@ import { MemberBuilder } from '../../../src/modules/members/entities/builder/mem
 import { NaverService } from '../../../src/external/naver/naver.service';
 import { SearchMemberDto } from '../../../src/modules/members/dto/search-member.dto';
 import { MemberDetailBuilder } from '../../../src/modules/members/entities/builder/memberDetail.builder';
+import { GetMemberInfoDto } from '../../../src/modules/members/dto/get-memberInfo.dto';
 
 describe('MembersService', () => {
   let service: MembersService;
@@ -189,6 +190,36 @@ describe('MembersService', () => {
       await expect(
         service.findMemberAndAddressByNickname(nickname),
       ).rejects.toThrow(new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
+    });
+  });
+
+  describe('findMemberById', () => {
+    let member: Member;
+    beforeEach(() => {
+      const memberDetail = new MemberDetailBuilder()
+        .id(1)
+        .profilePicture('profile1')
+        .build();
+      member = new MemberBuilder()
+        .id(1)
+        .memberDetail(memberDetail)
+        .nickname('nickname')
+        .logitude(0)
+        .latitude(0)
+        .build();
+    });
+    it('should return memberInfo successfully', async () => {
+      jest.spyOn(membersRepository, 'findById').mockResolvedValue(member);
+      const result = await service.findMemberById(1);
+      expect(result).toBeInstanceOf(GetMemberInfoDto);
+      expect(membersRepository.findById).toHaveBeenCalledTimes(1);
+      expect(membersRepository.findById).toHaveBeenCalledWith(member.id);
+    });
+    it('should throw MEMBER_NOT_FOUND if member does not exist', async () => {
+      jest.spyOn(membersRepository, 'findById').mockResolvedValue(null);
+      await expect(service.findMemberById(1)).rejects.toThrow(
+        new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND),
+      );
     });
   });
 });

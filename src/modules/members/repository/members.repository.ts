@@ -19,9 +19,11 @@ export class MembersRepository {
   }
 
   async findById(memberId: number): Promise<Member | null> {
-    return this.memberRepository.findOne({
-      where: { id: memberId },
-    });
+    return this.memberRepository
+      .createQueryBuilder('member')
+      .where('member.id=:memberId', { memberId })
+      .leftJoinAndSelect('member.memberDetail', 'memberDetail')
+      .getOne();
   }
 
   async findByIds(ids: number[]): Promise<Member[] | undefined> {
