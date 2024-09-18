@@ -7,7 +7,6 @@ import * as bcrypt from 'bcryptjs';
 import { UpdateMemberDto } from '../dto/update-member.dto';
 import { S3Service } from 'src/external/s3/s3.service';
 import { MembersDetailRepository } from '../repository/membersDetail.repository';
-import { LikeRepository } from '../../events/repository/like.repository';
 import { NaverService } from '../../../external/naver/naver.service';
 import { SearchMemberDto } from '../dto/search-member.dto';
 
