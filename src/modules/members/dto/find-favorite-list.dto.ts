@@ -18,7 +18,7 @@ export class FavoriteDto {
   lastLocation!: string;
 
   @ApiProperty()
-  profile!: string;
+  profilePicture!: string;
 }
 
 export class FindFavoriteListDto {
@@ -36,7 +36,7 @@ export class FindFavoriteListDto {
       favoriteDto.nickname = favorite.favoritedMember.nickname;
       favoriteDto.modifiedNickname = favorite.nickname;
       favoriteDto.lastLocation = address[index];
-      favoriteDto.profile =
+      favoriteDto.profilePicture =
         favorite.favoritedMember.memberDetail!.profilePicture!;
       return favoriteDto;
     });
