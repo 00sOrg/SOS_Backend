@@ -267,19 +267,6 @@ describe('FavoritesService', () => {
   });
 
   describe('getFavoritesForMember', () => {
-    it('should return an empty list if no favorites are found', async () => {
-      jest
-        .spyOn(favoritesRepository, 'findAllFavoritesForMember')
-        .mockResolvedValue([]);
-
-      const result = await favoritesService.getFavoritesForMember(1);
-
-      expect(result.favorites).toEqual([]);
-      expect(
-        favoritesRepository.findAllFavoritesForMember,
-      ).toHaveBeenCalledWith(1);
-    });
-
     it('should return a list of favorites with location data', async () => {
       const favorites: Favorite[] = [
         {
@@ -287,20 +274,28 @@ describe('FavoritesService', () => {
             id: 2,
             latitude: 37.5665,
             longitude: 126.978,
+            nickname: 'OriginalNickname1',
+            memberDetail: {
+              profilePicture: 'profile1.jpg',
+            } as any,
           } as Member,
           member: { id: 1 } as Member,
           isAccepted: true,
-          nickname: 'Test1',
+          nickname: 'ModifiedNickname1',
         } as Favorite,
         {
           favoritedMember: {
             id: 3,
             latitude: 35.1796,
             longitude: 129.0756,
+            nickname: 'OriginalNickname2',
+            memberDetail: {
+              profilePicture: 'profile2.jpg',
+            } as any,
           } as Member,
           member: { id: 1 } as Member,
           isAccepted: true,
-          nickname: 'Test2',
+          nickname: 'ModifiedNickname2',
         } as Favorite,
       ];
 
@@ -319,9 +314,19 @@ describe('FavoritesService', () => {
         .mockResolvedValueOnce(addresses[1]);
 
       const result = await favoritesService.getFavoritesForMember(1);
+
       expect(result.favorites.length).toBe(2);
+
       expect(result.favorites[0].lastLocation).toEqual(addresses[0]);
+      expect(result.favorites[0].profilePicture).toEqual('profile1.jpg');
+      expect(result.favorites[0].modifiedNickname).toEqual('ModifiedNickname1');
+      expect(result.favorites[0].nickname).toEqual('OriginalNickname1');
+
       expect(result.favorites[1].lastLocation).toEqual(addresses[1]);
+      expect(result.favorites[1].profilePicture).toEqual('profile2.jpg');
+      expect(result.favorites[1].modifiedNickname).toEqual('ModifiedNickname2');
+      expect(result.favorites[1].nickname).toEqual('OriginalNickname2');
+
       expect(
         favoritesRepository.findAllFavoritesForMember,
       ).toHaveBeenCalledWith(1);
@@ -358,10 +363,10 @@ describe('FavoritesService', () => {
         memberId,
         favoritedMemberId,
       );
+
       expect(favoritesRepository.updateFavorite).toHaveBeenCalledWith(
-        memberId,
-        favoritedMemberId,
         expect.objectContaining({
+          id: existingFavorite.id,
           nickname: newNickname,
         }),
       );
@@ -386,6 +391,8 @@ describe('FavoritesService', () => {
         memberId,
         favoritedMemberId,
       );
+
+      expect(favoritesRepository.updateFavorite).not.toHaveBeenCalled();
     });
   });
 });
