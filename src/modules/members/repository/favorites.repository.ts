@@ -18,34 +18,35 @@ export class FavoritesRepository {
     await this.favoriteRepository.remove(favorite);
   }
 
-  async updateFavorite(
-    memberId: number,
-    favoritedMemberId: number,
-    updateData: Partial<Favorite>,
-  ): Promise<void> {
-    await this.favoriteRepository.update(
-      { member: { id: memberId }, favoritedMember: { id: favoritedMemberId } },
-      updateData,
-    );
+  async updateFavorite(favorite: Partial<Favorite>): Promise<void> {
+    await this.favoriteRepository.update({ id: favorite.id }, { ...favorite });
   }
 
   async findFavorite(
     memberId: number,
     favoritedMemberId: number,
   ): Promise<Favorite | null> {
-    return this.favoriteRepository.findOne({
-      where: {
-        member: { id: memberId },
-        favoritedMember: { id: favoritedMemberId },
-      },
-    });
+    return this.favoriteRepository
+      .createQueryBuilder('favorite')
+      .where('favorite.memberId=:memberId', { memberId })
+      .andWhere('favorite.favoritedMemberId=:favoritedMemberId', {
+        favoritedMemberId,
+      })
+      .leftJoinAndSelect('favorite.favoritedMember', 'favoritedMember')
+      .leftJoinAndSelect('favorite.member', 'member')
+      .getOne();
   }
 
   async findAllFavoritesForMember(memberId: number): Promise<Favorite[]> {
-    return this.favoriteRepository.find({
-      where: { member: { id: memberId } },
-      relations: ['favoritedMember'],
-      order: { createdAt: 'DESC' }, // 최근 추가된 순으로 정렬
-    });
+    return this.favoriteRepository
+      .createQueryBuilder('favorite')
+      .where('favorite.memberId = :memberId', { memberId })
+      .leftJoinAndSelect('favorite.favoritedMember', 'favoritedMember')
+      .leftJoinAndSelect(
+        'favoritedMember.memberDetail',
+        'favoritedMemberDetail',
+      )
+      .orderBy('favorite.createdAt', 'DESC')
+      .getMany();
   }
 }

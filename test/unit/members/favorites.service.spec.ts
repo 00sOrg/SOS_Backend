@@ -9,7 +9,6 @@ import { NaverService } from 'src/external/naver/naver.service';
 import { AlarmRepository } from '../../../src/modules/alarm/alarm.repository';
 import { MemberBuilder } from '../../../src/modules/members/entities/builder/member.builder';
 import { FavoriteBuilder } from '../../../src/modules/members/entities/builder/favorite.builder';
-import { NotificationBuilder } from '../../../src/modules/alarm/entities/builder/notification.builder';
 import { NotificationType } from '../../../src/modules/alarm/entities/enums/notificationType.enum';
 
 describe('FavoritesService', () => {
@@ -156,19 +155,23 @@ describe('FavoritesService', () => {
   });
 
   describe('acceptFavoriteRequest', () => {
+    let favorite: Favorite;
+    beforeEach(() => {
+      const member = new MemberBuilder().id(1).build();
+      const member2 = new MemberBuilder().id(2).build();
+      favorite = new FavoriteBuilder()
+        .id(1)
+        .member(member)
+        .favoritedMember(member2)
+        .build();
+    });
     it('should accept the favorite request if it exists and is not already accepted', async () => {
       const memberId = 1;
       const requestMemberId = 2;
-      const existingFavorite: Favorite = {
-        id: 1,
-        member: { id: memberId } as Member,
-        favoritedMember: { id: requestMemberId } as Member,
-        isAccepted: false,
-      } as Favorite;
 
       jest
         .spyOn(favoritesRepository, 'findFavorite')
-        .mockResolvedValue(existingFavorite);
+        .mockResolvedValue(favorite);
       jest
         .spyOn(favoritesRepository, 'updateFavorite')
         .mockResolvedValue(undefined);
@@ -179,11 +182,15 @@ describe('FavoritesService', () => {
         requestMemberId,
         memberId,
       );
-      expect(favoritesRepository.updateFavorite).toHaveBeenCalledWith(
-        requestMemberId,
-        memberId,
+      expect(favoritesRepository.updateFavorite).toHaveBeenCalledWith(favorite);
+      expect(favorite.isAccepted).toBe(true);
+      expect(alarmRepository.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          isAccepted: true,
+          type: NotificationType.FAVORITE_ACCEPT,
+          member: favorite.member,
+          referenceTable: 'favorite',
+          referenceId: favorite.id,
+          isRead: false,
         }),
       );
     });

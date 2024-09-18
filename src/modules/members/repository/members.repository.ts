@@ -33,9 +33,10 @@ export class MembersRepository {
   }
 
   async findByEmail(email: string): Promise<Member | null> {
-    return this.memberRepository.findOne({
-      where: { email: email },
-    });
+    return this.memberRepository
+      .createQueryBuilder('member')
+      .where('member.email=:email', { email })
+      .getOne();
   }
 
   async findByNickname(nickname: string): Promise<Member | null> {
@@ -43,10 +44,11 @@ export class MembersRepository {
     //   where: { nickname: nickname }
     //   ,
     // });
-    return this.memberRepository.createQueryBuilder('member')
-    .where('member.nickname = :nickname', {nickname})
-    .leftJoinAndSelect('member.memberDetail', 'memberDetail')
-    .getOne();
+    return this.memberRepository
+      .createQueryBuilder('member')
+      .where('member.nickname = :nickname', { nickname })
+      .leftJoinAndSelect('member.memberDetail', 'memberDetail')
+      .getOne();
   }
 
   async findNearby(
