@@ -7,12 +7,12 @@ import { FavoritesRepository } from './repository/favorites.repository';
 import { LocationService } from './services/location.service';
 import { ExternalModule } from 'src/external/external.module';
 import { MembersDetailRepository } from './repository/membersDetail.repository';
-import { AlarmModule } from '../alarm/alarm.module';
+import { NotificationModule } from '../alarm/notification.module';
 
 @Module({
   imports: [
     ExternalModule,
-    forwardRef(() => AlarmModule), // forwardRef로 수정
+    forwardRef(() => NotificationModule), // forwardRef로 수정
   ],
   providers: [
     MembersService,

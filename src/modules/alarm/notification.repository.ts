@@ -3,7 +3,7 @@ import { DataSource, Repository } from 'typeorm';
 import { Notification } from './entities/notification.entity';
 
 @Injectable()
-export class AlarmRepository {
+export class NotificationRepository {
   private readonly alarmRepository: Repository<Notification>;
   constructor(private readonly dataSource: DataSource) {
     this.alarmRepository = this.dataSource.getRepository(Notification);
@@ -15,5 +15,13 @@ export class AlarmRepository {
 
   async createNotifications(notifications: Notification[]) {
     return this.alarmRepository.save(notifications);
+  }
+
+  async getNotificationsByMember(memberId: number): Promise<Notification[]> {
+    return this.alarmRepository
+      .createQueryBuilder('notification')
+      .where('notification.member.id = :memberId', { memberId })
+      .addOrderBy('notification.createdAt', 'DESC')
+      .getMany();
   }
 }
