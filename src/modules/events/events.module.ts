@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { EventsService } from './services/events.service';
 import { EventsController } from './events.controller';
 import { EventsRepository } from './repository/events.repository';
@@ -10,7 +10,11 @@ import { LikeRepository } from './repository/like.repository';
 import { NotificationModule } from '../alarm/notification.module';
 
 @Module({
-  imports: [MembersModule, ExternalModule, NotificationModule],
+  imports: [
+    MembersModule,
+    ExternalModule,
+    forwardRef(() => NotificationModule),
+  ],
   controllers: [EventsController],
   providers: [
     EventsService,
@@ -19,5 +23,6 @@ import { NotificationModule } from '../alarm/notification.module';
     CommentRepository,
     LikeRepository,
   ],
+  exports: [EventsRepository],
 })
 export class EventsModule {}

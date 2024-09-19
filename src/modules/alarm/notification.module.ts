@@ -5,11 +5,13 @@ import { MembersModule } from '../members/members.module';
 import { ExternalModule } from '../../external/external.module';
 import { NotificationRepository } from './notification.repository';
 import { NotificationActionService } from './services/notification-action.service';
+import { EventsModule } from '../events/events.module';
 
 @Module({
   imports: [
     forwardRef(() => MembersModule), // forwardRef로 수정
     ExternalModule,
+    forwardRef(() => EventsModule),
   ],
   controllers: [NotificationController],
   providers: [
@@ -17,6 +19,6 @@ import { NotificationActionService } from './services/notification-action.servic
     NotificationRepository,
     NotificationActionService,
   ],
-  exports: [NotificationService, NotificationRepository],
+  exports: [NotificationService],
 })
 export class NotificationModule {}
