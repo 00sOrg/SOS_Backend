@@ -23,6 +23,7 @@ import {
   ApiBearerAuth,
   ApiBody,
   ApiConsumes,
+  ApiExcludeEndpoint,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
@@ -204,5 +205,17 @@ export class EventsController {
     @Query('keyword') keyword: string,
   ): Promise<SearchEventDto> {
     return await this.eventsService.searchEvent(keyword);
+  }
+
+  @Post('/admin/primary')
+  @UseInterceptors(FileInterceptor('media'))
+  @ApiExcludeEndpoint()
+  async createPrimary(
+    @Body() request: CreateEventDto,
+    @Request() req,
+    @UploadedFile() media: Express.Multer.File,
+  ) {
+    const member = req.user;
+    await this.eventsService.createPrimary(request, member, media);
   }
 }

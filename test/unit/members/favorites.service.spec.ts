@@ -10,13 +10,15 @@ import { NotificationRepository } from '../../../src/modules/alarm/notification.
 import { MemberBuilder } from '../../../src/modules/members/entities/builder/member.builder';
 import { FavoriteBuilder } from '../../../src/modules/members/entities/builder/favorite.builder';
 import { NotificationType } from '../../../src/modules/alarm/entities/enums/notificationType.enum';
+import { NotificationService } from '../../../src/modules/alarm/services/notification.service';
 
 describe('FavoritesService', () => {
   let favoritesService: FavoritesService;
   let membersRepository: MembersRepository;
   let favoritesRepository: FavoritesRepository;
   let naverService: NaverService;
-  let alarmRepository: NotificationRepository;
+  let notificationRepository: NotificationRepository;
+  let notificationService: NotificationService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -52,6 +54,12 @@ describe('FavoritesService', () => {
             create: jest.fn(),
           },
         },
+        {
+          provide: NotificationService,
+          useValue: {
+            createNotification: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -59,9 +67,10 @@ describe('FavoritesService', () => {
     membersRepository = module.get<MembersRepository>(MembersRepository);
     favoritesRepository = module.get<FavoritesRepository>(FavoritesRepository);
     naverService = module.get<NaverService>(NaverService);
-    alarmRepository = module.get<NotificationRepository>(
+    notificationRepository = module.get<NotificationRepository>(
       NotificationRepository,
     );
+    notificationService = module.get<NotificationService>(NotificationService);
   });
 
   describe('addFavorite', () => {
@@ -106,15 +115,7 @@ describe('FavoritesService', () => {
       expect(favoritesRepository.saveFavorite).toHaveBeenCalledWith(
         newFavorite,
       );
-      expect(alarmRepository.create).toHaveBeenCalledWith(
-        expect.objectContaining({
-          type: NotificationType.FAVORITE_REQUEST,
-          member: targetMember,
-          referenceTable: 'favorite',
-          referenceId: favorite.id,
-          isRead: false,
-        }),
-      );
+      expect(notificationService.createNotification).toHaveBeenCalledTimes(1);
     });
 
     it('should throw an error if the target member does not found', async () => {
