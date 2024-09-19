@@ -33,16 +33,16 @@ export class EventsRepository {
     maxLng: number,
     level: string,
   ) {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
+    // const yesterday = new Date();
+    // yesterday.setDate(yesterday.getDate() - 1);
     const query = this.eventRepository
       .createQueryBuilder('event')
       .where('event.latitude between :minLat AND :maxLat', { minLat, maxLat })
       .andWhere('event.longitude between :minLng AND :maxLng', {
         minLng,
         maxLng,
-      })
-      .andWhere('event.createdAt > :yesterday', { yesterday });
+      });
+    // .andWhere('event.createdAt > :yesterday', { yesterday });
 
     if (
       level.toUpperCase() === DisasterLevel.PRIMARY ||
@@ -55,25 +55,29 @@ export class EventsRepository {
   }
 
   async findNearbyAll(address: string): Promise<Event[]> {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    return this.eventRepository
-      .createQueryBuilder('event')
-      .where('event.address = :address', { address })
-      .andWhere('event.createdAt > :yesterday', { yesterday })
-      .addOrderBy('event.likesCount', 'DESC')
-      .getMany();
+    // const yesterday = new Date();
+    // yesterday.setDate(yesterday.getDate() - 1);
+    return (
+      this.eventRepository
+        .createQueryBuilder('event')
+        .where('event.address = :address', { address })
+        // .andWhere('event.createdAt > :yesterday', { yesterday })
+        .addOrderBy('event.likesCount', 'DESC')
+        .getMany()
+    );
   }
 
   async findEventsOrderByLikes(): Promise<Event[]> {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    return this.eventRepository
-      .createQueryBuilder('event')
-      .where('event.createdAt > :yesterday', { yesterday })
-      .addOrderBy('event.likesCount', 'DESC')
-      .addOrderBy('event.createdAt', 'DESC')
-      .getMany();
+    // const yesterday = new Date();
+    // yesterday.setDate(yesterday.getDate() - 1);
+    return (
+      this.eventRepository
+        .createQueryBuilder('event')
+        // .where('event.createdAt > :yesterday', { yesterday })
+        .addOrderBy('event.likesCount', 'DESC')
+        .addOrderBy('event.createdAt', 'DESC')
+        .getMany()
+    );
   }
 
   async update(event: Partial<Event>): Promise<void> {

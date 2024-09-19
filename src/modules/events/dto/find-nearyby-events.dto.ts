@@ -1,6 +1,7 @@
 import { Event } from '../entities';
 import { ApiProperty } from '@nestjs/swagger';
 import { EventType } from '../entities/enum/event-type.enum';
+import { DisasterLevel } from '../entities/enum/disaster-level.enum';
 
 export class nearbyEvent {
   @ApiProperty()
@@ -13,11 +14,14 @@ export class nearbyEvent {
   media?: string;
   @ApiProperty()
   eventType: EventType;
+  @ApiProperty()
+  eventLevel: DisasterLevel;
   constructor(
     id: number,
     longitude: number,
     latitude: number,
     eventType: EventType,
+    eventLevel: DisasterLevel,
     media?: string,
   ) {
     this.id = id;
@@ -25,6 +29,7 @@ export class nearbyEvent {
     this.longitude = longitude;
     this.media = media;
     this.eventType = eventType;
+    this.eventLevel = eventLevel;
   }
 }
 
@@ -41,6 +46,7 @@ export class FindNearybyDto {
           event.longitude,
           event.latitude,
           event.type!,
+          event.disasterLevel,
           event.media,
         ),
     );
