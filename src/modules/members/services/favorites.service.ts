@@ -7,9 +7,8 @@ import { ErrorStatus } from 'src/common/api/status/error.status';
 import { FindFavoriteListDto } from '../dto/find-favorite-list.dto';
 import { NaverService } from 'src/external/naver/naver.service';
 import { FavoriteBuilder } from '../entities/builder/favorite.builder';
-import { NotificationRepository } from '../../alarm/notification.repository';
-import { NotificationBuilder } from '../../alarm/entities/builder/notification.builder';
 import { NotificationType } from '../../alarm/entities/enums/notificationType.enum';
+import { NotificationService } from '../../alarm/services/notification.service';
 
 @Injectable()
 export class FavoritesService {
@@ -17,7 +16,7 @@ export class FavoritesService {
     private readonly membersRepository: MembersRepository,
     private readonly favoritesRepository: FavoritesRepository,
     private readonly naverService: NaverService,
-    private readonly alarmRepository: NotificationRepository,
+    private readonly notificationService: NotificationService,
   ) {}
 
   // 관심 사용자 요청 생성
@@ -49,14 +48,12 @@ export class FavoritesService {
       .build();
 
     const result = await this.favoritesRepository.saveFavorite(newFavorite);
-    const notification = new NotificationBuilder()
-      .type(NotificationType.FAVORITE_REQUEST)
-      .member(targetMember)
-      .referenceTable('favorite')
-      .referenceId(result.id)
-      .isRead(false)
-      .build();
-    await this.alarmRepository.create(notification);
+    await this.notificationService.createNotification(
+      NotificationType.FAVORITE_REQUEST,
+      targetMember,
+      result.id,
+      'favorite',
+    );
   }
 
   // 관심 사용자 요청 수락 (여기서 member는 요청을 받은 사람)
@@ -101,7 +98,6 @@ export class FavoritesService {
   async getFavoritesForMember(memberId: number): Promise<FindFavoriteListDto> {
     const favoriteMembers =
       await this.favoritesRepository.findAllFavoritesForMember(memberId);
-    console.log(favoriteMembers);
     const addresses = await Promise.all(
       favoriteMembers.map(async (favorite) => {
         const { latitude, longitude } = favorite.favoritedMember;

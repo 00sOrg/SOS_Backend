@@ -19,6 +19,8 @@ import { SearchEventDto } from '../../src/modules/events/dto/search-event.dto';
 import { EventType } from '../../src/modules/events/entities/enum/event-type.enum';
 import { DisasterLevel } from '../../src/modules/events/entities/enum/disaster-level.enum';
 import { FindEventOverviewDto } from '../../src/modules/events/dto/find-event-overview.dto';
+import { NotificationService } from '../../src/modules/alarm/services/notification.service';
+import { MembersService } from '../../src/modules/members/services/members.service';
 
 describe('EventService', () => {
   let eventService: EventsService;
@@ -26,6 +28,8 @@ describe('EventService', () => {
   let naverService: NaverService;
   let s3Service: S3Service;
   let likeRepository: LikeRepository;
+  let notificationServcie: NotificationService;
+  let memberService: MembersService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -70,6 +74,18 @@ describe('EventService', () => {
             delete: jest.fn(),
           },
         },
+        {
+          provide: MembersService,
+          useValue: {
+            findNearbyMembers: jest.fn(),
+          },
+        },
+        {
+          provide: NotificationService,
+          useValue: {
+            createNotification: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -78,6 +94,8 @@ describe('EventService', () => {
     naverService = module.get<NaverService>(NaverService);
     s3Service = module.get<S3Service>(S3Service);
     likeRepository = module.get(LikeRepository);
+    memberService = module.get(MembersService);
+    notificationServcie = module.get(NotificationService);
   });
 
   describe('create', () => {
@@ -407,6 +425,41 @@ describe('EventService', () => {
 
       expect(eventRepository.findByTitleLike).toHaveBeenCalledWith(keyword);
       expect(result).toEqual(searchEventDto);
+    });
+  });
+
+  describe('createPrimary', () => {
+    let request: CreateEventDto;
+    let member: Member;
+    let members: Member[];
+    let media: Express.Multer.File;
+    let event: Event;
+
+    beforeEach(() => {
+      media = { originalname: 'test.jpg', buffer: Buffer.from('test') } as any;
+
+      request = new CreateEventDto();
+      request.title = 'title';
+      request.content = 'title';
+      request.longitude = 0;
+      request.latitude = 0;
+      request.address = 'test';
+
+      member = new MemberBuilder().id(1).logitude(0).logitude(0).build();
+      const member1 = new MemberBuilder().id(2).logitude(0).logitude(0).build();
+      const member2 = new MemberBuilder().id(3).logitude(0).logitude(0).build();
+      members = [member1, member2];
+      event = new EventBuilder().id(1).build();
+    });
+    it('should create primary events and create notifications successfully', async () => {
+      jest.spyOn(eventRepository, 'create').mockResolvedValue(event);
+      jest.spyOn(memberService, 'findNearbyMembers').mockResolvedValue(members);
+      await eventService.createPrimary(request, member, media);
+      expect(eventRepository.create).toHaveBeenCalledTimes(1);
+      expect(memberService.findNearbyMembers).toHaveBeenCalledTimes(1);
+      expect(notificationServcie.createNotification).toHaveBeenCalledTimes(
+        members.length,
+      );
     });
   });
 });

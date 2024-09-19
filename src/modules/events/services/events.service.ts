@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { CreateEventDto } from '../dto/create-event.dto';
 import { EventsRepository } from '../repository/events.repository';
-import { MembersRepository } from '../../members/repository/members.repository';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
 import { Event } from '../entities';
@@ -16,16 +15,20 @@ import { Member } from '../../members/entities';
 import { DisasterLevel } from '../entities/enum/disaster-level.enum';
 import { LikeEventDto } from '../dto/like-event.dto';
 import { SearchEventDto } from '../dto/search-event.dto';
+import { MembersService } from '../../members/services/members.service';
+import { NotificationService } from '../../alarm/services/notification.service';
+import { NotificationType } from '../../alarm/entities/enums/notificationType.enum';
 import { FindEventOverviewDto } from '../dto/find-event-overview.dto';
 
 @Injectable()
 export class EventsService {
   constructor(
     private readonly eventsRepository: EventsRepository,
-    private readonly membersRepository: MembersRepository,
     private readonly naverService: NaverService,
     private readonly s3Service: S3Service,
     private readonly likeRepository: LikeRepository,
+    private readonly memberService: MembersService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async create(
@@ -110,7 +113,6 @@ export class EventsService {
       throw new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION);
     }
     const address = await this.naverService.getAddressFromCoordinate(lat, lng);
-    console.log(address);
     const events: Event[] = await this.eventsRepository.findNearbyAll(address);
     return FindNearbyAllDto.of(events);
   }
@@ -144,5 +146,30 @@ export class EventsService {
   async searchEvent(keyword: string): Promise<SearchEventDto> {
     const events = await this.eventsRepository.findByTitleLike(keyword);
     return SearchEventDto.of(events);
+  }
+  async createPrimary(
+    request: CreateEventDto,
+    member: Member,
+    media: Express.Multer.File | null,
+  ) {
+    const url = media ? await this.s3Service.upload(media) : undefined;
+    const event = request.toEvent(member, url);
+    event.disasterLevel = DisasterLevel.PRIMARY;
+    const newEvent = await this.eventsRepository.create(event);
+
+    const members = await this.memberService.findNearbyMembers(
+      request.latitude,
+      request.longitude,
+    );
+    await Promise.all(
+      members.map(async (member) => {
+        await this.notificationService.createNotification(
+          NotificationType.NEARBY_EVENT,
+          member,
+          newEvent.id,
+          'event',
+        );
+      }),
+    );
   }
 }

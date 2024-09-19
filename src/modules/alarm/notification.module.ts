@@ -17,6 +17,6 @@ import { NotificationActionService } from './services/notification-action.servic
     NotificationRepository,
     NotificationActionService,
   ],
-  exports: [NotificationRepository],
+  exports: [NotificationService, NotificationRepository],
 })
 export class NotificationModule {}

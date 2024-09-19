@@ -65,6 +65,22 @@ export class NotificationService {
     return new GetNotificationsDto(await notificationDtos);
   }
 
+  async createNotification(
+    type: NotificationType,
+    member: Member,
+    referenceId: number,
+    referenceTable: string,
+  ): Promise<Notification> {
+    const notification = new NotificationBuilder()
+      .type(type)
+      .member(member)
+      .referenceTable(referenceTable)
+      .referenceId(referenceId)
+      .isRead(false)
+      .build();
+    return this.notificationRepository.create(notification);
+  }
+
   private async formatNotificationDetails(notification: Notification) {
     const actionDetails =
       await this.notificationActionService.getActionDetails(notification);

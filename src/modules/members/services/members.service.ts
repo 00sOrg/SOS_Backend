@@ -100,7 +100,16 @@ export class MembersService {
   }
 
   async findNearbyMembers(lat: number, lng: number): Promise<Member[]> {
-    if (!lat || !lng || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+    if (
+      lat === undefined ||
+      lat === null ||
+      lat < -90 ||
+      lat > 90 ||
+      lng === undefined ||
+      lng === null ||
+      lng < -180 ||
+      lng > 180
+    ) {
       throw new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION);
     }
     const earthRadius = 6371000;

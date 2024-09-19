@@ -51,7 +51,6 @@ export class SearchEventDto {
   }
 
   static of(events: Event[]): SearchEventDto {
-    console.log(events);
     const eventList = events.map((event) => {
       return new EventDto(
         event.id,
