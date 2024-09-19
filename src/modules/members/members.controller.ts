@@ -11,6 +11,8 @@ import {
   Body,
   Patch,
   UploadedFile,
+  Delete,
+  Req,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { MembersService } from './services/members.service';
@@ -205,5 +207,14 @@ export class MembersController {
   )
   async findMemberById(@Param('id') id: string): Promise<GetMemberInfoDto> {
     return await this.membersService.findMemberById(Number(id));
+  }
+
+  @Delete('favorites/:id')
+  @ApiOperation({ summary: 'Delete favorite member' })
+  @ApiSuccessResponse()
+  @ApiFailureResponse(ErrorStatus.INTERNAL_SERVER_ERROR)
+  async deleteFavorite(@Param('id') id: string, @Req() req): Promise<void> {
+    const memberId = req.user.id;
+    return await this.favoritesService.deleteFavorite(memberId, Number(id));
   }
 }

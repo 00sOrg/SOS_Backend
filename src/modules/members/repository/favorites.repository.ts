@@ -58,4 +58,14 @@ export class FavoritesRepository {
       .leftJoinAndSelect('favorite.favoritedMember', 'favoritedMember')
       .getOne();
   }
+
+  async deleteById(id: number, memberId: number): Promise<void> {
+    await this.favoriteRepository
+      .createQueryBuilder('favorite')
+      .delete()
+      .from(Favorite)
+      .where('favorite.id = :id', { id })
+      .andWhere('favorite.memberId = :memberId', { memberId })
+      .execute();
+  }
 }
