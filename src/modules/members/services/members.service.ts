@@ -9,6 +9,7 @@ import { S3Service } from 'src/external/s3/s3.service';
 import { MembersDetailRepository } from '../repository/membersDetail.repository';
 import { NaverService } from '../../../external/naver/naver.service';
 import { SearchMemberDto } from '../dto/search-member.dto';
+import { GetMemberInfoDto } from '../dto/get-memberInfo.dto';
 
 @Injectable()
 export class MembersService {
@@ -130,5 +131,13 @@ export class MembersService {
       member.longitude,
     );
     return SearchMemberDto.of(member, address);
+  }
+
+  async findMemberById(memberId: number): Promise<GetMemberInfoDto> {
+    const member = await this.membersRepository.findById(memberId);
+    if (!member) {
+      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
+    }
+    return GetMemberInfoDto.of(member);
   }
 }

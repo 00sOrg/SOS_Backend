@@ -30,6 +30,7 @@ import { FindFavoriteListDto } from './dto/find-favorite-list.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateMemberDto } from './dto/update-member.dto';
 import { SearchMemberDto } from './dto/search-member.dto';
+import { GetMemberInfoDto } from './dto/get-memberInfo.dto';
 
 @ApiTags('Members')
 @UseGuards(AuthGuard('jwt'))
@@ -193,5 +194,16 @@ export class MembersController {
     @Query('nickname') nickname: string,
   ): Promise<SearchMemberDto> {
     return await this.membersService.findMemberAndAddressByNickname(nickname);
+  }
+
+  @Get('/:id')
+  @ApiOperation({ summary: 'Get member by id' })
+  @ApiSuccessResponse(GetMemberInfoDto)
+  @ApiFailureResponse(
+    ErrorStatus.INTERNAL_SERVER_ERROR,
+    ErrorStatus.MEMBER_NOT_FOUND,
+  )
+  async findMemberById(@Param('id') id: string): Promise<GetMemberInfoDto> {
+    return await this.membersService.findMemberById(Number(id));
   }
 }
