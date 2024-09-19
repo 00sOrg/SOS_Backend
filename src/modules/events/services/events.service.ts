@@ -16,6 +16,7 @@ import { Member } from '../../members/entities';
 import { DisasterLevel } from '../entities/enum/disaster-level.enum';
 import { LikeEventDto } from '../dto/like-event.dto';
 import { SearchEventDto } from '../dto/search-event.dto';
+import { FindEventOverviewDto } from '../dto/find-event-overview.dto';
 
 @Injectable()
 export class EventsService {
@@ -51,6 +52,14 @@ export class EventsService {
     }
     const isLiked = like ? true : false;
     return FindEventDto.of(event, isLiked);
+  }
+
+  async findOneOverview(eventId: number): Promise<FindEventOverviewDto> {
+    const event = await this.eventsRepository.findById(eventId);
+    if (!event) {
+      throw new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND);
+    }
+    return FindEventOverviewDto.of(event);
   }
 
   async findNearby(lat: number, lng: number, level: string): Promise<Event[]> {
