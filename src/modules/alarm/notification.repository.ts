@@ -4,24 +4,34 @@ import { Notification } from './entities/notification.entity';
 
 @Injectable()
 export class NotificationRepository {
-  private readonly alarmRepository: Repository<Notification>;
+  private readonly notificationRepository: Repository<Notification>;
   constructor(private readonly dataSource: DataSource) {
-    this.alarmRepository = this.dataSource.getRepository(Notification);
+    this.notificationRepository = this.dataSource.getRepository(Notification);
   }
 
   async create(notification: Notification): Promise<Notification> {
-    return this.alarmRepository.save(notification);
+    return this.notificationRepository.save(notification);
   }
 
   async createNotifications(notifications: Notification[]) {
-    return this.alarmRepository.save(notifications);
+    return this.notificationRepository.save(notifications);
   }
 
   async getNotificationsByMember(memberId: number): Promise<Notification[]> {
-    return this.alarmRepository
+    return this.notificationRepository
       .createQueryBuilder('notification')
       .where('notification.member.id = :memberId', { memberId })
       .addOrderBy('notification.createdAt', 'DESC')
       .getMany();
+  }
+
+  async markAsRead(notificationId: number, memberId: number): Promise<void> {
+    await this.notificationRepository
+      .createQueryBuilder('notification')
+      .update()
+      .set({ isRead: true })
+      .where('notification.id=:notificationId', { notificationId })
+      .andWhere('notification.memberId=:memberId', { memberId })
+      .execute();
   }
 }
