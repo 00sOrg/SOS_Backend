@@ -1,5 +1,7 @@
 import { Comment, Event } from '../entities';
 import { ApiProperty } from '@nestjs/swagger';
+import { DisasterLevel } from '../entities/enum/disaster-level.enum';
+import { EventType } from '../entities/enum/event-type.enum';
 
 class CommentDto {
   @ApiProperty()
@@ -44,6 +46,10 @@ export class FindEventDto {
   @ApiProperty()
   media?: string;
   @ApiProperty()
+  type!: EventType;
+  @ApiProperty()
+  level!: DisasterLevel;
+  @ApiProperty()
   likeCount: number = 0;
   @ApiProperty()
   commentCount: number = 0;
@@ -71,6 +77,8 @@ export class FindEventDto {
     dto.liked = isLiked;
     dto.comments = commentDtos;
     dto.createdAt = event.createdAt;
+    dto.type = event.type;
+    dto.level = event.disasterLevel;
     return dto;
   }
 }
