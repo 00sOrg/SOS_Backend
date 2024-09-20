@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { NotificationService } from './services/notification.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
@@ -38,5 +47,14 @@ export class NotificationController {
   async getNotifications(@Req() req): Promise<GetNotificationsDto> {
     const member = req.user;
     return await this.notificationService.getNotifications(member);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Mark the notification read' })
+  @ApiSuccessResponse()
+  @ApiFailureResponse(ErrorStatus.INTERNAL_SERVER_ERROR)
+  async markAsRead(@Req() req, @Param('id') id: string): Promise<void> {
+    const member = req.user;
+    return await this.notificationService.markAsRead(member, Number(id));
   }
 }

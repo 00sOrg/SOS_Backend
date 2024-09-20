@@ -24,6 +24,7 @@ describe('NotificationService', () => {
             crete: jest.fn(),
             createNotifications: jest.fn(),
             getNotificationsByMember: jest.fn(),
+            markAsRead: jest.fn(),
           },
         },
         {
@@ -81,6 +82,19 @@ describe('NotificationService', () => {
       expect(expectedNotification.notificationMessage).toBe('test');
       expect(expectedNotification.referenceId).toBe(1);
       expect(expectedNotification.apiUrl).toBe('/test');
+    });
+  });
+  describe('markAsRead', () => {
+    it('should mark the notification as read', async () => {
+      const member = new MemberBuilder().id(1).build();
+      const notificationId = 1;
+      jest.spyOn(notificatonRepository, 'markAsRead');
+      await notificationService.markAsRead(member, notificationId);
+
+      expect(notificatonRepository.markAsRead).toHaveBeenCalledWith(
+        member.id,
+        notificationId,
+      );
     });
   });
 });

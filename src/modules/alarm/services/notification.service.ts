@@ -65,6 +65,10 @@ export class NotificationService {
     return new GetNotificationsDto(await notificationDtos);
   }
 
+  async markAsRead(member: Member, notificationId: number): Promise<void> {
+    await this.notificationRepository.markAsRead(notificationId, member.id);
+  }
+
   async createNotification(
     type: NotificationType,
     member: Member,
