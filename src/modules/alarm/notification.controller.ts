@@ -33,7 +33,10 @@ export class NotificationController {
     @Query('lng') lng: string,
   ) {
     const sender = await this.memberService.findByEmail(req.user.email);
-    const receivers = await this.memberService.findNearbyMembers(+lat, +lng);
+    const receivers = await this.memberService.findNearbyAndFavoritingMembers(
+      +lat,
+      +lng,
+    );
     await this.notificationService.sendNotificationsToNearby(receivers, sender);
   }
 

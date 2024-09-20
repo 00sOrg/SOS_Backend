@@ -66,6 +66,13 @@ export class MembersRepository {
         minLng,
         maxLng,
       })
+      .leftJoinAndSelect(
+        'member.favoritedByMembers',
+        'favorites',
+        'favorites.isAccepted = :isAccepted',
+        { isAccepted: true },
+      ) // isAccepted가 true인 경우만 가져옴
+      .leftJoinAndSelect('favorites.member', 'favoritingMember') // 지인으로 등록한 사용자의 정보를 조인
       .getMany();
   }
 }

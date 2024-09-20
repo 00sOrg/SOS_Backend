@@ -6,6 +6,7 @@ import { ExternalModule } from '../../external/external.module';
 import { NotificationRepository } from './notification.repository';
 import { NotificationActionService } from './services/notification-action.service';
 import { EventsModule } from '../events/events.module';
+import { NotificationEventsHandler } from './services/notification-events.handler';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { EventsModule } from '../events/events.module';
     NotificationService,
     NotificationRepository,
     NotificationActionService,
+    NotificationEventsHandler,
   ],
   exports: [NotificationService],
 })

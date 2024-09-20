@@ -19,17 +19,18 @@ import { SearchEventDto } from '../../src/modules/events/dto/search-event.dto';
 import { EventType } from '../../src/modules/events/entities/enum/event-type.enum';
 import { DisasterLevel } from '../../src/modules/events/entities/enum/disaster-level.enum';
 import { FindEventOverviewDto } from '../../src/modules/events/dto/find-event-overview.dto';
-import { NotificationService } from '../../src/modules/alarm/services/notification.service';
 import { MembersService } from '../../src/modules/members/services/members.service';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { NotificationType } from '../../src/modules/alarm/entities/enums/notificationType.enum';
 
 describe('EventService', () => {
-  let eventService: EventsService;
-  let eventRepository: EventsRepository;
+  let eventsService: EventsService;
+  let eventsRepository: EventsRepository;
   let naverService: NaverService;
   let s3Service: S3Service;
   let likeRepository: LikeRepository;
-  let notificationServcie: NotificationService;
   let memberService: MembersService;
+  let eventEmitter: EventEmitter2;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -77,25 +78,25 @@ describe('EventService', () => {
         {
           provide: MembersService,
           useValue: {
-            findNearbyMembers: jest.fn(),
+            findNearbyAndFavoritingMembers: jest.fn(),
           },
         },
         {
-          provide: NotificationService,
+          provide: EventEmitter2,
           useValue: {
-            createNotification: jest.fn(),
+            emit: jest.fn(),
           },
         },
       ],
     }).compile();
 
-    eventService = module.get<EventsService>(EventsService);
-    eventRepository = module.get(EventsRepository);
+    eventsService = module.get<EventsService>(EventsService);
+    eventsRepository = module.get(EventsRepository);
     naverService = module.get<NaverService>(NaverService);
     s3Service = module.get<S3Service>(S3Service);
     likeRepository = module.get(LikeRepository);
     memberService = module.get(MembersService);
-    notificationServcie = module.get(NotificationService);
+    eventEmitter = module.get<EventEmitter2>(EventEmitter2);
   });
 
   describe('create', () => {
@@ -120,18 +121,18 @@ describe('EventService', () => {
 
     it('should throw EVENT_CONTENTS_NOT_FOUND if both image and content are empty', async () => {
       request.content = '';
-      await expect(eventService.create(request, member, null)).rejects.toThrow(
+      await expect(eventsService.create(request, member, null)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.EVENT_CONTENTS_NOT_FOUND),
       );
     });
 
     it('should create an event successfully', async () => {
-      jest.spyOn(eventRepository, 'create').mockResolvedValue(event);
+      jest.spyOn(eventsRepository, 'create').mockResolvedValue(event);
 
-      await eventService.create(request, member, media);
+      await eventsService.create(request, member, media);
 
       expect(s3Service.upload).toHaveBeenCalledWith(media);
-      expect(eventRepository.create).toHaveBeenCalled();
+      expect(eventsRepository.create).toHaveBeenCalled();
     });
   });
 
@@ -152,14 +153,14 @@ describe('EventService', () => {
     });
 
     it('should return the event successfully', async () => {
-      jest.spyOn(eventRepository, 'findById').mockResolvedValue(event);
+      jest.spyOn(eventsRepository, 'findById').mockResolvedValue(event);
       jest
         .spyOn(likeRepository, 'findByEventAndMember')
         .mockResolvedValue(like);
 
-      const result = await eventService.findOne(eventId, member);
+      const result = await eventsService.findOne(eventId, member);
 
-      expect(eventRepository.findById).toHaveBeenCalledWith(1);
+      expect(eventsRepository.findById).toHaveBeenCalledWith(1);
       expect(likeRepository.findByEventAndMember).toHaveBeenCalledWith(
         eventId,
         member.id,
@@ -168,9 +169,9 @@ describe('EventService', () => {
     });
 
     it('should throw EVENT_NOT_FOUND if the event is not found', async () => {
-      jest.spyOn(eventRepository, 'findById').mockResolvedValue(null);
+      jest.spyOn(eventsRepository, 'findById').mockResolvedValue(null);
 
-      await expect(eventService.findOne(eventId, member)).rejects.toThrow(
+      await expect(eventsService.findOne(eventId, member)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND),
       );
     });
@@ -190,14 +191,14 @@ describe('EventService', () => {
         .build();
     });
     it('should return the overview of event successfully', async () => {
-      jest.spyOn(eventRepository, 'findById').mockResolvedValue(event);
-      const result = await eventService.findOneOverview(eventId);
+      jest.spyOn(eventsRepository, 'findById').mockResolvedValue(event);
+      const result = await eventsService.findOneOverview(eventId);
       expect(result).toBeInstanceOf(FindEventOverviewDto);
-      expect(eventRepository.findById).toHaveBeenCalledWith(eventId);
+      expect(eventsRepository.findById).toHaveBeenCalledWith(eventId);
     });
     it('should throw EVENT_NOT_FOUND if the event is not found', async () => {
-      jest.spyOn(eventRepository, 'findById').mockResolvedValue(null);
-      await expect(eventService.findOneOverview(eventId)).rejects.toThrow(
+      jest.spyOn(eventsRepository, 'findById').mockResolvedValue(null);
+      await expect(eventsService.findOneOverview(eventId)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND),
       );
     });
@@ -237,20 +238,20 @@ describe('EventService', () => {
       ];
     });
     it('should return the events nearby', async () => {
-      jest.spyOn(eventRepository, 'findNearby').mockResolvedValue(events);
-      const result = await eventService.findNearby(lat, lng, level);
+      jest.spyOn(eventsRepository, 'findNearby').mockResolvedValue(events);
+      const result = await eventsService.findNearby(lat, lng, level);
       expect(result).toEqual(events);
     });
     it('should throw INVALID_GEO_LOCATION if the lat or lng is not valid', async () => {
       lat = 100.5665;
       lng = 186.978;
-      await expect(eventService.findNearby(lat, lng, level)).rejects.toThrow(
+      await expect(eventsService.findNearby(lat, lng, level)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION),
       );
     });
     it('should throw INVALID_DISASTER_LEVEL if invalid level is requested', async () => {
       level = 'wrong';
-      await expect(eventService.findNearby(lat, lng, level)).rejects.toThrow(
+      await expect(eventsService.findNearby(lat, lng, level)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.INVALID_DISASTER_LEVEL),
       );
     });
@@ -293,8 +294,8 @@ describe('EventService', () => {
       jest
         .spyOn(naverService, 'getAddressFromCoordinate')
         .mockResolvedValue(address);
-      jest.spyOn(eventRepository, 'findNearbyAll').mockResolvedValue(events);
-      const result = await eventService.findNearbyAll(lat, lng);
+      jest.spyOn(eventsRepository, 'findNearbyAll').mockResolvedValue(events);
+      const result = await eventsService.findNearbyAll(lat, lng);
       result.events.forEach((event, index) => {
         expect(event.id).toEqual(events[index].id);
         expect(event.title).toEqual(events[index].title);
@@ -306,7 +307,7 @@ describe('EventService', () => {
     it('should throw INVALID_GEO_LOCATION if the lat or lng is not valid', async () => {
       lat = 100.5665;
       lng = 186.978;
-      await expect(eventService.findNearbyAll(lat, lng)).rejects.toThrow(
+      await expect(eventsService.findNearbyAll(lat, lng)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION),
       );
     });
@@ -341,10 +342,10 @@ describe('EventService', () => {
     });
     it('should return feeds ordered by likes', async () => {
       jest
-        .spyOn(eventRepository, 'findEventsOrderByLikes')
+        .spyOn(eventsRepository, 'findEventsOrderByLikes')
         .mockResolvedValue(events);
-      const result = await eventService.getFeeds();
-      expect(eventRepository.findEventsOrderByLikes).toHaveBeenCalledTimes(1);
+      const result = await eventsService.getFeeds();
+      expect(eventsRepository.findEventsOrderByLikes).toHaveBeenCalledTimes(1);
       expect(result.events[0].eventId).toEqual(1);
       expect(result).toEqual(getFeedDto);
     });
@@ -362,51 +363,51 @@ describe('EventService', () => {
     it('should like the event successfully', async () => {
       const eventId = 1;
 
-      jest.spyOn(eventRepository, 'findOne').mockResolvedValue(event);
+      jest.spyOn(eventsRepository, 'findOne').mockResolvedValue(event);
       jest
         .spyOn(likeRepository, 'findByEventAndMember')
         .mockResolvedValue(null);
       jest.spyOn(likeRepository, 'create').mockResolvedValue(like);
-      jest.spyOn(eventRepository, 'update').mockResolvedValue(undefined);
+      jest.spyOn(eventsRepository, 'update').mockResolvedValue(undefined);
 
-      const result = await eventService.likeEvent(eventId, member);
+      const result = await eventsService.likeEvent(eventId, member);
 
-      expect(eventRepository.findOne).toHaveBeenCalledWith(eventId);
+      expect(eventsRepository.findOne).toHaveBeenCalledWith(eventId);
       expect(likeRepository.findByEventAndMember).toHaveBeenCalledWith(
         eventId,
         member.id,
       );
       expect(likeRepository.create).toHaveBeenCalledWith(expect.any(Like));
       expect(event.likesCount).toBe(2);
-      expect(eventRepository.update).toHaveBeenCalledWith(event);
+      expect(eventsRepository.update).toHaveBeenCalledWith(event);
       expect(result.isLiked).toBe(true);
     });
 
     it('should cancel like successfully if the event is already liked', async () => {
       const eventId = 1;
 
-      jest.spyOn(eventRepository, 'findOne').mockResolvedValue(event);
+      jest.spyOn(eventsRepository, 'findOne').mockResolvedValue(event);
       jest
         .spyOn(likeRepository, 'findByEventAndMember')
         .mockResolvedValue(like);
       jest.spyOn(likeRepository, 'delete').mockResolvedValue(undefined);
-      jest.spyOn(eventRepository, 'update').mockResolvedValue(undefined);
+      jest.spyOn(eventsRepository, 'update').mockResolvedValue(undefined);
 
-      const result = await eventService.likeEvent(eventId, member);
+      const result = await eventsService.likeEvent(eventId, member);
 
       expect(likeRepository.findByEventAndMember).toHaveBeenCalledWith(
         eventId,
         member.id,
       );
       expect(likeRepository.delete).toHaveBeenCalledWith(like);
-      expect(eventRepository.update).toHaveBeenCalledWith(event);
+      expect(eventsRepository.update).toHaveBeenCalledWith(event);
       expect(result.isLiked).toBe(false);
     });
 
     it('should throw EVENT_NOT_FOUND if event does not exist', async () => {
       const eventId = 1;
-      jest.spyOn(eventRepository, 'findOne').mockResolvedValue(null);
-      await expect(eventService.likeEvent(eventId, member)).rejects.toThrow(
+      jest.spyOn(eventsRepository, 'findOne').mockResolvedValue(null);
+      await expect(eventsService.likeEvent(eventId, member)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND),
       );
     });
@@ -420,46 +421,51 @@ describe('EventService', () => {
         new EventBuilder().title('test event 2').build(),
       ];
       const searchEventDto = SearchEventDto.of(events);
-      jest.spyOn(eventRepository, 'findByTitleLike').mockResolvedValue(events);
-      const result = await eventService.searchEvent(keyword);
+      jest.spyOn(eventsRepository, 'findByTitleLike').mockResolvedValue(events);
+      const result = await eventsService.searchEvent(keyword);
 
-      expect(eventRepository.findByTitleLike).toHaveBeenCalledWith(keyword);
+      expect(eventsRepository.findByTitleLike).toHaveBeenCalledWith(keyword);
       expect(result).toEqual(searchEventDto);
     });
   });
 
   describe('createPrimary', () => {
-    let request: CreateEventDto;
-    let member: Member;
-    let members: Member[];
-    let media: Express.Multer.File;
-    let event: Event;
+    it('should create an event and emit notifications', async () => {
+      const request = new CreateEventDto();
+      const member = new MemberBuilder().id(1).logitude(0).logitude(0).build();
+      const media = null;
+      const newEvent = new EventBuilder()
+        .id(1)
+        .disasterLevel(DisasterLevel.PRIMARY)
+        .build();
+      const members = [{ id: 2 }] as Member[];
 
-    beforeEach(() => {
-      media = { originalname: 'test.jpg', buffer: Buffer.from('test') } as any;
+      jest.spyOn(s3Service, 'upload').mockResolvedValue('uploaded-url');
+      jest.spyOn(eventsRepository, 'create').mockResolvedValue(newEvent);
+      jest
+        .spyOn(memberService, 'findNearbyAndFavoritingMembers')
+        .mockResolvedValue(members);
 
-      request = new CreateEventDto();
-      request.title = 'title';
-      request.content = 'title';
-      request.longitude = 0;
-      request.latitude = 0;
-      request.address = 'test';
+      await eventsService.createPrimary(request, member, media);
 
-      member = new MemberBuilder().id(1).logitude(0).logitude(0).build();
-      const member1 = new MemberBuilder().id(2).logitude(0).logitude(0).build();
-      const member2 = new MemberBuilder().id(3).logitude(0).logitude(0).build();
-      members = [member1, member2];
-      event = new EventBuilder().id(1).build();
-    });
-    it('should create primary events and create notifications successfully', async () => {
-      jest.spyOn(eventRepository, 'create').mockResolvedValue(event);
-      jest.spyOn(memberService, 'findNearbyMembers').mockResolvedValue(members);
-      await eventService.createPrimary(request, member, media);
-      expect(eventRepository.create).toHaveBeenCalledTimes(1);
-      expect(memberService.findNearbyMembers).toHaveBeenCalledTimes(1);
-      expect(notificationServcie.createNotification).toHaveBeenCalledTimes(
-        members.length,
+      expect(s3Service.upload).not.toHaveBeenCalled();
+      expect(eventsRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          disasterLevel: DisasterLevel.PRIMARY,
+        }),
       );
+      expect(memberService.findNearbyAndFavoritingMembers).toHaveBeenCalledWith(
+        request.latitude,
+        request.longitude,
+      );
+      expect(eventEmitter.emit).toHaveBeenCalledTimes(2);
+      expect(eventEmitter.emit).toHaveBeenCalledWith('notify.nearby', {
+        members,
+        eventId: newEvent.id,
+      });
+      expect(eventEmitter.emit).toHaveBeenCalledWith('notify.friends', {
+        members,
+      });
     });
   });
 });
