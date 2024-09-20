@@ -16,9 +16,9 @@ import { DisasterLevel } from '../entities/enum/disaster-level.enum';
 import { LikeEventDto } from '../dto/like-event.dto';
 import { SearchEventDto } from '../dto/search-event.dto';
 import { MembersService } from '../../members/services/members.service';
-import { NotificationService } from '../../alarm/services/notification.service';
 import { NotificationType } from '../../alarm/entities/enums/notificationType.enum';
 import { FindEventOverviewDto } from '../dto/find-event-overview.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class EventsService {
@@ -28,7 +28,7 @@ export class EventsService {
     private readonly s3Service: S3Service,
     private readonly likeRepository: LikeRepository,
     private readonly memberService: MembersService,
-    private readonly notificationService: NotificationService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   async create(
@@ -157,19 +157,16 @@ export class EventsService {
     event.disasterLevel = DisasterLevel.PRIMARY;
     const newEvent = await this.eventsRepository.create(event);
 
-    const members = await this.memberService.findNearbyMembers(
+    const members = await this.memberService.findNearbyAndFavoritingMembers(
       request.latitude,
       request.longitude,
     );
-    await Promise.all(
-      members.map(async (member) => {
-        await this.notificationService.createNotification(
-          NotificationType.NEARBY_EVENT,
-          member,
-          newEvent.id,
-          'event',
-        );
-      }),
-    );
+    this.eventEmitter.emit('notify.nearby', {
+      members: members,
+      eventId: newEvent.id,
+    });
+    this.eventEmitter.emit('notify.friends', {
+      members: members,
+    });
   }
 }

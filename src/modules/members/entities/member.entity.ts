@@ -1,6 +1,12 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { DefaultEntity } from '../../../common/default.entity';
-import { MemberDetail, MemberNotification } from '.';
+import { Favorite, MemberDetail, MemberNotification } from '.';
 
 @Entity()
 export class Member extends DefaultEntity {
@@ -44,4 +50,7 @@ export class Member extends DefaultEntity {
     },
   )
   memberNotification?: MemberNotification;
+
+  @OneToMany(() => Favorite, (favorite) => favorite.favoritedMember)
+  favoritedByMembers!: Favorite[];
 }

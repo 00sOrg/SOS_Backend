@@ -7,6 +7,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { MembersModule } from './modules/members/members.module';
 import { ExternalModule } from './external/external.module';
 import { NotificationModule } from './modules/alarm/notification.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { NotificationModule } from './modules/alarm/notification.module';
       isGlobal: true,
     }),
     TypeOrmModule.forRoot(typeOrmConfig),
+    EventEmitterModule.forRoot(),
     EventsModule,
     AuthModule,
     MembersModule,

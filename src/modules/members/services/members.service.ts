@@ -99,7 +99,10 @@ export class MembersService {
     }
   }
 
-  async findNearbyMembers(lat: number, lng: number): Promise<Member[]> {
+  async findNearbyAndFavoritingMembers(
+    lat: number,
+    lng: number,
+  ): Promise<Member[]> {
     if (
       lat === undefined ||
       lat === null ||
