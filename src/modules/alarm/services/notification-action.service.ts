@@ -9,12 +9,14 @@ import {
   NotificationMessage,
 } from '../entities/enums/notificationMessage.enum';
 import { EventsRepository } from '../../events/repository/events.repository';
+import { MembersRepository } from '../../members/repository/members.repository';
 
 @Injectable()
 export class NotificationActionService {
   constructor(
     private readonly favoritesRepository: FavoritesRepository,
     private readonly eventsRepository: EventsRepository,
+    private readonly membersRepository: MembersRepository,
   ) {}
 
   async getActionDetails(notification: Notification) {
@@ -25,6 +27,8 @@ export class NotificationActionService {
   private readonly actionHandlers = {
     [NotificationType.FAVORITE_REQUEST]: this.processFavoriteRequest.bind(this),
     [NotificationType.NEARBY_EVENT]: this.processNearbyEvent.bind(this),
+    [NotificationType.FAVORITE_NEARBY_EVENT]:
+      this.processFavoriteNearbyEvent.bind(this),
   };
 
   private async processFavoriteRequest(notification: Notification) {
@@ -52,6 +56,21 @@ export class NotificationActionService {
       id: event.id,
       message: formatNotificationMessage(NotificationMessage.NEARBY_EVENT, {}),
       url: '/events/{id}',
+    };
+  }
+
+  private async processFavoriteNearbyEvent(notification: Notification) {
+    const member = await this.membersRepository.findById(
+      notification.referenceId,
+    );
+    if (!member) throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
+    return {
+      id: member.id,
+      message: formatNotificationMessage(
+        NotificationMessage.FAVORITE_NEARBY_EVENT,
+        { nickname: member.nickname },
+      ),
+      url: '/members/{id}',
     };
   }
 }
