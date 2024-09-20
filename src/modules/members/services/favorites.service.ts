@@ -127,4 +127,8 @@ export class FavoritesService {
 
     await this.favoritesRepository.updateFavorite(favorite);
   }
+
+  async deleteFavorite(memberId: number, favoriteId: number): Promise<void> {
+    await this.favoritesRepository.deleteById(favoriteId, memberId);
+  }
 }

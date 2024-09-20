@@ -37,7 +37,8 @@ export class NaverService {
     );
     const result = response.data.results[0];
     if (!result) {
-      throw new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION);
+      return '';
+      // throw new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION);
     }
     const city = result.region.area1.name;
     const gu = result.region.area2.name;

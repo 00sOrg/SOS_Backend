@@ -9,7 +9,6 @@ import { NaverService } from 'src/external/naver/naver.service';
 import { NotificationRepository } from '../../../src/modules/alarm/notification.repository';
 import { MemberBuilder } from '../../../src/modules/members/entities/builder/member.builder';
 import { FavoriteBuilder } from '../../../src/modules/members/entities/builder/favorite.builder';
-import { NotificationType } from '../../../src/modules/alarm/entities/enums/notificationType.enum';
 import { NotificationService } from '../../../src/modules/alarm/services/notification.service';
 
 describe('FavoritesService', () => {
@@ -17,7 +16,6 @@ describe('FavoritesService', () => {
   let membersRepository: MembersRepository;
   let favoritesRepository: FavoritesRepository;
   let naverService: NaverService;
-  let notificationRepository: NotificationRepository;
   let notificationService: NotificationService;
 
   beforeEach(async () => {
@@ -40,6 +38,7 @@ describe('FavoritesService', () => {
             updateFavorite: jest.fn(),
             removeFavorite: jest.fn(),
             findAllFavoritesForMember: jest.fn(),
+            deleteById: jest.fn(),
           },
         },
         {
@@ -67,9 +66,6 @@ describe('FavoritesService', () => {
     membersRepository = module.get<MembersRepository>(MembersRepository);
     favoritesRepository = module.get<FavoritesRepository>(FavoritesRepository);
     naverService = module.get<NaverService>(NaverService);
-    notificationRepository = module.get<NotificationRepository>(
-      NotificationRepository,
-    );
     notificationService = module.get<NotificationService>(NotificationService);
   });
 
@@ -387,6 +383,18 @@ describe('FavoritesService', () => {
       );
 
       expect(favoritesRepository.updateFavorite).not.toHaveBeenCalled();
+    });
+  });
+  describe('deleteFavorite', () => {
+    it('should delete the favoriteMember successfully', async () => {
+      const memberId = 1;
+      const favoriteId = 1;
+      await favoritesService.deleteFavorite(memberId, favoriteId);
+
+      expect(favoritesRepository.deleteById).toHaveBeenCalledWith(
+        favoriteId,
+        memberId,
+      );
     });
   });
 });
