@@ -21,7 +21,6 @@ import { DisasterLevel } from '../../src/modules/events/entities/enum/disaster-l
 import { FindEventOverviewDto } from '../../src/modules/events/dto/find-event-overview.dto';
 import { MembersService } from '../../src/modules/members/services/members.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
-import { NotificationType } from '../../src/modules/alarm/entities/enums/notificationType.enum';
 
 describe('EventService', () => {
   let eventsService: EventsService;
