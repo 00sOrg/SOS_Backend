@@ -11,10 +11,12 @@ import {
 } from '../../../src/modules/alarm/entities/enums/notificationMessage.enum';
 import { ErrorStatus } from '../../../src/common/api/status/error.status';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
+import { EventsRepository } from '../../../src/modules/events/repository/events.repository';
 
 describe('NotificationActionService', () => {
   let notificationActionService: NotificationActionService;
   let favoritesRepository: FavoritesRepository;
+  let eventsRepository: EventsRepository;
   beforeEach(async () => {
     const module = await Test.createTestingModule({
       providers: [
@@ -25,12 +27,19 @@ describe('NotificationActionService', () => {
             findById: jest.fn(),
           },
         },
+        {
+          provide: EventsRepository,
+          useValue: {
+            findById: jest.fn(),
+          },
+        },
       ],
     }).compile();
     notificationActionService = module.get<NotificationActionService>(
       NotificationActionService,
     );
     favoritesRepository = module.get<FavoritesRepository>(FavoritesRepository);
+    eventsRepository = module.get(EventsRepository);
   });
 
   describe('getActionDetails', () => {
@@ -60,7 +69,7 @@ describe('NotificationActionService', () => {
       expect(result!.message).toEqual(message);
     });
 
-    it('should throw an error if the favorite is not found', async () => {
+    it('should throw FAVORITE_NOT_FOUND if the favorite is not found', async () => {
       jest.spyOn(favoritesRepository, 'findById').mockResolvedValue(null);
       const notification = new NotificationBuilder()
         .id(1)
@@ -71,6 +80,18 @@ describe('NotificationActionService', () => {
       await expect(
         notificationActionService.getActionDetails(notification),
       ).rejects.toThrow(new ExceptionHandler(ErrorStatus.FAVORITE_NOT_FOUND));
+    });
+
+    it('should throw EVENT_NOT_FOUND if the event does not exist', async () => {
+      jest.spyOn(eventsRepository, 'findById').mockResolvedValue(null);
+      const notification = new NotificationBuilder()
+        .id(1)
+        .type(NotificationType.NEARBY_EVENT)
+        .referenceId(1)
+        .build();
+      await expect(
+        notificationActionService.getActionDetails(notification),
+      ).rejects.toThrow(new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND));
     });
   });
 });
