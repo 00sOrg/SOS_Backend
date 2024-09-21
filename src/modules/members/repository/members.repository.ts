@@ -38,6 +38,7 @@ export class MembersRepository {
     return this.memberRepository
       .createQueryBuilder('member')
       .where('member.email=:email', { email })
+      .leftJoinAndSelect('member.memberDetail', 'memberDetail')
       .getOne();
   }
 
