@@ -50,7 +50,6 @@ export class EventsRepository {
     ) {
       query.andWhere('event.disasterLevel = :level', { level });
     }
-
     return query.getMany();
   }
 
