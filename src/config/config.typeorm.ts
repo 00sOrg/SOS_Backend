@@ -20,6 +20,9 @@ const typeOrmConfig: TypeOrmModuleOptions = {
   charset: 'utf8mb4',
   keepConnectionAlive: true,
   bigNumberStrings: false,
+  extra: {
+    decimalNumbers: true,
+  },
 };
 
 // DB 없으면 생성
