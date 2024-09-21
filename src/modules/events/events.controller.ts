@@ -97,7 +97,8 @@ export class EventsController {
   @Get('map')
   @ApiOperation({
     summary: 'Get nearby events',
-    description: 'level은 primary, secondary, all이 있습니다.',
+    description:
+      'level은 primary, secondary, all이 있습니다. zoom은 10~15입니다.',
   })
   @ApiSuccessResponse(FindNearybyDto)
   @ApiFailureResponse(
@@ -108,11 +109,13 @@ export class EventsController {
     @Query('level') level: string,
     @Query('lat') lat: string,
     @Query('lng') lng: string,
+    @Query('zoom') zoom: string,
   ): Promise<FindNearybyDto> {
     const events = await this.eventsService.findNearby(
       Number(lat),
       Number(lng),
       level,
+      Number(zoom),
     );
     return FindNearybyDto.of(events);
   }

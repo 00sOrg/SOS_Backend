@@ -65,53 +65,28 @@ export class EventsService {
     return FindEventOverviewDto.of(event);
   }
 
-  async findNearby(lat: number, lng: number, level: string): Promise<Event[]> {
-    if (
-      lat === undefined ||
-      lat === null ||
-      lat < -90 ||
-      lat > 90 ||
-      lng === undefined ||
-      lng === null ||
-      lng < -180 ||
-      lng > 180
-    ) {
-      throw new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION);
-    }
+  async findNearby(
+    lat: number,
+    lng: number,
+    level: string,
+    zoom: number,
+  ): Promise<Event[]> {
+    this.isValidLocation(lat, lng);
     if (!(level.toUpperCase() in DisasterLevel)) {
       throw new ExceptionHandler(ErrorStatus.INVALID_DISASTER_LEVEL);
     }
-    const earthRadius = 6371000;
-    const latDistance = 200 / earthRadius;
-    const lngDistance = 200 / (earthRadius * Math.cos((Math.PI * lat) / 180));
-
-    const minLat = lat - (latDistance * 180) / Math.PI;
-    const maxLat = lat + (latDistance * 180) / Math.PI;
-    const minLng = lng - (lngDistance * 180) / Math.PI;
-    const maxLng = lng + (lngDistance * 180) / Math.PI;
-
+    const bound = this.calculateBound(lat, lng, zoom);
     return await this.eventsRepository.findNearby(
-      minLat,
-      maxLat,
-      minLng,
-      maxLng,
+      bound.minLat,
+      bound.maxLat,
+      bound.minLng,
+      bound.maxLng,
       level,
     );
   }
 
   async findNearbyAll(lat: number, lng: number): Promise<FindNearbyAllDto> {
-    if (
-      lat === undefined ||
-      lat === null ||
-      lat < -90 ||
-      lat > 90 ||
-      lng === undefined ||
-      lng === null ||
-      lng < -180 ||
-      lng > 180
-    ) {
-      throw new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION);
-    }
+    this.isValidLocation(lat, lng);
     const address = await this.naverService.getAddressFromCoordinate(lat, lng);
     const events: Event[] = await this.eventsRepository.findNearbyAll(address);
     return FindNearbyAllDto.of(events);
@@ -168,5 +143,52 @@ export class EventsService {
     this.eventEmitter.emit('notify.friends', {
       members: members,
     });
+  }
+
+  private isValidLocation(lat: number, lng: number) {
+    if (
+      lat === undefined ||
+      lat === null ||
+      lat < -90 ||
+      lat > 90 ||
+      lng === undefined ||
+      lng === null ||
+      lng < -180 ||
+      lng > 180
+    ) {
+      throw new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION);
+    }
+  }
+
+  private calculateBound(lat: number, lng: number, zoom: number) {
+    const earthRadius = 6371000;
+    const distanceMap = {
+      15: 800,
+      14: 1600,
+      13: 3200,
+      12: 6400,
+      11: 12800,
+      10: 25600,
+    };
+
+    const adjustedZoom = Math.max(10, Math.min(15, zoom));
+    const lngDistance = distanceMap[adjustedZoom];
+    const latDistance = lngDistance * 2;
+
+    const deltaLat = (latDistance / earthRadius) * (180 / Math.PI);
+    const maxLat = lat + deltaLat;
+    const minLat = lat - deltaLat;
+
+    const deltaLng =
+      (lngDistance / (earthRadius * Math.cos((Math.PI * lat) / 180))) *
+      (180 / Math.PI);
+    const maxLng = lng + deltaLng;
+    const minLng = lng - deltaLng;
+    return {
+      minLat,
+      maxLat,
+      minLng,
+      maxLng,
+    };
   }
 }

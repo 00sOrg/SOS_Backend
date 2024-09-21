@@ -207,11 +207,13 @@ describe('EventService', () => {
     let lat: number;
     let lng: number;
     let level: string;
+    let zoom: number;
     let events: Event[];
     beforeEach(() => {
       level = 'primary';
       lat = 37.5665;
       lng = 126.978;
+      zoom = 15;
       events = [
         {
           id: 1,
@@ -238,19 +240,21 @@ describe('EventService', () => {
     });
     it('should return the events nearby', async () => {
       jest.spyOn(eventsRepository, 'findNearby').mockResolvedValue(events);
-      const result = await eventsService.findNearby(lat, lng, level);
+      const result = await eventsService.findNearby(lat, lng, level, zoom);
       expect(result).toEqual(events);
     });
     it('should throw INVALID_GEO_LOCATION if the lat or lng is not valid', async () => {
       lat = 100.5665;
       lng = 186.978;
-      await expect(eventsService.findNearby(lat, lng, level)).rejects.toThrow(
-        new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION),
-      );
+      await expect(
+        eventsService.findNearby(lat, lng, level, zoom),
+      ).rejects.toThrow(new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION));
     });
     it('should throw INVALID_DISASTER_LEVEL if invalid level is requested', async () => {
       level = 'wrong';
-      await expect(eventsService.findNearby(lat, lng, level)).rejects.toThrow(
+      await expect(
+        eventsService.findNearby(lat, lng, level, zoom),
+      ).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.INVALID_DISASTER_LEVEL),
       );
     });
