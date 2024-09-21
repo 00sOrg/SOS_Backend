@@ -16,7 +16,6 @@ import { DisasterLevel } from '../entities/enum/disaster-level.enum';
 import { LikeEventDto } from '../dto/like-event.dto';
 import { SearchEventDto } from '../dto/search-event.dto';
 import { MembersService } from '../../members/services/members.service';
-import { NotificationType } from '../../alarm/entities/enums/notificationType.enum';
 import { FindEventOverviewDto } from '../dto/find-event-overview.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 

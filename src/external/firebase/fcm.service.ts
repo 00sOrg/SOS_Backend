@@ -15,7 +15,6 @@ export class FcmService {
       await this.firebaseAdmin.messaging().send(message);
       console.log('Notification sent successfully');
     } catch (error) {
-      console.error('Error sending notification:', error);
       throw new ExceptionHandler(ErrorStatus.FIREBASE_MESSAGE_ERROR);
     }
   }
@@ -25,7 +24,6 @@ export class FcmService {
       await this.firebaseAdmin.messaging().sendEachForMulticast(message);
       console.log('Notifications sent successfully');
     } catch (error) {
-      console.error('Error sending notifications:', error);
       throw new ExceptionHandler(ErrorStatus.FIREBASE_MESSAGE_ERROR);
     }
   }
@@ -41,6 +39,20 @@ export class FcmService {
         body,
       },
       tokens,
+    };
+  }
+
+  makeMessage(
+    title: NotificationType,
+    body: string,
+    token: string,
+  ): admin.messaging.Message {
+    return {
+      notification: {
+        title,
+        body,
+      },
+      token,
     };
   }
 }

@@ -26,8 +26,8 @@ export class NotificationController {
     private readonly memberService: MembersService,
   ) {}
 
-  @Post('/send/nearby')
-  async sendNotification(
+  @Post('/help/request')
+  async sendHelpNotification(
     @Req() req,
     @Query('lat') lat: string,
     @Query('lng') lng: string,
@@ -37,7 +37,7 @@ export class NotificationController {
       +lat,
       +lng,
     );
-    await this.notificationService.sendNotificationsToNearby(receivers, sender);
+    await this.notificationService.requestHelpToNearby(receivers, sender);
   }
 
   @Get()

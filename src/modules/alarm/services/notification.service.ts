@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { FcmService } from '../../../external/firebase/fcm.service';
+import { Member } from '../../members/entities';
 import { Favorite, Member } from '../../members/entities';
 import {
   formatNotificationMessage,
@@ -21,24 +22,16 @@ export class NotificationService {
     private readonly fcmService: FcmService,
     private readonly notificationRepository: NotificationRepository,
     private readonly notificationActionService: NotificationActionService,
+    private readonly eventEmitter: EventEmitter2,
   ) {}
 
   /**
    * 주변 사용자들에게 알림을 보냄
    */
-  async sendNotificationsToNearby(
+  async requestHelpToNearby(
     receivers: Member[],
     sender: Member,
   ): Promise<void> {
-    const tokens = receivers.map((member) => member.device);
-    const body = formatNotificationMessage(NotificationMessage.HELP_REQUEST, {
-      nickname: sender.nickname,
-    });
-    const message = this.fcmService.makeMulticastMessage(
-      NotificationType.HELP_REQUEST,
-      body,
-      tokens,
-    );
     const notifications = receivers.map((member) => {
       return new NotificationBuilder()
         .type(NotificationType.HELP_REQUEST)
@@ -47,7 +40,10 @@ export class NotificationService {
         .member(member)
         .build();
     });
-    await this.fcmService.sendMultipleNotifications(message);
+    this.eventEmitter.emit('fcm.helpRequest', {
+      receivers: receivers,
+      sender: sender,
+    });
     await this.notificationRepository.createNotifications(notifications);
   }
 
@@ -65,10 +61,16 @@ export class NotificationService {
     return new GetNotificationsDto(await notificationDtos);
   }
 
+  /**
+   * 알림 읽음 처리
+   */
   async markAsRead(member: Member, notificationId: number): Promise<void> {
     await this.notificationRepository.markAsRead(notificationId, member.id);
   }
 
+  /**
+   * 알림 생성
+   */
   async createNotification(
     type: NotificationType,
     member: Member,
