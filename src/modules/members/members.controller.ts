@@ -129,12 +129,12 @@ export class MembersController {
   )
   async rejectFavoriteRequest(
     @Request() req,
-    @Param('requesterId', ParseIntPipe) requestMemberId: number,
+    @Param('requestMemberId') requestMemberId: string,
   ): Promise<void> {
     const memberId = req.user.id; // 현재 로그인된 사용자의 ID
     await this.favoritesService.rejectFavoriteRequest(
       memberId,
-      requestMemberId,
+      Number(requestMemberId),
     );
   }
 
