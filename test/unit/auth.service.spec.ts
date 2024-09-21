@@ -12,14 +12,14 @@ import { ConfigModule } from '@nestjs/config';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { S3Service } from 'src/external/s3/s3.service';
+import { MemberDetailBuilder } from '../../src/modules/members/entities/builder/memberDetail.builder';
+import { MemberBuilder } from '../../src/modules/members/entities/builder/member.builder';
 
 describe('AuthService', () => {
   let authService: AuthService;
   let membersService: MembersService;
   let membersRepository: MembersRepository;
   let jwtService: JwtService;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  let s3Service: S3Service;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -63,7 +63,6 @@ describe('AuthService', () => {
     membersService = module.get<MembersService>(MembersService);
     membersRepository = module.get<MembersRepository>(MembersRepository);
     jwtService = module.get<JwtService>(JwtService);
-    s3Service = module.get<S3Service>(S3Service); // S3Service를 가져옴
   });
 
   it('should be defined', () => {
@@ -109,7 +108,16 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should return a JWT token for a valid member', async () => {
-      const member = { id: 1, email: 'test@example.com' } as Member;
+      const memberDetail = new MemberDetailBuilder()
+        .id(1)
+        .profilePicture('profile')
+        .build();
+      const member = new MemberBuilder()
+        .id(1)
+        .email('test@example.com')
+        .nickname('test')
+        .memberDetail(memberDetail)
+        .build();
       const token = 'test-jwt-token';
 
       jest.spyOn(jwtService, 'signAsync').mockResolvedValue(token);
@@ -120,6 +128,8 @@ describe('AuthService', () => {
       expect(jwtService.signAsync).toHaveBeenCalledWith({
         email: member.email,
         sub: member.id,
+        nickname: member.nickname,
+        profilePicture: memberDetail.profilePicture,
       });
     });
   });
