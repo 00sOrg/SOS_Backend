@@ -107,7 +107,7 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('should return a JWT token for a valid member', async () => {
+    it('should return a JWT token for a valid member with profile picture', async () => {
       const memberDetail = new MemberDetailBuilder()
         .id(1)
         .profilePicture('profile')
@@ -126,10 +126,30 @@ describe('AuthService', () => {
 
       expect(result).toEqual({ access_token: token });
       expect(jwtService.signAsync).toHaveBeenCalledWith({
-        email: member.email,
-        sub: member.id,
+        id: member.id,
+        name: member.name,
         nickname: member.nickname,
         profilePicture: memberDetail.profilePicture,
+      });
+    });
+
+    it('should return a JWT token for a valid member without profile picture', async () => {
+      const member = new MemberBuilder()
+        .id(1)
+        .email('test@example.com')
+        .nickname('test')
+        .build();
+      const token = 'test-jwt-token';
+
+      jest.spyOn(jwtService, 'signAsync').mockResolvedValue(token);
+
+      const result = await authService.login(member);
+
+      expect(result).toEqual({ access_token: token });
+      expect(jwtService.signAsync).toHaveBeenCalledWith({
+        id: member.id,
+        name: member.name,
+        nickname: member.nickname,
       });
     });
   });
