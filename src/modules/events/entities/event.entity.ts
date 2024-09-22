@@ -11,6 +11,7 @@ import { DefaultEntity } from '../../../common/default.entity';
 import { Comment } from './comment.entity';
 import { DisasterLevel } from './enum/disaster-level.enum';
 import { EventType } from './enum/event-type.enum';
+import { Keyword } from './keyword.entity';
 
 @Entity()
 export class Event extends DefaultEntity {
@@ -53,6 +54,9 @@ export class Event extends DefaultEntity {
 
   @OneToMany(() => Comment, (comment) => comment.event, { onDelete: 'CASCADE' })
   comments?: Comment[];
+
+  @OneToMany(() => Keyword, (keyword) => keyword.event, { onDelete: 'CASCADE' })
+  keywords?: Keyword[];
 
   addCommentCount(): void {
     this.commentsCount++;

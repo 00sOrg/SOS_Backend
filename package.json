@@ -39,6 +39,7 @@
     "firebase": "^10.13.1",
     "firebase-admin": "^12.4.0",
     "mysql2": "^3.10.3",
+    "openai": "^4.2.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",

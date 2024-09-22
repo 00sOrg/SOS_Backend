@@ -8,11 +8,12 @@ import { MembersModule } from '../members/members.module';
 import { ExternalModule } from 'src/external/external.module';
 import { LikeRepository } from './repository/like.repository';
 import { NotificationModule } from '../alarm/notification.module';
+import { KeywordRepository } from './repository/keyword.repository';
 
 @Module({
   imports: [
     MembersModule,
-    ExternalModule,
+    forwardRef(() => ExternalModule),
     forwardRef(() => NotificationModule),
   ],
   controllers: [EventsController],
@@ -22,7 +23,8 @@ import { NotificationModule } from '../alarm/notification.module';
     CommentService,
     CommentRepository,
     LikeRepository,
+    KeywordRepository,
   ],
-  exports: [EventsRepository],
+  exports: [EventsRepository, KeywordRepository],
 })
 export class EventsModule {}
