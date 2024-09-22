@@ -18,6 +18,8 @@ export class FindEventOverviewDto {
   eventLevel: DisasterLevel;
   @ApiProperty()
   createdAt: Date;
+  @ApiProperty()
+  keywords: string[];
 
   constructor(
     id: number,
@@ -25,6 +27,7 @@ export class FindEventOverviewDto {
     createdAt: Date,
     eventType: EventType,
     disasterLevel: DisasterLevel,
+    keywords: string[],
     media?: string,
     content?: string,
   ) {
@@ -35,15 +38,18 @@ export class FindEventOverviewDto {
     this.eventType = eventType;
     this.eventLevel = disasterLevel;
     this.createdAt = createdAt;
+    this.keywords = keywords;
   }
 
   static of(event: Event): FindEventOverviewDto {
+    const keywords = event.keywords!.map((keyword) => keyword.keyword);
     return new FindEventOverviewDto(
       event.id,
       event.title,
       event.createdAt,
       event.type,
       event.disasterLevel,
+      keywords,
       event.media,
       event.content,
     );

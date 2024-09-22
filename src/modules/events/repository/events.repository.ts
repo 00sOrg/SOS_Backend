@@ -18,6 +18,7 @@ export class EventsRepository {
     return this.eventRepository
       .createQueryBuilder('event')
       .leftJoinAndSelect('event.member', 'eventMember')
+      .leftJoinAndSelect('event.keywords', 'keywords')
       .leftJoinAndSelect('eventMember.memberDetail', 'eventMemberDetail')
       .leftJoinAndSelect('event.comments', 'comment')
       .leftJoinAndSelect('comment.member', 'commentMember')
@@ -37,6 +38,7 @@ export class EventsRepository {
     // yesterday.setDate(yesterday.getDate() - 1);
     const query = this.eventRepository
       .createQueryBuilder('event')
+      .leftJoinAndSelect('event.keywords', 'keywords')
       .where('event.latitude between :minLat AND :maxLat', { minLat, maxLat })
       .andWhere('event.longitude between :minLng AND :maxLng', {
         minLng,
@@ -60,6 +62,7 @@ export class EventsRepository {
       this.eventRepository
         .createQueryBuilder('event')
         .where('event.address = :address', { address })
+        .leftJoinAndSelect('event.keywords', 'keywords')
         // .andWhere('event.createdAt > :yesterday', { yesterday })
         .addOrderBy('event.likesCount', 'DESC')
         .getMany()
@@ -73,6 +76,7 @@ export class EventsRepository {
       this.eventRepository
         .createQueryBuilder('event')
         // .where('event.createdAt > :yesterday', { yesterday })
+        .leftJoinAndSelect('event.keywords', 'keywords')
         .addOrderBy('event.likesCount', 'DESC')
         .addOrderBy('event.createdAt', 'DESC')
         .getMany()
