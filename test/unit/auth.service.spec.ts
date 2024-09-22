@@ -107,7 +107,7 @@ describe('AuthService', () => {
   });
 
   describe('login', () => {
-    it('should return a JWT token for a valid member', async () => {
+    it('should return a JWT token for a valid member with profile picture', async () => {
       const memberDetail = new MemberDetailBuilder()
         .id(1)
         .profilePicture('profile')
@@ -126,8 +126,9 @@ describe('AuthService', () => {
 
       expect(result).toEqual({ access_token: token });
       expect(jwtService.signAsync).toHaveBeenCalledWith({
+        id: member.id,
         email: member.email,
-        sub: member.id,
+        name: member.name,
         nickname: member.nickname,
         profilePicture: memberDetail.profilePicture,
       });
