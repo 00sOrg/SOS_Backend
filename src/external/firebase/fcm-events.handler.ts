@@ -32,4 +32,64 @@ export class FcmEventsHandler implements OnModuleInit {
     );
     await this.fcmService.sendMultipleNotifications(message);
   }
+  /**
+   * 주변 사용자들에게 push notification
+   */
+  @OnEvent('fcm.nearby')
+  async handleFcmNearby(payload: { receivers: Member[]; eventId: number }) {
+    const tokens = payload.receivers.map((member) => member.device);
+    const body = formatNotificationMessage(
+      NotificationMessage.NEARBY_EVENT,
+      {},
+    );
+    const message = this.fcmService.makeMulticastMessage(
+      NotificationType.NEARBY_EVENT,
+      body,
+      tokens,
+    );
+    await this.fcmService.sendMultipleNotifications(message);
+  }
+  /**
+   * 사용자를 지인으로 등록한 사용자들에게 push notification
+   */
+  @OnEvent('fcm.friends')
+  async handleFcmFriends(payload: {
+    receiver: Member;
+    favoritedMember: Member;
+  }) {
+    const token = payload.receiver.device;
+    const body = formatNotificationMessage(
+      NotificationMessage.FAVORITE_NEARBY_EVENT,
+      {
+        nickname: payload.favoritedMember.nickname,
+      },
+    );
+    const message = this.fcmService.makeMessage(
+      NotificationType.FAVORITE_NEARBY_EVENT,
+      body,
+      token,
+    );
+    await this.fcmService.sendNotification(message);
+  }
+
+  /**
+   * 지인 요청을 보낸 사용자에게 push notification
+   */
+  @OnEvent('fcm.favoriteRequest')
+  async handleFcmFavoriteRequest(payload: {
+    receiver: Member;
+    sender: Member;
+  }) {
+    const token = payload.receiver.device;
+    const body = formatNotificationMessage(
+      NotificationMessage.FAVORITE_REQUEST,
+      { nickname: payload.sender.nickname },
+    );
+    const message = this.fcmService.makeMessage(
+      NotificationType.FAVORITE_REQUEST,
+      body,
+      token,
+    );
+    await this.fcmService.sendNotification(message);
+  }
 }

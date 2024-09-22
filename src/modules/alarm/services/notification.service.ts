@@ -1,11 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { FcmService } from '../../../external/firebase/fcm.service';
-import { Member } from '../../members/entities';
 import { Favorite, Member } from '../../members/entities';
-import {
-  formatNotificationMessage,
-  NotificationMessage,
-} from '../entities/enums/notificationMessage.enum';
 import { NotificationType } from '../entities/enums/notificationType.enum';
 import { NotificationBuilder } from '../entities/builder/notification.builder';
 import { NotificationRepository } from '../notification.repository';
@@ -15,11 +9,11 @@ import {
   GetNotificationsDto,
   NotificationDto,
 } from '../dto/get-notifications.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 @Injectable()
 export class NotificationService {
   constructor(
-    private readonly fcmService: FcmService,
     private readonly notificationRepository: NotificationRepository,
     private readonly notificationActionService: NotificationActionService,
     private readonly eventEmitter: EventEmitter2,

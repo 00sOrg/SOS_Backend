@@ -13,8 +13,8 @@ export class NotificationRepository {
     return this.notificationRepository.save(notification);
   }
 
-  async createNotifications(notifications: Notification[]) {
-    return this.notificationRepository.save(notifications);
+  async createNotifications(notifications: Notification[]): Promise<void> {
+    await this.notificationRepository.save(notifications);
   }
 
   async getNotificationsByMember(memberId: number): Promise<Notification[]> {
