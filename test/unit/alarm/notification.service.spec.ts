@@ -7,6 +7,7 @@ import { MemberBuilder } from '../../../src/modules/members/entities/builder/mem
 import { NotificationBuilder } from '../../../src/modules/alarm/entities/builder/notification.builder';
 import { NotificationType } from '../../../src/modules/alarm/entities/enums/notificationType.enum';
 import { GetNotificationsDto } from '../../../src/modules/alarm/dto/get-notifications.dto';
+import { FavoriteBuilder } from '../../../src/modules/members/entities/builder/favorite.builder';
 
 describe('NotificationService', () => {
   let notificationService: NotificationService;
@@ -25,6 +26,7 @@ describe('NotificationService', () => {
             createNotifications: jest.fn(),
             getNotificationsByMember: jest.fn(),
             markAsRead: jest.fn(),
+            deleteFavoriteNotification: jest.fn(),
           },
         },
         {
@@ -95,6 +97,15 @@ describe('NotificationService', () => {
         member.id,
         notificationId,
       );
+    });
+  });
+  describe('deleteFavoriteNotification', () => {
+    it('should delete favorite notification', async () => {
+      const favorite = new FavoriteBuilder().id(1).build();
+      await notificationService.deleteFavoriteNotification(favorite);
+      expect(
+        notificatonRepository.deleteFavoriteNotification,
+      ).toHaveBeenCalledWith(favorite.id);
     });
   });
 });

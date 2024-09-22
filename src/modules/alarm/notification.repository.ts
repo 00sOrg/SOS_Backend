@@ -34,4 +34,13 @@ export class NotificationRepository {
       .andWhere('notification.memberId=:memberId', { memberId })
       .execute();
   }
+
+  async deleteFavoriteNotification(favoriteId: number): Promise<void> {
+    await this.notificationRepository
+      .createQueryBuilder('notification')
+      .delete()
+      .where("notification.referenceTable = 'favorite'")
+      .andWhere('notification.referenceId = :favoriteId', { favoriteId })
+      .execute();
+  }
 }

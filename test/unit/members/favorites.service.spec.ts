@@ -6,7 +6,6 @@ import { Favorite, Member } from 'src/modules/members/entities';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
 import { NaverService } from 'src/external/naver/naver.service';
-import { NotificationRepository } from '../../../src/modules/alarm/notification.repository';
 import { MemberBuilder } from '../../../src/modules/members/entities/builder/member.builder';
 import { FavoriteBuilder } from '../../../src/modules/members/entities/builder/favorite.builder';
 import { NotificationService } from '../../../src/modules/alarm/services/notification.service';
@@ -48,15 +47,10 @@ describe('FavoritesService', () => {
           },
         },
         {
-          provide: NotificationRepository,
-          useValue: {
-            create: jest.fn(),
-          },
-        },
-        {
           provide: NotificationService,
           useValue: {
             createNotification: jest.fn(),
+            deleteFavoriteNotification: jest.fn(),
           },
         },
       ],
@@ -183,6 +177,9 @@ describe('FavoritesService', () => {
       );
       expect(favoritesRepository.updateFavorite).toHaveBeenCalledWith(favorite);
       expect(favorite.isAccepted).toBe(true);
+      expect(
+        notificationService.deleteFavoriteNotification,
+      ).toHaveBeenCalledWith(favorite);
     });
 
     it('should throw an error if the favorite request is not found', async () => {
@@ -243,6 +240,9 @@ describe('FavoritesService', () => {
 
       expect(favoritesRepository.findFavorite).toHaveBeenCalledWith(2, 1);
       expect(favoritesRepository.removeFavorite).toHaveBeenCalledWith(favorite);
+      expect(
+        notificationService.deleteFavoriteNotification,
+      ).toHaveBeenCalledWith(favorite);
     });
 
     it('should throw an error if the favorite request is not found', async () => {

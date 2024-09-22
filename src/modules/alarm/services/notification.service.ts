@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { FcmService } from '../../../external/firebase/fcm.service';
-import { Member } from '../../members/entities';
+import { Favorite, Member } from '../../members/entities';
 import {
   formatNotificationMessage,
   NotificationMessage,
@@ -83,6 +83,10 @@ export class NotificationService {
       .isRead(false)
       .build();
     return this.notificationRepository.create(notification);
+  }
+
+  async deleteFavoriteNotification(favorite: Favorite): Promise<void> {
+    await this.notificationRepository.deleteFavoriteNotification(favorite.id);
   }
 
   private async formatNotificationDetails(notification: Notification) {

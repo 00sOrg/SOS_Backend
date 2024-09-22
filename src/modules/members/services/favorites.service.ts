@@ -74,6 +74,7 @@ export class FavoritesService {
     }
 
     favorite.isAccepted = true;
+    await this.notificationService.deleteFavoriteNotification(favorite);
     await this.favoritesRepository.updateFavorite(favorite);
   }
 
@@ -90,7 +91,7 @@ export class FavoritesService {
     if (!favorite) {
       throw new ExceptionHandler(ErrorStatus.FAVORITE_REQUEST_NOT_FOUND);
     }
-
+    await this.notificationService.deleteFavoriteNotification(favorite);
     await this.favoritesRepository.removeFavorite(favorite);
   }
 
