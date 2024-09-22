@@ -28,15 +28,13 @@ export class AuthService {
   }
 
   async login(member: Member): Promise<object> {
-    const payload: any = {
+    const payload = {
       id: member.id,
+      email: member.email,
       name: member.name,
       nickname: member.nickname,
+      profilePicture: member.memberDetail!.profilePicture,
     };
-
-    if (member.memberDetail?.profilePicture) {
-      payload.profilePicture = member.memberDetail.profilePicture;
-    }
 
     const token = await this.jwtService.signAsync(payload);
 
