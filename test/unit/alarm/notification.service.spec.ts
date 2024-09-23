@@ -1,5 +1,4 @@
 import { NotificationService } from '../../../src/modules/alarm/services/notification.service';
-import { FcmService } from '../../../src/external/firebase/fcm.service';
 import { NotificationActionService } from '../../../src/modules/alarm/services/notification-action.service';
 import { Test } from '@nestjs/testing';
 import { NotificationRepository } from '../../../src/modules/alarm/notification.repository';
@@ -7,13 +6,14 @@ import { MemberBuilder } from '../../../src/modules/members/entities/builder/mem
 import { NotificationBuilder } from '../../../src/modules/alarm/entities/builder/notification.builder';
 import { NotificationType } from '../../../src/modules/alarm/entities/enums/notificationType.enum';
 import { GetNotificationsDto } from '../../../src/modules/alarm/dto/get-notifications.dto';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { FavoriteBuilder } from '../../../src/modules/members/entities/builder/favorite.builder';
 
 describe('NotificationService', () => {
   let notificationService: NotificationService;
-  let fcmService: FcmService;
   let notificationActionService: NotificationActionService;
-  let notificatonRepository: NotificationRepository;
+  let notificationRepository: NotificationRepository;
+  let eventEmitter: EventEmitter2;
 
   beforeEach(async () => {
     const module = await Test.createTestingModule({
@@ -36,22 +36,54 @@ describe('NotificationService', () => {
           },
         },
         {
-          provide: FcmService,
+          provide: EventEmitter2,
           useValue: {
-            sendMultipleNotifications: jest.fn(),
+            emit: jest.fn(),
           },
         },
       ],
     }).compile();
 
     notificationService = module.get<NotificationService>(NotificationService);
-    fcmService = module.get<FcmService>(FcmService);
     notificationActionService = module.get<NotificationActionService>(
       NotificationActionService,
     );
-    notificatonRepository = module.get<NotificationRepository>(
+    notificationRepository = module.get<NotificationRepository>(
       NotificationRepository,
     );
+    eventEmitter = module.get<EventEmitter2>(EventEmitter2);
+  });
+  describe('requestHelpToNearby', () => {
+    it('should emit an event and create notifications for nearby members', async () => {
+      const member1 = new MemberBuilder().id(1).build();
+      const member2 = new MemberBuilder().id(2).build();
+      const receivers = [member1, member2];
+      const sender = new MemberBuilder().id(3).build();
+
+      const notifications = receivers.map((receiver) =>
+        new NotificationBuilder()
+          .type(NotificationType.HELP_REQUEST)
+          .referenceId(sender.id)
+          .referenceTable('member')
+          .member(receiver)
+          .build(),
+      );
+
+      jest
+        .spyOn(notificationRepository, 'createNotifications')
+        .mockResolvedValue(undefined);
+      jest.spyOn(eventEmitter, 'emit');
+
+      await notificationService.requestHelpToNearby(receivers, sender);
+
+      expect(notificationRepository.createNotifications).toHaveBeenCalledWith(
+        notifications,
+      );
+      expect(eventEmitter.emit).toHaveBeenCalledWith('fcm.helpRequest', {
+        receivers: receivers,
+        sender: sender,
+      });
+    });
   });
 
   describe('getNotifications', () => {
@@ -66,7 +98,7 @@ describe('NotificationService', () => {
         .build();
       const notifications = [notification];
       jest
-        .spyOn(notificatonRepository, 'getNotificationsByMember')
+        .spyOn(notificationRepository, 'getNotificationsByMember')
         .mockResolvedValue(notifications);
       jest
         .spyOn(notificationActionService, 'getActionDetails')
@@ -75,7 +107,7 @@ describe('NotificationService', () => {
       const result = await notificationService.getNotifications(member);
       const expectedNotification = result.notifications[0];
       expect(
-        notificatonRepository.getNotificationsByMember,
+        notificationRepository.getNotificationsByMember,
       ).toHaveBeenCalledWith(member.id);
       expect(notificationActionService.getActionDetails).toHaveBeenCalledWith(
         notification,
@@ -90,10 +122,10 @@ describe('NotificationService', () => {
     it('should mark the notification as read', async () => {
       const member = new MemberBuilder().id(1).build();
       const notificationId = 1;
-      jest.spyOn(notificatonRepository, 'markAsRead');
+      jest.spyOn(notificationRepository, 'markAsRead');
       await notificationService.markAsRead(member, notificationId);
 
-      expect(notificatonRepository.markAsRead).toHaveBeenCalledWith(
+      expect(notificationRepository.markAsRead).toHaveBeenCalledWith(
         member.id,
         notificationId,
       );
@@ -104,7 +136,7 @@ describe('NotificationService', () => {
       const favorite = new FavoriteBuilder().id(1).build();
       await notificationService.deleteFavoriteNotification(favorite);
       expect(
-        notificatonRepository.deleteFavoriteNotification,
+        notificationRepository.deleteFavoriteNotification,
       ).toHaveBeenCalledWith(favorite.id);
     });
   });

@@ -7,7 +7,7 @@ import { ErrorStatus } from 'src/common/api/status/error.status';
 import { FindFavoriteListDto } from '../dto/find-favorite-list.dto';
 import { NaverService } from 'src/external/naver/naver.service';
 import { FavoriteBuilder } from '../entities/builder/favorite.builder';
-import { NotificationType } from '../../alarm/entities/enums/notificationType.enum';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { NotificationService } from '../../alarm/services/notification.service';
 
 @Injectable()
@@ -16,6 +16,7 @@ export class FavoritesService {
     private readonly membersRepository: MembersRepository,
     private readonly favoritesRepository: FavoritesRepository,
     private readonly naverService: NaverService,
+    private readonly eventEmitter: EventEmitter2,
     private readonly notificationService: NotificationService,
   ) {}
 
@@ -48,12 +49,10 @@ export class FavoritesService {
       .build();
 
     const result = await this.favoritesRepository.saveFavorite(newFavorite);
-    await this.notificationService.createNotification(
-      NotificationType.FAVORITE_REQUEST,
-      targetMember,
-      result.id,
-      'favorite',
-    );
+    this.eventEmitter.emit('notify.favoriteRequest', {
+      member: member,
+      favorite: result,
+    });
   }
 
   // 관심 사용자 요청 수락 (여기서 member는 요청을 받은 사람)

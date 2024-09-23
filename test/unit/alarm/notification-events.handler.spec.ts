@@ -3,10 +3,12 @@ import { NotificationEventsHandler } from '../../../src/modules/alarm/services/n
 import { NotificationService } from '../../../src/modules/alarm/services/notification.service';
 import { NotificationType } from '../../../src/modules/alarm/entities/enums/notificationType.enum';
 import { MemberBuilder } from '../../../src/modules/members/entities/builder/member.builder';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 
 describe('NotificationEventsHandler', () => {
   let handler: NotificationEventsHandler;
   let notificationService: NotificationService;
+  let eventEmitter: EventEmitter2;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -18,11 +20,18 @@ describe('NotificationEventsHandler', () => {
             createNotification: jest.fn(),
           },
         },
+        {
+          provide: EventEmitter2,
+          useValue: {
+            emit: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     handler = module.get<NotificationEventsHandler>(NotificationEventsHandler);
     notificationService = module.get<NotificationService>(NotificationService);
+    eventEmitter = module.get<EventEmitter2>(EventEmitter2);
   });
 
   describe('handleNotifyNearbyEvent', () => {
@@ -46,6 +55,10 @@ describe('NotificationEventsHandler', () => {
           payload.eventId,
           'event',
         );
+      });
+      expect(eventEmitter.emit).toHaveBeenCalledWith('fcm.nearby', {
+        receivers: members,
+        eventId: payload.eventId,
       });
     });
   });
@@ -72,6 +85,10 @@ describe('NotificationEventsHandler', () => {
       expect(notificationService.createNotification).toHaveBeenCalledTimes(3);
       members.forEach((member) => {
         member.favoritedByMembers.forEach((favoritedByMember) => {
+          expect(eventEmitter.emit).toHaveBeenCalledWith('fcm.friends', {
+            receiver: member,
+            favoritedMember: favoritedByMember,
+          });
           expect(notificationService.createNotification).toHaveBeenCalledWith(
             NotificationType.FAVORITE_NEARBY_EVENT,
             favoritedByMember.member,

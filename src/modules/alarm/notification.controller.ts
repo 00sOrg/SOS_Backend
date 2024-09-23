@@ -26,18 +26,18 @@ export class NotificationController {
     private readonly memberService: MembersService,
   ) {}
 
-  @Post('/send/nearby')
-  async sendNotification(
+  @Post('/help/request')
+  async sendHelpNotification(
     @Req() req,
     @Query('lat') lat: string,
     @Query('lng') lng: string,
   ) {
     const sender = await this.memberService.findByEmail(req.user.email);
     const receivers = await this.memberService.findNearbyAndFavoritingMembers(
-      +lat,
-      +lng,
+      Number(lat),
+      Number(lng),
     );
-    await this.notificationService.sendNotificationsToNearby(receivers, sender);
+    await this.notificationService.requestHelpToNearby(receivers, sender);
   }
 
   @Get()

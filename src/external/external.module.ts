@@ -5,6 +5,7 @@ import { HttpModule } from '@nestjs/axios';
 import { firebaseConfig } from '../config/config.firebase';
 import { ConfigService } from '@nestjs/config';
 import { FcmService } from './firebase/fcm.service';
+import { FcmEventsHandler } from './firebase/fcm-events.handler';
 
 @Module({
   imports: [HttpModule],
@@ -19,6 +20,7 @@ import { FcmService } from './firebase/fcm.service';
       },
       inject: [ConfigService],
     },
+    FcmEventsHandler,
   ],
   exports: [NaverService, S3Service, FcmService],
 })

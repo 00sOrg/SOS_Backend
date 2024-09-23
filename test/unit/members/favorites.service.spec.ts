@@ -8,6 +8,7 @@ import { ErrorStatus } from 'src/common/api/status/error.status';
 import { NaverService } from 'src/external/naver/naver.service';
 import { MemberBuilder } from '../../../src/modules/members/entities/builder/member.builder';
 import { FavoriteBuilder } from '../../../src/modules/members/entities/builder/favorite.builder';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { NotificationService } from '../../../src/modules/alarm/services/notification.service';
 
 describe('FavoritesService', () => {
@@ -15,6 +16,7 @@ describe('FavoritesService', () => {
   let membersRepository: MembersRepository;
   let favoritesRepository: FavoritesRepository;
   let naverService: NaverService;
+  let eventEmitter: EventEmitter2;
   let notificationService: NotificationService;
 
   beforeEach(async () => {
@@ -47,9 +49,14 @@ describe('FavoritesService', () => {
           },
         },
         {
+          provide: EventEmitter2,
+          useValue: {
+            emit: jest.fn(),
+          },
+        },
+        {
           provide: NotificationService,
           useValue: {
-            createNotification: jest.fn(),
             deleteFavoriteNotification: jest.fn(),
           },
         },
@@ -60,6 +67,7 @@ describe('FavoritesService', () => {
     membersRepository = module.get<MembersRepository>(MembersRepository);
     favoritesRepository = module.get<FavoritesRepository>(FavoritesRepository);
     naverService = module.get<NaverService>(NaverService);
+    eventEmitter = module.get<EventEmitter2>(EventEmitter2);
     notificationService = module.get<NotificationService>(NotificationService);
   });
 
@@ -105,7 +113,10 @@ describe('FavoritesService', () => {
       expect(favoritesRepository.saveFavorite).toHaveBeenCalledWith(
         newFavorite,
       );
-      expect(notificationService.createNotification).toHaveBeenCalledTimes(1);
+      expect(eventEmitter.emit).toHaveBeenCalledWith('notify.favoriteRequest', {
+        member,
+        favorite,
+      });
     });
 
     it('should throw an error if the target member does not found', async () => {
