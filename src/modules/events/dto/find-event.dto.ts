@@ -59,6 +59,8 @@ export class FindEventDto {
   comments?: CommentDto[];
   @ApiProperty()
   createdAt!: Date;
+  @ApiProperty()
+  keywords!: string[];
 
   static of(event: Event, isLiked: boolean): FindEventDto {
     const dto = new FindEventDto();
@@ -79,6 +81,7 @@ export class FindEventDto {
     dto.createdAt = event.createdAt;
     dto.type = event.type;
     dto.level = event.disasterLevel;
+    dto.keywords = event.keywords!.map((keyword) => keyword.keyword);
     return dto;
   }
 }

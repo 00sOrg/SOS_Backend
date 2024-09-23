@@ -18,6 +18,8 @@ import { SearchEventDto } from '../dto/search-event.dto';
 import { MembersService } from '../../members/services/members.service';
 import { FindEventOverviewDto } from '../dto/find-event-overview.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { KeywordBuilder } from '../entities/builder/keyword.builder';
+import { KeywordRepository } from '../repository/keyword.repository';
 
 @Injectable()
 export class EventsService {
@@ -28,6 +30,7 @@ export class EventsService {
     private readonly likeRepository: LikeRepository,
     private readonly memberService: MembersService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly keywordRepository: KeywordRepository,
   ) {}
 
   async create(
@@ -40,7 +43,11 @@ export class EventsService {
     }
     const url = media ? await this.s3Service.upload(media) : undefined;
     const event = request.toEvent(member, url);
-    await this.eventsRepository.create(event);
+    const newEvent = await this.eventsRepository.create(event);
+    this.eventEmitter.emit('openai.keywords', {
+      content: request.content,
+      event: newEvent,
+    });
   }
 
   async findOne(eventId: number, member: Member): Promise<FindEventDto> {
@@ -142,6 +149,16 @@ export class EventsService {
     this.eventEmitter.emit('notify.friends', {
       members: members,
     });
+    this.eventEmitter.emit('openai.keywords', {
+      content: request.content,
+      event: newEvent,
+    });
+  }
+  async createKeywords(event: Event, words: string[]) {
+    const keywords = words.map((word) => {
+      return new KeywordBuilder().keyword(word).event(event).build();
+    });
+    await this.keywordRepository.createKeywords(keywords);
   }
 
   private isValidLocation(lat: number, lng: number) {

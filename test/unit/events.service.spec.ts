@@ -21,6 +21,9 @@ import { DisasterLevel } from '../../src/modules/events/entities/enum/disaster-l
 import { FindEventOverviewDto } from '../../src/modules/events/dto/find-event-overview.dto';
 import { MembersService } from '../../src/modules/members/services/members.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { KeywordRepository } from '../../src/modules/events/repository/keyword.repository';
+import { Keyword } from '../../src/modules/events/entities/keyword.entity';
+import { KeywordBuilder } from '../../src/modules/events/entities/builder/keyword.builder';
 
 describe('EventService', () => {
   let eventsService: EventsService;
@@ -30,6 +33,7 @@ describe('EventService', () => {
   let likeRepository: LikeRepository;
   let memberService: MembersService;
   let eventEmitter: EventEmitter2;
+  let keywordRepository: KeywordRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -86,6 +90,12 @@ describe('EventService', () => {
             emit: jest.fn(),
           },
         },
+        {
+          provide: KeywordRepository,
+          useValue: {
+            createKeywords: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
@@ -96,6 +106,7 @@ describe('EventService', () => {
     likeRepository = module.get(LikeRepository);
     memberService = module.get(MembersService);
     eventEmitter = module.get<EventEmitter2>(EventEmitter2);
+    keywordRepository = module.get(KeywordRepository);
   });
 
   describe('create', () => {
@@ -131,7 +142,11 @@ describe('EventService', () => {
       await eventsService.create(request, member, media);
 
       expect(s3Service.upload).toHaveBeenCalledWith(media);
-      expect(eventsRepository.create).toHaveBeenCalled();
+      expect(eventsRepository.create).toHaveBeenCalledTimes(1);
+      expect(eventEmitter.emit).toHaveBeenCalledWith('openai.keywords', {
+        content: request.content,
+        event: event,
+      });
     });
   });
 
@@ -139,6 +154,7 @@ describe('EventService', () => {
     let eventId: number;
     let member: Member;
     let memberDetail: MemberDetail;
+    let keyword: Keyword;
     let event: Event;
     let findEventDto: FindEventDto;
     let like: Like;
@@ -146,7 +162,13 @@ describe('EventService', () => {
       eventId = 1;
       memberDetail = new MemberDetail();
       member = new MemberBuilder().id(1).memberDetail(memberDetail).build();
+      keyword = new KeywordBuilder()
+        .id(1)
+        .keyword('keyword')
+        .event(event)
+        .build();
       event = new EventBuilder().member(member).build();
+      event.keywords = [keyword];
       like = new LikeBuilder().build();
       findEventDto = FindEventDto.of(event, true);
     });
@@ -177,9 +199,16 @@ describe('EventService', () => {
   });
   describe('findOneOverview', () => {
     let eventId: number;
+    let keyword: Keyword;
     let event: Event;
     beforeEach(() => {
       eventId = 1;
+      keyword = new KeywordBuilder()
+        .id(1)
+        .keyword('keyword')
+        .event(event)
+        .build();
+
       event = new EventBuilder()
         .id(1)
         .title('title')
@@ -188,6 +217,7 @@ describe('EventService', () => {
         .type(EventType.NONE)
         .disasterLevel(DisasterLevel.SECONDARY)
         .build();
+      event.keywords = [keyword];
     });
     it('should return the overview of event successfully', async () => {
       jest.spyOn(eventsRepository, 'findById').mockResolvedValue(event);
@@ -321,26 +351,14 @@ describe('EventService', () => {
     let getFeedDto: GetFeedsDto;
 
     beforeEach(() => {
-      events = [
-        {
-          id: 1,
-          title: 'Event 1',
-          content: 'Content 1',
-          likesCount: 20,
-        } as Event,
-        {
-          id: 2,
-          title: 'Event 2',
-          content: 'Content 2',
-          likesCount: 10,
-        } as Event,
-        {
-          id: 3,
-          title: 'Event 3',
-          content: 'Content 3',
-          likesCount: 5,
-        } as Event,
-      ];
+      const event1 = new EventBuilder().id(1).build();
+      const event2 = new EventBuilder().id(2).build();
+      const event3 = new EventBuilder().id(3).build();
+      event1.keywords = [];
+      event2.keywords = [];
+      event3.keywords = [];
+
+      events = [event1, event2, event3];
       getFeedDto = GetFeedsDto.of(events);
     });
     it('should return feeds ordered by likes', async () => {
@@ -461,7 +479,7 @@ describe('EventService', () => {
         request.latitude,
         request.longitude,
       );
-      expect(eventEmitter.emit).toHaveBeenCalledTimes(2);
+      expect(eventEmitter.emit).toHaveBeenCalledTimes(3);
       expect(eventEmitter.emit).toHaveBeenCalledWith('notify.nearby', {
         members,
         eventId: newEvent.id,
@@ -469,6 +487,24 @@ describe('EventService', () => {
       expect(eventEmitter.emit).toHaveBeenCalledWith('notify.friends', {
         members,
       });
+      expect(eventEmitter.emit).toHaveBeenCalledWith('openai.keywords', {
+        content: request.content,
+        event: newEvent,
+      });
+    });
+  });
+
+  describe('createKeywords', () => {
+    it('should properly create keywords and call the repository', async () => {
+      const event = new Event();
+      const words = ['keyword1', 'keyword2', 'keyword3'];
+      jest
+        .spyOn(keywordRepository, 'createKeywords')
+        .mockResolvedValue(undefined);
+
+      await eventsService.createKeywords(event, words);
+
+      expect(keywordRepository.createKeywords).toHaveBeenCalledTimes(1);
     });
   });
 });

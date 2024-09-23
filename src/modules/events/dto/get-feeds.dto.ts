@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Event } from '../entities';
+import { EventType } from '../entities/enum/event-type.enum';
+import { DisasterLevel } from '../entities/enum/disaster-level.enum';
 
 class EventData {
   @ApiProperty()
@@ -14,9 +16,21 @@ class EventData {
   @ApiProperty()
   media?: string;
 
+  @ApiProperty()
+  eventType: EventType;
+
+  @ApiProperty()
+  eventLevel: DisasterLevel;
+
+  @ApiProperty()
+  keywords: string[];
+
   constructor(
     eventId: number,
     title: string,
+    eventType: EventType,
+    disasterLevel: DisasterLevel,
+    keywords: string[],
     content?: string,
     media?: string,
   ) {
@@ -24,6 +38,9 @@ class EventData {
     this.title = title;
     this.content = content;
     this.media = media;
+    this.eventType = eventType;
+    this.eventLevel = disasterLevel;
+    this.keywords = keywords;
   }
 }
 
@@ -37,7 +54,16 @@ export class GetFeedsDto {
 
   static of(events: Event[]): GetFeedsDto {
     const eventDatas = events.map((event) => {
-      return new EventData(event.id, event.title, event.content, event.media);
+      const keywords = event.keywords!.map((keyword) => keyword.keyword);
+      return new EventData(
+        event.id,
+        event.title,
+        event.type,
+        event.disasterLevel,
+        keywords,
+        event.content,
+        event.media,
+      );
     });
     return new GetFeedsDto(eventDatas);
   }
