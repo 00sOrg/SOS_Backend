@@ -61,6 +61,10 @@ export class CreateEventDto {
   type!: EventType;
 
   toEvent(member: Member, mediaUrl?: string): Event {
+    const type =
+      this.type === EventType.NONE || EventType.OTHER
+        ? EventType.ACCIDENT
+        : this.type;
     return new EventBuilder()
       .title(this.title)
       .content(this.content)
@@ -68,7 +72,7 @@ export class CreateEventDto {
       .longitude(this.longitude)
       .disasterLevel(DisasterLevel.SECONDARY)
       .address(this.address)
-      .type(this.type)
+      .type(type)
       .member(member)
       .media(mediaUrl)
       .build();
