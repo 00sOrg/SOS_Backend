@@ -1,4 +1,5 @@
 import { MemberDetail } from '../memberDetail.entity';
+import { Member } from '../member.entity';
 
 export class MemberDetailBuilder {
   private _memberDetail: MemberDetail;
@@ -49,6 +50,11 @@ export class MemberDetailBuilder {
 
   medication(medication: string): this {
     this._memberDetail.medication = medication;
+    return this;
+  }
+
+  member(member: Member): this {
+    this._memberDetail.member = member;
     return this;
   }
 

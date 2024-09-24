@@ -10,6 +10,7 @@ import { MembersDetailRepository } from '../repository/membersDetail.repository'
 import { NaverService } from '../../../external/naver/naver.service';
 import { SearchMemberDto } from '../dto/search-member.dto';
 import { GetMemberInfoDto } from '../dto/get-memberInfo.dto';
+import { GetMemberDetailInfoDto } from '../dto/get-memberDetail-info.dto';
 
 @Injectable()
 export class MembersService {
@@ -151,5 +152,16 @@ export class MembersService {
       throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
     }
     return GetMemberInfoDto.of(member);
+  }
+
+  async findMemberDetailById(
+    memberId: number,
+  ): Promise<GetMemberDetailInfoDto> {
+    const memberDetail =
+      await this.membersDetailRepository.findByMemberId(memberId);
+    if (!memberDetail) {
+      throw new ExceptionHandler(ErrorStatus.MEMBER_DETAIL_NOT_FOUND);
+    }
+    return GetMemberDetailInfoDto.of(memberDetail);
   }
 }

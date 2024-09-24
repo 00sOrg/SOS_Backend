@@ -12,6 +12,7 @@ import { NaverService } from '../../../src/external/naver/naver.service';
 import { SearchMemberDto } from '../../../src/modules/members/dto/search-member.dto';
 import { MemberDetailBuilder } from '../../../src/modules/members/entities/builder/memberDetail.builder';
 import { GetMemberInfoDto } from '../../../src/modules/members/dto/get-memberInfo.dto';
+import { GetMemberDetailInfoDto } from '../../../src/modules/members/dto/get-memberDetail-info.dto';
 
 describe('MembersService', () => {
   let service: MembersService;
@@ -39,6 +40,7 @@ describe('MembersService', () => {
           provide: MembersDetailRepository,
           useValue: {
             update: jest.fn(),
+            findByMemberId: jest.fn(),
           },
         },
         {
@@ -219,6 +221,32 @@ describe('MembersService', () => {
       jest.spyOn(membersRepository, 'findById').mockResolvedValue(null);
       await expect(service.findMemberById(1)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND),
+      );
+    });
+  });
+
+  describe('findMemberDetailById', () => {
+    it('should return the member detail info successfully', async () => {
+      const member = new MemberBuilder().name('test').build();
+      const memberDetail = new MemberDetailBuilder()
+        .id(1)
+        .member(member)
+        .profilePicture('profile')
+        .build();
+      jest
+        .spyOn(membersDetailRepository, 'findByMemberId')
+        .mockResolvedValue(memberDetail);
+      const result = await service.findMemberDetailById(1);
+      expect(result).toBeInstanceOf(GetMemberDetailInfoDto);
+      expect(membersDetailRepository.findByMemberId).toHaveBeenCalledTimes(1);
+      expect(membersDetailRepository.findByMemberId).toHaveBeenCalledWith(1);
+    });
+    it('should throw MEMBER_DETAIL_NOT_FOUND if member detail does not exist', async () => {
+      jest
+        .spyOn(membersDetailRepository, 'findByMemberId')
+        .mockResolvedValue(null);
+      await expect(service.findMemberDetailById(1)).rejects.toThrow(
+        new ExceptionHandler(ErrorStatus.MEMBER_DETAIL_NOT_FOUND),
       );
     });
   });

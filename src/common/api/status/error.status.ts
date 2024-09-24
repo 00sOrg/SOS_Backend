@@ -60,6 +60,11 @@ export class ErrorStatus implements BaseCode {
     400,
     '관심 사용자를 찾을 수 없습니다.',
   );
+  static readonly MEMBER_DETAIL_NOT_FOUND = new ErrorStatus(
+    false,
+    400,
+    '사용자 상세 정보를 찾을 수 없습니다.',
+  );
 
   //이벤트 에러
   static readonly EVENT_CONTENTS_NOT_FOUND = new ErrorStatus(
