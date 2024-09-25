@@ -23,4 +23,12 @@ export class MembersDetailRepository {
       updateData,
     );
   }
+
+  async findByMemberId(memberId: number): Promise<MemberDetail | null> {
+    return this.memberDetailRepository
+      .createQueryBuilder('memberDetail')
+      .where('memberDetail.memberId = :memberId', { memberId })
+      .leftJoinAndSelect('memberDetail.member', 'member')
+      .getOne();
+  }
 }

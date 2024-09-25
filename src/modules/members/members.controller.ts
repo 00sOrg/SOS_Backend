@@ -33,6 +33,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateMemberDto } from './dto/update-member.dto';
 import { SearchMemberDto } from './dto/search-member.dto';
 import { GetMemberInfoDto } from './dto/get-memberInfo.dto';
+import { GetMemberDetailInfoDto } from './dto/get-memberDetail-info.dto';
 
 @ApiTags('Members')
 @UseGuards(AuthGuard('jwt'))
@@ -198,7 +199,7 @@ export class MembersController {
     return await this.membersService.findMemberAndAddressByNickname(nickname);
   }
 
-  @Get('/:id')
+  @Get('/:id(\\d+)')
   @ApiOperation({ summary: 'Get member by id' })
   @ApiSuccessResponse(GetMemberInfoDto)
   @ApiFailureResponse(
@@ -216,5 +217,14 @@ export class MembersController {
   async deleteFavorite(@Param('id') id: string, @Req() req): Promise<void> {
     const memberId = req.user.id;
     return await this.favoritesService.deleteFavorite(memberId, Number(id));
+  }
+
+  @Get('/info')
+  @ApiOperation({ summary: 'Get member info' })
+  @ApiSuccessResponse(GetMemberDetailInfoDto)
+  @ApiFailureResponse(ErrorStatus.INTERNAL_SERVER_ERROR)
+  async getMemberInfo(@Req() req): Promise<GetMemberDetailInfoDto> {
+    const memberId = req.user.id;
+    return await this.membersService.findMemberDetailById(memberId);
   }
 }
