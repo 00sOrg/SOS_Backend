@@ -97,4 +97,11 @@ export class EventsRepository {
       .where('event.title LIKE :keyword', { keyword: `%${keyword}%` })
       .getMany();
   }
+
+  async findAllByMember(memberId: number): Promise<Event[]> {
+    return this.eventRepository
+      .createQueryBuilder('event')
+      .where('event.memberId = :memberId', { memberId })
+      .getMany();
+  }
 }

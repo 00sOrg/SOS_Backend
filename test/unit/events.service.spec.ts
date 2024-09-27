@@ -24,6 +24,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 import { KeywordRepository } from '../../src/modules/events/repository/keyword.repository';
 import { Keyword } from '../../src/modules/events/entities/keyword.entity';
 import { KeywordBuilder } from '../../src/modules/events/entities/builder/keyword.builder';
+import { GetEventsDto } from '../../src/modules/events/dto/get-events.dto';
 
 describe('EventService', () => {
   let eventsService: EventsService;
@@ -56,6 +57,7 @@ describe('EventService', () => {
             findOne: jest.fn(),
             update: jest.fn(),
             findByTitleLike: jest.fn(),
+            findAllByMember: jest.fn(),
           },
         },
         {
@@ -505,6 +507,23 @@ describe('EventService', () => {
       await eventsService.createKeywords(event, words);
 
       expect(keywordRepository.createKeywords).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('getEvents', () => {
+    it('should return GetEventsDto successfully', async () => {
+      const member = new MemberBuilder().id(1).build();
+      const events = [
+        new EventBuilder().id(1).build(),
+        new EventBuilder().id(2).build(),
+      ];
+      const getEventsDto = GetEventsDto.of(events);
+      jest.spyOn(eventsRepository, 'findAllByMember').mockResolvedValue(events);
+
+      const result = await eventsService.getEvents(member);
+
+      expect(eventsRepository.findAllByMember).toHaveBeenCalledWith(member.id);
+      expect(result).toEqual(getEventsDto);
     });
   });
 });

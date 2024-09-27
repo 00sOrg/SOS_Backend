@@ -35,6 +35,7 @@ import { EventType } from './entities/enum/event-type.enum';
 import { LikeEventDto } from './dto/like-event.dto';
 import { SearchEventDto } from './dto/search-event.dto';
 import { FindEventOverviewDto } from './dto/find-event-overview.dto';
+import { GetEventsDto } from './dto/get-events.dto';
 
 @ApiBearerAuth()
 @ApiTags('Events')
@@ -220,5 +221,14 @@ export class EventsController {
   ) {
     const member = req.user;
     await this.eventsService.createPrimary(request, member, media);
+  }
+
+  @Get()
+  @ApiOperation({ summary: '사용자가 작성한 이벤트 목록 조회' })
+  @ApiSuccessResponse(GetEventsDto)
+  @ApiFailureResponse(ErrorStatus.INTERNAL_SERVER_ERROR)
+  async getEvents(@Request() req): Promise<GetEventsDto> {
+    const member = req.user;
+    return await this.eventsService.getEvents(member);
   }
 }

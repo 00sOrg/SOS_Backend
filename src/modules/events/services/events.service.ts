@@ -20,6 +20,7 @@ import { FindEventOverviewDto } from '../dto/find-event-overview.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { KeywordBuilder } from '../entities/builder/keyword.builder';
 import { KeywordRepository } from '../repository/keyword.repository';
+import { GetEventsDto } from '../dto/get-events.dto';
 
 @Injectable()
 export class EventsService {
@@ -159,6 +160,11 @@ export class EventsService {
       return new KeywordBuilder().keyword(word).event(event).build();
     });
     await this.keywordRepository.createKeywords(keywords);
+  }
+
+  async getEvents(member: Member): Promise<GetEventsDto> {
+    const events = await this.eventsRepository.findAllByMember(member.id);
+    return GetEventsDto.of(events);
   }
 
   private isValidLocation(lat: number, lng: number) {
