@@ -25,6 +25,7 @@ import { KeywordRepository } from '../../src/modules/events/repository/keyword.r
 import { Keyword } from '../../src/modules/events/entities/keyword.entity';
 import { KeywordBuilder } from '../../src/modules/events/entities/builder/keyword.builder';
 import { GetEventsDto } from '../../src/modules/events/dto/get-events.dto';
+import { MemberDetailBuilder } from 'src/modules/members/entities/builder/memberDetail.builder';
 
 describe('EventService', () => {
   let eventsService: EventsService;
@@ -203,8 +204,23 @@ describe('EventService', () => {
     let eventId: number;
     let keyword: Keyword;
     let event: Event;
+    let member: Member;
+    let memberDetail: MemberDetail;
+
     beforeEach(() => {
       eventId = 1;
+
+      memberDetail = new MemberDetailBuilder()
+        .id(1)
+        .profilePicture('profile-picture-url')
+        .build();
+
+      member = new MemberBuilder()
+        .id(1)
+        .nickname('memberNickname')
+        .memberDetail(memberDetail)
+        .build();
+
       keyword = new KeywordBuilder()
         .id(1)
         .keyword('keyword')
@@ -218,17 +234,31 @@ describe('EventService', () => {
         .media('media')
         .type(EventType.NONE)
         .disasterLevel(DisasterLevel.SECONDARY)
+        .member(member) // member 객체 추가
+        .address('Seoul, Korea')
         .build();
+
       event.keywords = [keyword];
     });
+
     it('should return the overview of event successfully', async () => {
       jest.spyOn(eventsRepository, 'findById').mockResolvedValue(event);
       const result = await eventsService.findOneOverview(eventId);
+
       expect(result).toBeInstanceOf(FindEventOverviewDto);
+      expect(result.id).toEqual(event.id);
+      expect(result.title).toEqual(event.title);
+      expect(result.memberNickname).toEqual(member.nickname); // memberNickname 테스트
+      expect(result.memberProfile).toEqual(memberDetail.profilePicture); // memberProfile 테스트
+      expect(result.address).toEqual(event.address); // address 테스트
+      expect(result.keywords).toEqual(event.keywords?.map((k) => k.keyword));
+
       expect(eventsRepository.findById).toHaveBeenCalledWith(eventId);
     });
+
     it('should throw EVENT_NOT_FOUND if the event is not found', async () => {
       jest.spyOn(eventsRepository, 'findById').mockResolvedValue(null);
+
       await expect(eventsService.findOneOverview(eventId)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND),
       );
