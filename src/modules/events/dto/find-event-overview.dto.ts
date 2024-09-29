@@ -13,6 +13,12 @@ export class FindEventOverviewDto {
   @ApiProperty()
   media?: string;
   @ApiProperty()
+  memberNickname: string;
+  @ApiProperty()
+  memberProfile?: string;
+  @ApiProperty()
+  address?: string;
+  @ApiProperty()
   eventType: EventType;
   @ApiProperty()
   eventLevel: DisasterLevel;
@@ -27,6 +33,9 @@ export class FindEventOverviewDto {
     createdAt: Date,
     eventType: EventType,
     disasterLevel: DisasterLevel,
+    address: string,
+    memberProfile: string,
+    memberNickname: string,
     keywords: string[],
     media?: string,
     content?: string,
@@ -39,6 +48,9 @@ export class FindEventOverviewDto {
     this.eventLevel = disasterLevel;
     this.createdAt = createdAt;
     this.keywords = keywords;
+    this.address = address;
+    this.memberProfile = memberProfile;
+    this.memberNickname = memberNickname;
   }
 
   static of(event: Event): FindEventOverviewDto {
@@ -49,6 +61,9 @@ export class FindEventOverviewDto {
       event.createdAt,
       event.type,
       event.disasterLevel,
+      event.address,
+      event.member.memberDetail!.profilePicture!,
+      event.member.nickname,
       keywords,
       event.media,
       event.content,
