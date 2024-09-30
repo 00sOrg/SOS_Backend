@@ -21,6 +21,7 @@ export class NotificationActionService {
 
   async getActionDetails(notification: Notification) {
     const handler = this.actionHandlers[notification.type];
+    console.log(notification.type);
     return handler(notification);
   }
 
