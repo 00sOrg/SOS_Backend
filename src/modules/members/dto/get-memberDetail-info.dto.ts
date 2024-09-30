@@ -23,6 +23,15 @@ export class GetMemberDetailInfoDto {
   @ApiProperty()
   medication: string;
 
+  @ApiProperty()
+  phoneNumber: string;
+
+  @ApiProperty()
+  gender: string;
+
+  @ApiProperty()
+  birth: Date;
+
   constructor(
     name: string,
     sex: string,
@@ -31,6 +40,9 @@ export class GetMemberDetailInfoDto {
     bloodType: string,
     disease: string,
     medication: string,
+    phoneNumber: string,
+    gender: string,
+    birth: Date,
   ) {
     this.name = name;
     this.sex = sex;
@@ -39,6 +51,9 @@ export class GetMemberDetailInfoDto {
     this.bloodType = bloodType;
     this.disease = disease;
     this.medication = medication;
+    this.phoneNumber = phoneNumber;
+    this.gender = gender;
+    this.birth = birth;
   }
 
   static of(memberDetail: MemberDetail): GetMemberDetailInfoDto {
@@ -50,6 +65,9 @@ export class GetMemberDetailInfoDto {
       memberDetail.bloodType!,
       memberDetail.disease!,
       memberDetail.medication!,
+      memberDetail.member.phoneNumber,
+      memberDetail.sex,
+      memberDetail.birthDate,
     );
   }
 }
