@@ -13,6 +13,7 @@ import { SearchMemberDto } from '../../../src/modules/members/dto/search-member.
 import { MemberDetailBuilder } from '../../../src/modules/members/entities/builder/memberDetail.builder';
 import { GetMemberInfoDto } from '../../../src/modules/members/dto/get-memberInfo.dto';
 import { GetMemberDetailInfoDto } from '../../../src/modules/members/dto/get-memberDetail-info.dto';
+import { UpdateMemberDetailDto } from '../../../src/modules/members/dto/update-member-detail.dto';
 
 describe('MembersService', () => {
   let service: MembersService;
@@ -41,6 +42,7 @@ describe('MembersService', () => {
           useValue: {
             update: jest.fn(),
             findByMemberId: jest.fn(),
+            updateByMemberId: jest.fn(),
           },
         },
         {
@@ -247,6 +249,25 @@ describe('MembersService', () => {
         .mockResolvedValue(null);
       await expect(service.findMemberDetailById(1)).rejects.toThrow(
         new ExceptionHandler(ErrorStatus.MEMBER_DETAIL_NOT_FOUND),
+      );
+    });
+  });
+
+  describe('updateMemberDetailById', () => {
+    it('should update the member detail successfully', async () => {
+      const member = new MemberBuilder().id(1).build();
+      const request = new UpdateMemberDetailDto();
+      const memberDetail = request.toEntity(member);
+
+      jest
+        .spyOn(membersDetailRepository, 'updateByMemberId')
+        .mockResolvedValue(undefined);
+
+      await service.updateMemberDetailById(member, request);
+      expect(membersDetailRepository.updateByMemberId).toHaveBeenCalledTimes(1);
+      expect(membersDetailRepository.updateByMemberId).toHaveBeenCalledWith(
+        member.id,
+        memberDetail,
       );
     });
   });

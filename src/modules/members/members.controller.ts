@@ -34,6 +34,7 @@ import { UpdateMemberDto } from './dto/update-member.dto';
 import { SearchMemberDto } from './dto/search-member.dto';
 import { GetMemberInfoDto } from './dto/get-memberInfo.dto';
 import { GetMemberDetailInfoDto } from './dto/get-memberDetail-info.dto';
+import { UpdateMemberDetailDto } from './dto/update-member-detail.dto';
 
 @ApiTags('Members')
 @UseGuards(AuthGuard('jwt'))
@@ -219,12 +220,25 @@ export class MembersController {
     return await this.favoritesService.deleteFavorite(memberId, Number(id));
   }
 
-  @Get('/info')
+  @Get('/detail')
   @ApiOperation({ summary: 'Get member info' })
   @ApiSuccessResponse(GetMemberDetailInfoDto)
   @ApiFailureResponse(ErrorStatus.INTERNAL_SERVER_ERROR)
-  async getMemberInfo(@Req() req): Promise<GetMemberDetailInfoDto> {
+  async getMemberDetail(@Req() req): Promise<GetMemberDetailInfoDto> {
     const memberId = req.user.id;
     return await this.membersService.findMemberDetailById(memberId);
+  }
+
+  @Patch('/detail')
+  @ApiOperation({ summary: 'Update member info' })
+  @ApiBody({ type: UpdateMemberDetailDto })
+  @ApiSuccessResponse()
+  @ApiFailureResponse(ErrorStatus.INTERNAL_SERVER_ERROR)
+  async updateMemberDetail(
+    @Req() req,
+    @Body() request: UpdateMemberDetailDto,
+  ): Promise<void> {
+    const member = req.user;
+    return await this.membersService.updateMemberDetailById(member, request);
   }
 }
