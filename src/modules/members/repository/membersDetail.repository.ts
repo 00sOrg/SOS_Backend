@@ -31,4 +31,16 @@ export class MembersDetailRepository {
       .leftJoinAndSelect('memberDetail.member', 'member')
       .getOne();
   }
+
+  async updateByMemberId(
+    memberId: number,
+    updateData: Partial<MemberDetail>,
+  ): Promise<void> {
+    await this.memberDetailRepository
+      .createQueryBuilder('memberDetail')
+      .update()
+      .set(updateData)
+      .where('memberId = :memberId', { memberId })
+      .execute();
+  }
 }
