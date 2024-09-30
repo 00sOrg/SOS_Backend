@@ -62,7 +62,7 @@ export class CreateEventDto {
 
   toEvent(member: Member, mediaUrl?: string): Event {
     const type =
-      this.type === EventType.NONE || EventType.OTHER
+      this.type === EventType.NONE || this.type === EventType.OTHER
         ? EventType.ACCIDENT
         : this.type;
     return new EventBuilder()
