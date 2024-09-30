@@ -77,7 +77,7 @@ export class NotificationEventsHandler implements OnModuleInit {
     });
     await this.notificationService.createNotification(
       NotificationType.FAVORITE_REQUEST,
-      payload.member,
+      targetMemter,
       payload.favorite.id,
       'favorite',
     );
