@@ -6,6 +6,15 @@ export class GetMemberDetailInfoDto {
   name: string;
 
   @ApiProperty()
+  email: string;
+
+  @ApiProperty()
+  nickname: string;
+
+  @ApiProperty()
+  profilePicture?: string;
+
+  @ApiProperty()
   sex: string;
 
   @ApiProperty()
@@ -34,6 +43,8 @@ export class GetMemberDetailInfoDto {
 
   constructor(
     name: string,
+    email: string,
+    nickname: string,
     sex: string,
     height: number,
     weight: number,
@@ -43,6 +54,7 @@ export class GetMemberDetailInfoDto {
     phoneNumber: string,
     gender: string,
     birth: Date,
+    profilePicture?: string,
   ) {
     this.name = name;
     this.sex = sex;
@@ -54,11 +66,16 @@ export class GetMemberDetailInfoDto {
     this.phoneNumber = phoneNumber;
     this.gender = gender;
     this.birth = birth;
+    this.nickname = nickname;
+    this.profilePicture = profilePicture;
+    this.email = email;
   }
 
   static of(memberDetail: MemberDetail): GetMemberDetailInfoDto {
     return new GetMemberDetailInfoDto(
       memberDetail.member.name,
+      memberDetail.member.email,
+      memberDetail.member.nickname,
       memberDetail.sex,
       memberDetail.height!,
       memberDetail.weight!,
@@ -68,6 +85,7 @@ export class GetMemberDetailInfoDto {
       memberDetail.member.phoneNumber,
       memberDetail.sex,
       memberDetail.birthDate,
+      memberDetail.profilePicture,
     );
   }
 }
