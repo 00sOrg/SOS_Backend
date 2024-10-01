@@ -20,6 +20,7 @@ export class FcmService {
 
   async sendMultipleNotifications(message: admin.messaging.MulticastMessage) {
     try {
+      console.log(message);
       await this.firebaseAdmin.messaging().sendEachForMulticast(message);
     } catch (error) {
       throw new ExceptionHandler(ErrorStatus.FIREBASE_MESSAGE_ERROR);

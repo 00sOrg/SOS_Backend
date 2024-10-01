@@ -213,7 +213,8 @@ export class EventsController {
 
   @Post('/admin/primary')
   @UseInterceptors(FileInterceptor('media'))
-  @ApiExcludeEndpoint()
+  @ApiSuccessResponse()
+  @ApiFailureResponse()
   async createPrimary(
     @Body() request: CreateEventDto,
     @Request() req,
