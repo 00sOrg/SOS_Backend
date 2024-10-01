@@ -83,7 +83,7 @@ export class FcmEventsHandler implements OnModuleInit {
     const token = payload.receiver.device;
     const body = formatNotificationMessage(
       NotificationMessage.FAVORITE_REQUEST,
-      { nickname: payload.sender.nickname },
+      { sender: payload.sender.nickname },
     );
     const message = this.fcmService.makeMessage(
       NotificationType.FAVORITE_REQUEST,
