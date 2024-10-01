@@ -20,6 +20,8 @@ class EventDto {
   eventLevel: DisasterLevel;
   @ApiProperty()
   eventType: EventType;
+  @ApiProperty()
+  createdAt: Date;
 
   constructor(
     id: number,
@@ -28,6 +30,7 @@ class EventDto {
     latitude: number,
     disasterLevel: DisasterLevel,
     eventType: EventType,
+    createdAt: Date,
     content?: string,
     media?: string,
   ) {
@@ -39,6 +42,7 @@ class EventDto {
     this.eventType = eventType;
     this.content = content;
     this.media = media;
+    this.createdAt = createdAt;
   }
 }
 
@@ -59,6 +63,7 @@ export class SearchEventDto {
         event.latitude,
         event.disasterLevel,
         event.type,
+        event.createdAt,
         event.content,
         event.media,
       );
