@@ -39,7 +39,7 @@ export class GetMemberDetailInfoDto {
   gender: string;
 
   @ApiProperty()
-  birth: Date;
+  birthDate: Date;
 
   constructor(
     name: string,
@@ -65,7 +65,7 @@ export class GetMemberDetailInfoDto {
     this.medication = medication;
     this.phoneNumber = phoneNumber;
     this.gender = gender;
-    this.birth = birth;
+    this.birthDate = birth;
     this.nickname = nickname;
     this.profilePicture = profilePicture;
     this.email = email;
