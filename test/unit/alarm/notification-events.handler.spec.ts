@@ -86,8 +86,8 @@ describe('NotificationEventsHandler', () => {
       members.forEach((member) => {
         member.favoritedByMembers.forEach((favoritedByMember) => {
           expect(eventEmitter.emit).toHaveBeenCalledWith('fcm.friends', {
-            receiver: member,
-            favoritedMember: favoritedByMember,
+            receiver: favoritedByMember.member,
+            favoritedMember: member,
           });
           expect(notificationService.createNotification).toHaveBeenCalledWith(
             NotificationType.FAVORITE_NEARBY_EVENT,
