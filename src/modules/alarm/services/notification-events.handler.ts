@@ -48,8 +48,8 @@ export class NotificationEventsHandler implements OnModuleInit {
       payload.members.map((member) => {
         member.favoritedByMembers.forEach((favoritedByMember) => {
           this.eventEmitter.emit('fcm.friends', {
-            receiver: member,
-            favoritedMember: favoritedByMember,
+            receiver: favoritedByMember.member,
+            favoritedMember: member,
           });
           return this.notificationService.createNotification(
             NotificationType.FAVORITE_NEARBY_EVENT,
