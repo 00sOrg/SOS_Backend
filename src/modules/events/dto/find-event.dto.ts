@@ -46,9 +46,9 @@ export class FindEventDto {
   @ApiProperty()
   media?: string;
   @ApiProperty()
-  type!: EventType;
+  eventType!: EventType;
   @ApiProperty()
-  level!: DisasterLevel;
+  eventLevel!: DisasterLevel;
   @ApiProperty()
   likeCount: number = 0;
   @ApiProperty()
@@ -79,8 +79,8 @@ export class FindEventDto {
     dto.liked = isLiked;
     dto.comments = commentDtos;
     dto.createdAt = event.createdAt;
-    dto.type = event.type;
-    dto.level = event.disasterLevel;
+    dto.eventType = event.type;
+    dto.eventLevel = event.disasterLevel;
     dto.keywords = event.keywords!.map((keyword) => keyword.keyword);
     return dto;
   }
