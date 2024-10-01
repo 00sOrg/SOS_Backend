@@ -26,6 +26,7 @@ export class NotificationService {
     receivers: Member[],
     sender: Member,
   ): Promise<void> {
+    receivers = receivers.filter((member) => member.id !== sender.id);
     const notifications = receivers.map((member) => {
       return new NotificationBuilder()
         .type(NotificationType.HELP_REQUEST)
