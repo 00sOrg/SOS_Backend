@@ -118,8 +118,8 @@ export class MembersService {
       throw new ExceptionHandler(ErrorStatus.INVALID_GEO_LOCATION);
     }
     const earthRadius = 6371000;
-    const latDistance = 200 / earthRadius;
-    const lngDistance = 200 / (earthRadius * Math.cos((Math.PI * lat) / 180));
+    const latDistance = 500 / earthRadius;
+    const lngDistance = 500 / (earthRadius * Math.cos((Math.PI * lat) / 180));
 
     const minLat = lat - (latDistance * 180) / Math.PI;
     const maxLat = lat + (latDistance * 180) / Math.PI;
