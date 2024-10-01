@@ -131,4 +131,17 @@ export class FavoritesService {
   async deleteFavorite(memberId: number, favoriteId: number): Promise<void> {
     await this.favoritesRepository.deleteById(favoriteId, memberId);
   }
+
+  async checkFavorite(
+    memberId: number,
+    favoritedMemberId: number,
+  ): Promise<void> {
+    const favorite = await this.favoritesRepository.findFavorite(
+      memberId,
+      favoritedMemberId,
+    );
+    if (!favorite) {
+      throw new ExceptionHandler(ErrorStatus.FAVORITE_NOT_FOUND);
+    }
+  }
 }

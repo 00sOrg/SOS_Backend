@@ -124,6 +124,29 @@ describe('NotificationActionService', () => {
       );
     });
 
+    it('should return details for FAVORITE_NEARBY_EVENT successfully', async () => {
+      const member = new MemberBuilder().id(1).nickname('test').build();
+      const notification = new NotificationBuilder()
+        .id(1)
+        .type(NotificationType.HELP_REQUEST)
+        .referenceId(1)
+        .build();
+      jest.spyOn(membersRepository, 'findById').mockResolvedValue(member);
+
+      const result =
+        await notificationActionService.getActionDetails(notification);
+
+      expect(membersRepository.findById).toHaveBeenCalledWith(
+        notification.referenceId,
+      );
+      expect(result!.id).toEqual(member.id);
+      expect(result!.message).toEqual(
+        formatNotificationMessage(NotificationMessage.HELP_REQUEST, {
+          nickname: member.nickname,
+        }),
+      );
+    });
+
     it('should throw FAVORITE_NOT_FOUND if the favorite is not found', async () => {
       jest.spyOn(favoritesRepository, 'findById').mockResolvedValue(null);
       const notification = new NotificationBuilder()
@@ -154,6 +177,18 @@ describe('NotificationActionService', () => {
       const notification = new NotificationBuilder()
         .id(1)
         .type(NotificationType.FAVORITE_NEARBY_EVENT)
+        .referenceId(1)
+        .build();
+      await expect(
+        notificationActionService.getActionDetails(notification),
+      ).rejects.toThrow(new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
+    });
+
+    it('should throw MEMBER_NOT_FOUND if the member does not exist', async () => {
+      jest.spyOn(membersRepository, 'findById').mockResolvedValue(null);
+      const notification = new NotificationBuilder()
+        .id(1)
+        .type(NotificationType.HELP_REQUEST)
         .referenceId(1)
         .build();
       await expect(

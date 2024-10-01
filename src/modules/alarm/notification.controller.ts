@@ -16,6 +16,7 @@ import { GetNotificationsDto } from './dto/get-notifications.dto';
 import { ApiSuccessResponse } from '../../common/decorators/decorators.success.response';
 import { ApiFailureResponse } from '../../common/decorators/decoratos.failure.response';
 import { ErrorStatus } from '../../common/api/status/error.status';
+import { FavoritesService } from '../members/services/favorites.service';
 @ApiBearerAuth()
 @ApiTags('Alarm')
 @UseGuards(JwtAuthGuard)
@@ -24,6 +25,7 @@ export class NotificationController {
   constructor(
     private readonly notificationService: NotificationService,
     private readonly memberService: MembersService,
+    private readonly favoriteService: FavoritesService,
   ) {}
 
   @Post('/help/request')
@@ -59,5 +61,23 @@ export class NotificationController {
   async markAsRead(@Req() req, @Param('id') id: string): Promise<void> {
     const member = req.user;
     return await this.notificationService.markAsRead(member, Number(id));
+  }
+
+  @Post('/help/request/favorite/:id')
+  @ApiOperation({ summary: 'Send help request to users near favorite' })
+  @ApiSuccessResponse()
+  @ApiFailureResponse(
+    ErrorStatus.INTERNAL_SERVER_ERROR,
+    ErrorStatus.FAVORITE_NOT_FOUND,
+  )
+  async sendHelpRequestToNearFavorite(@Req() req, @Param('id') id: string) {
+    const sender = req.user;
+    await this.favoriteService.checkFavorite(sender.id, Number(id));
+    const favoriteMember = await this.memberService.findMemberById(Number(id));
+    const receivers = await this.memberService.findNearbyAndFavoritingMembers(
+      favoriteMember.latitude,
+      favoriteMember.longitude,
+    );
+    await this.notificationService.requestHelpToNearby(receivers, sender);
   }
 }

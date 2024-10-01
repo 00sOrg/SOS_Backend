@@ -30,6 +30,7 @@ export class NotificationActionService {
     [NotificationType.NEARBY_EVENT]: this.processNearbyEvent.bind(this),
     [NotificationType.FAVORITE_NEARBY_EVENT]:
       this.processFavoriteNearbyEvent.bind(this),
+    [NotificationType.HELP_REQUEST]: this.processHelpRequest.bind(this),
   };
 
   private async processFavoriteRequest(notification: Notification) {
@@ -71,6 +72,22 @@ export class NotificationActionService {
         NotificationMessage.FAVORITE_NEARBY_EVENT,
         { nickname: member.nickname },
       ),
+      url: '/members/{id}',
+    };
+  }
+
+  private async processHelpRequest(notification: Notification) {
+    const member = await this.membersRepository.findById(
+      notification.referenceId,
+    );
+    if (!member) {
+      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
+    }
+    return {
+      id: member.id,
+      message: formatNotificationMessage(NotificationMessage.HELP_REQUEST, {
+        nickname: member.nickname,
+      }),
       url: '/members/{id}',
     };
   }
