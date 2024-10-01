@@ -38,6 +38,7 @@ describe('AuthService', () => {
           useValue: {
             findByEmail: jest.fn(),
             findByNickname: jest.fn(),
+            updateDevice: jest.fn(),
           },
         },
         {
@@ -108,6 +109,7 @@ describe('AuthService', () => {
 
   describe('login', () => {
     it('should return a JWT token for a valid member with profile picture', async () => {
+      const deviceToken = 'test-device-token';
       const memberDetail = new MemberDetailBuilder()
         .id(1)
         .profilePicture('profile')
@@ -121,9 +123,47 @@ describe('AuthService', () => {
       const token = 'test-jwt-token';
 
       jest.spyOn(jwtService, 'signAsync').mockResolvedValue(token);
+      jest
+        .spyOn(membersRepository, 'updateDevice')
+        .mockResolvedValue(undefined);
 
-      const result = await authService.login(member);
+      const result = await authService.login(member, deviceToken);
 
+      expect(membersRepository.updateDevice).toHaveBeenCalledWith(
+        member.id,
+        deviceToken,
+      );
+      expect(result).toEqual({ access_token: token });
+      expect(jwtService.signAsync).toHaveBeenCalledWith({
+        id: member.id,
+        email: member.email,
+        name: member.name,
+        nickname: member.nickname,
+        profilePicture: memberDetail.profilePicture,
+      });
+    });
+    it('should not save the device token if not provided', async () => {
+      const deviceToken = undefined;
+      const memberDetail = new MemberDetailBuilder()
+        .id(1)
+        .profilePicture('profile')
+        .build();
+      const member = new MemberBuilder()
+        .id(1)
+        .email('test@example.com')
+        .nickname('test')
+        .memberDetail(memberDetail)
+        .build();
+      const token = 'test-jwt-token';
+
+      jest.spyOn(jwtService, 'signAsync').mockResolvedValue(token);
+      jest
+        .spyOn(membersRepository, 'updateDevice')
+        .mockResolvedValue(undefined);
+
+      const result = await authService.login(member, deviceToken);
+
+      expect(membersRepository.updateDevice).not.toHaveBeenCalled();
       expect(result).toEqual({ access_token: token });
       expect(jwtService.signAsync).toHaveBeenCalledWith({
         id: member.id,

@@ -27,7 +27,10 @@ export class AuthService {
     return member;
   }
 
-  async login(member: Member): Promise<object> {
+  async login(
+    member: Member,
+    deviceToken: string | undefined,
+  ): Promise<object> {
     const payload = {
       id: member.id,
       email: member.email,
@@ -36,6 +39,9 @@ export class AuthService {
       profilePicture: member.memberDetail!.profilePicture,
     };
 
+    if (deviceToken) {
+      await this.membersRepository.updateDevice(member.id, deviceToken);
+    }
     const token = await this.jwtService.signAsync(payload);
 
     return {
