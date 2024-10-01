@@ -408,4 +408,50 @@ describe('FavoritesService', () => {
       );
     });
   });
+
+  describe('checkFavorite', () => {
+    let member: Member;
+    let favoritedMember: Member;
+    let favorite: Favorite;
+
+    beforeEach(() => {
+      member = new MemberBuilder().id(1).build();
+      favoritedMember = new MemberBuilder().id(2).build();
+      favorite = new FavoriteBuilder()
+        .id(1)
+        .member(member)
+        .favoritedMember(favoritedMember)
+        .build();
+    });
+
+    it('should do nothing if the favorite exists', async () => {
+      const memberId = 1;
+      const favoritedMemberId = 2;
+
+      jest
+        .spyOn(favoritesRepository, 'findFavorite')
+        .mockResolvedValue(favorite);
+
+      await favoritesService.checkFavorite(memberId, favoritedMemberId);
+      expect(favoritesRepository.findFavorite).toHaveBeenCalledWith(
+        memberId,
+        favoritedMemberId,
+      );
+    });
+    it('should throw FAVORITE_NOT_FOUND error if the favorite does not exist', async () => {
+      const memberId = 1;
+      const favoritedMemberId = 2;
+
+      jest.spyOn(favoritesRepository, 'findFavorite').mockResolvedValue(null);
+
+      await expect(
+        favoritesService.checkFavorite(memberId, favoritedMemberId),
+      ).rejects.toThrow(new ExceptionHandler(ErrorStatus.FAVORITE_NOT_FOUND));
+
+      expect(favoritesRepository.findFavorite).toHaveBeenCalledWith(
+        memberId,
+        favoritedMemberId,
+      );
+    });
+  });
 });
