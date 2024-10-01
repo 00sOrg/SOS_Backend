@@ -9,6 +9,10 @@ class Events {
   @ApiProperty()
   content?: string;
   @ApiProperty()
+  longitude: number;
+  @ApiProperty()
+  latitude: number;
+  @ApiProperty()
   media?: string;
   @ApiProperty()
   createdAt: Date;
@@ -16,6 +20,8 @@ class Events {
     id: number,
     title: string,
     createdAt: Date,
+    longitude: number,
+    latitude: number,
     content?: string,
     media?: string,
   ) {
@@ -24,6 +30,8 @@ class Events {
     this.content = content;
     this.media = media;
     this.createdAt = createdAt;
+    this.longitude = longitude;
+    this.latitude = latitude;
   }
 }
 
@@ -43,6 +51,8 @@ export class FindNearbyAllDto {
         event.id,
         event.title,
         event.createdAt,
+        event.longitude,
+        event.latitude,
         event.content,
         event.media,
       );
