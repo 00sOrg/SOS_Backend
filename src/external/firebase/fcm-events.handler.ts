@@ -6,7 +6,7 @@ import {
   formatNotificationMessage,
   NotificationMessage,
 } from '../../modules/alarm/entities/enums/notificationMessage.enum';
-import { NotificationType } from '../../modules/alarm/entities/enums/notificationType.enum';
+import { NotificationTitle } from '../../modules/alarm/entities/enums/notificationType.enum';
 
 @Injectable()
 export class FcmEventsHandler implements OnModuleInit {
@@ -26,7 +26,7 @@ export class FcmEventsHandler implements OnModuleInit {
       nickname: payload.sender.nickname,
     });
     const message = this.fcmService.makeMulticastMessage(
-      NotificationType.HELP_REQUEST,
+      NotificationTitle.HELP_REQUEST,
       body,
       tokens,
     );
@@ -43,7 +43,7 @@ export class FcmEventsHandler implements OnModuleInit {
       {},
     );
     const message = this.fcmService.makeMulticastMessage(
-      NotificationType.NEARBY_EVENT,
+      NotificationTitle.NEARBY_EVENT,
       body,
       tokens,
     );
@@ -65,7 +65,7 @@ export class FcmEventsHandler implements OnModuleInit {
       },
     );
     const message = this.fcmService.makeMessage(
-      NotificationType.FAVORITE_NEARBY_EVENT,
+      NotificationTitle.FAVORITE_NEARBY_EVENT,
       body,
       token,
     );
@@ -86,7 +86,7 @@ export class FcmEventsHandler implements OnModuleInit {
       { sender: payload.sender.nickname },
     );
     const message = this.fcmService.makeMessage(
-      NotificationType.FAVORITE_REQUEST,
+      NotificationTitle.FAVORITE_REQUEST,
       body,
       token,
     );

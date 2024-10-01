@@ -2,7 +2,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import * as admin from 'firebase-admin';
 import { ExceptionHandler } from '../../common/filters/exception/exception.handler';
 import { ErrorStatus } from '../../common/api/status/error.status';
-import { NotificationType } from '../../modules/alarm/entities/enums/notificationType.enum';
+import {
+  NotificationTitle,
+  NotificationType,
+} from '../../modules/alarm/entities/enums/notificationType.enum';
 
 @Injectable()
 export class FcmService {
@@ -28,7 +31,7 @@ export class FcmService {
   }
 
   makeMulticastMessage(
-    title: NotificationType,
+    title: NotificationTitle,
     body: string,
     tokens: string[],
   ): admin.messaging.MulticastMessage {
@@ -42,7 +45,7 @@ export class FcmService {
   }
 
   makeMessage(
-    title: NotificationType,
+    title: NotificationTitle,
     body: string,
     token: string,
   ): admin.messaging.Message {
