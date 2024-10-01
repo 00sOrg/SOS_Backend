@@ -32,6 +32,7 @@ export class AuthController {
       properties: {
         email: { type: 'string', example: 'user@example.com' },
         password: { type: 'string', example: 'StrongPassword123!' },
+        token: { type: 'string' },
       },
       required: ['email', 'password'],
     },
@@ -43,7 +44,9 @@ export class AuthController {
   )
   async login(@Request() req): Promise<object> {
     const member = req.user;
-    return await this.authService.login(member);
+    const deviceToken = req.body.token;
+    console.log(deviceToken);
+    return await this.authService.login(member, deviceToken);
   }
 
   @UseInterceptors(FileInterceptor('media'))

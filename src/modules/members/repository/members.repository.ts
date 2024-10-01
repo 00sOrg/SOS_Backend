@@ -18,6 +18,10 @@ export class MembersRepository {
     await this.memberRepository.update(memberId, updateData);
   }
 
+  async updateDevice(memberId: number, deviceToken: string): Promise<void> {
+    await this.memberRepository.update(memberId, { device: deviceToken });
+  }
+
   async findById(memberId: number): Promise<Member | null> {
     return this.memberRepository
       .createQueryBuilder('member')
