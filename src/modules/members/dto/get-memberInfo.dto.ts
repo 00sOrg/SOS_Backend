@@ -17,11 +17,15 @@ export class GetMemberInfoDto {
   @ApiProperty()
   latitude: number;
 
+  @ApiProperty()
+  updatedAt: Date;
+
   constructor(
     memberId: number,
     nickname: string,
     longitude: number,
     latitude: number,
+    updatedAt: Date,
     profilePicture?: string,
   ) {
     this.memberId = memberId;
@@ -29,6 +33,7 @@ export class GetMemberInfoDto {
     this.profilePicture = profilePicture;
     this.longitude = longitude;
     this.latitude = latitude;
+    this.updatedAt = updatedAt;
   }
   static of(member: Member): GetMemberInfoDto {
     return new GetMemberInfoDto(
@@ -36,6 +41,7 @@ export class GetMemberInfoDto {
       member.nickname,
       member.longitude,
       member.latitude,
+      member.updatedAt,
       member.memberDetail!.profilePicture,
     );
   }
