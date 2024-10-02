@@ -1,5 +1,6 @@
 import { Event } from '../entities';
 import { ApiProperty } from '@nestjs/swagger';
+import { EventType } from '../entities/enum/event-type.enum';
 
 class Events {
   @ApiProperty()
@@ -16,12 +17,15 @@ class Events {
   media?: string;
   @ApiProperty()
   createdAt: Date;
+  @ApiProperty()
+  eventType: EventType;
   public constructor(
     id: number,
     title: string,
     createdAt: Date,
     longitude: number,
     latitude: number,
+    eventType: EventType,
     content?: string,
     media?: string,
   ) {
@@ -32,6 +36,7 @@ class Events {
     this.createdAt = createdAt;
     this.longitude = longitude;
     this.latitude = latitude;
+    this.eventType = eventType;
   }
 }
 
@@ -53,6 +58,7 @@ export class FindNearbyAllDto {
         event.createdAt,
         event.longitude,
         event.latitude,
+        event.type,
         event.content,
         event.media,
       );

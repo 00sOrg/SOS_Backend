@@ -92,6 +92,11 @@ export class ErrorStatus implements BaseCode {
     400,
     '유효한 재난 단계를 입력해 주세요.',
   );
+  static readonly UNABLE_TO_FIND_ADDRESS = new ErrorStatus(
+    false,
+    400,
+    '주소를 찾을 수 없습니다.',
+  );
 
   //S3 에러
   static readonly S3_UPLOAD_FAILURE = new ErrorStatus(

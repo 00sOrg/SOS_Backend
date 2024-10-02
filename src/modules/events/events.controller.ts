@@ -165,7 +165,10 @@ export class EventsController {
   @Get('/nearby/all')
   @ApiOperation({ summary: 'Get all the nearby events' })
   @ApiSuccessResponse(FindNearbyAllDto)
-  @ApiFailureResponse(ErrorStatus.INVALID_GEO_LOCATION)
+  @ApiFailureResponse(
+    ErrorStatus.INVALID_GEO_LOCATION,
+    ErrorStatus.UNABLE_TO_FIND_ADDRESS,
+  )
   async findNearybyAll(
     @Query('lat') lat: string,
     @Query('lng') lng: string,
