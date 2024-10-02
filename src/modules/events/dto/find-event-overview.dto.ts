@@ -26,6 +26,10 @@ export class FindEventOverviewDto {
   createdAt: Date;
   @ApiProperty()
   keywords: string[];
+  @ApiProperty()
+  latitude: number;
+  @ApiProperty()
+  longitude: number;
 
   constructor(
     id: number,
@@ -37,6 +41,8 @@ export class FindEventOverviewDto {
     memberProfile: string,
     memberNickname: string,
     keywords: string[],
+    latitude: number,
+    longitude: number,
     media?: string,
     content?: string,
   ) {
@@ -51,6 +57,8 @@ export class FindEventOverviewDto {
     this.address = address;
     this.memberProfile = memberProfile;
     this.memberNickname = memberNickname;
+    this.latitude = latitude;
+    this.longitude = longitude;
   }
 
   static of(event: Event): FindEventOverviewDto {
@@ -65,6 +73,8 @@ export class FindEventOverviewDto {
       event.member.memberDetail!.profilePicture!,
       event.member.nickname,
       keywords,
+      event.latitude,
+      event.longitude,
       event.media,
       event.content,
     );
