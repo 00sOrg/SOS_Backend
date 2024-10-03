@@ -59,6 +59,7 @@ describe('EventService', () => {
             update: jest.fn(),
             findByTitleLike: jest.fn(),
             findAllByMember: jest.fn(),
+            delete: jest.fn(),
           },
         },
         {
@@ -71,6 +72,7 @@ describe('EventService', () => {
           provide: S3Service,
           useValue: {
             upload: jest.fn(),
+            delete: jest.fn(),
           },
         },
         {
@@ -554,6 +556,37 @@ describe('EventService', () => {
 
       expect(eventsRepository.findAllByMember).toHaveBeenCalledWith(member.id);
       expect(result).toEqual(getEventsDto);
+    });
+  });
+
+  describe('deleteEvent', () => {
+    let event: Event;
+    let member: Member;
+    beforeEach(() => {
+      member = new MemberBuilder().id(1).build();
+      event = new EventBuilder().id(1).member(member).media('test').build();
+    });
+    it('should delete the event successfully', async () => {
+      jest.spyOn(eventsRepository, 'findById').mockResolvedValue(event);
+      jest.spyOn(s3Service, 'delete').mockResolvedValue(undefined);
+      jest.spyOn(eventsRepository, 'delete').mockResolvedValue(undefined);
+      await eventsService.deleteEvent(event.id, member);
+      expect(eventsRepository.findById).toHaveBeenCalledWith(event.id);
+      expect(s3Service.delete).toHaveBeenCalledWith(event.media);
+      expect(eventsRepository.delete).toHaveBeenCalledWith(event);
+    });
+    it('should throw EVENT_NOT_FOUND if the event is not found', async () => {
+      jest.spyOn(eventsRepository, 'findById').mockResolvedValue(null);
+      await expect(eventsService.deleteEvent(event.id, member)).rejects.toThrow(
+        new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND),
+      );
+    });
+    it('should throw EVENT_NOT_OWNER if the member is not the owner of the event', async () => {
+      const anotherMember = new MemberBuilder().id(2).build();
+      jest.spyOn(eventsRepository, 'findById').mockResolvedValue(event);
+      await expect(
+        eventsService.deleteEvent(event.id, anotherMember),
+      ).rejects.toThrow(new ExceptionHandler(ErrorStatus.EVENT_NOT_OWNER));
     });
   });
 });

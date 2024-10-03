@@ -167,6 +167,20 @@ export class EventsService {
     return GetEventsDto.of(events);
   }
 
+  async deleteEvent(eventId: number, member: Member) {
+    const event = await this.eventsRepository.findById(eventId);
+    if (!event) {
+      throw new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND);
+    }
+    if (event.member.id !== member.id) {
+      throw new ExceptionHandler(ErrorStatus.EVENT_NOT_OWNER);
+    }
+    if (event.media) {
+      await this.s3Service.delete(event.media);
+    }
+    await this.eventsRepository.delete(event);
+  }
+
   private isValidLocation(lat: number, lng: number) {
     if (
       lat === undefined ||
