@@ -62,6 +62,10 @@ export class Event extends DefaultEntity {
     this.commentsCount++;
   }
 
+  subCommentCount(): void {
+    this.commentsCount = this.commentsCount > 0 ? this.commentsCount - 1 : 0;
+  }
+
   addLikeCount() {
     this.likesCount++;
   }

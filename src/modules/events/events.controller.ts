@@ -237,6 +237,21 @@ export class EventsController {
     return await this.eventsService.getEvents(member);
   }
 
+  @Delete('/comment/:commentId')
+  @ApiOperation({ summary: '댓글 삭제' })
+  @ApiSuccessResponse()
+  @ApiFailureResponse(
+    ErrorStatus.MEMBER_NOT_FOUND,
+    ErrorStatus.COMMENT_NOT_FOUND,
+    ErrorStatus.COMMENT_NOT_MATCH,
+    ErrorStatus.EVENT_NOT_FOUND,
+    ErrorStatus.INTERNAL_SERVER_ERROR,
+  )
+  async deleteComment(@Param('commentId') commentId: string, @Request() req) {
+    const member = req.user;
+    await this.commentService.deleteComment(Number(commentId), member);
+  }
+
   @Delete(':id(\\d+)')
   @ApiOperation({ summary: '이벤트 삭제' })
   @ApiSuccessResponse()

@@ -9,10 +9,11 @@ import { Member } from 'src/modules/members/entities';
 import { MembersRepository } from 'src/modules/members/repository/members.repository';
 import { MemberBuilder } from '../../src/modules/members/entities/builder/member.builder';
 import { EventBuilder } from '../../src/modules/events/entities/builder/event.builder';
+import { Comment } from '../../src/modules/events/entities';
+import { CommentBuilder } from '../../src/modules/events/entities/builder/comment.builder';
 
 describe('CommentService', () => {
   let commentService: CommentService;
-  let memberRepository: Partial<jest.Mocked<MembersRepository>>;
   let eventsRepository: Partial<jest.Mocked<EventsRepository>>;
   let commentRepository: Partial<jest.Mocked<CommentRepository>>;
 
@@ -20,12 +21,6 @@ describe('CommentService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CommentService,
-        {
-          provide: MembersRepository,
-          useValue: {
-            findById: jest.fn(),
-          },
-        },
         {
           provide: EventsRepository,
           useValue: {
@@ -38,13 +33,14 @@ describe('CommentService', () => {
           provide: CommentRepository,
           useValue: {
             create: jest.fn(),
+            findOne: jest.fn(),
+            delete: jest.fn(),
           },
         },
       ],
     }).compile();
 
     commentService = module.get<CommentService>(CommentService);
-    memberRepository = module.get(MembersRepository);
     eventsRepository = module.get(EventsRepository);
     commentRepository = module.get(CommentRepository);
   });
@@ -79,6 +75,58 @@ describe('CommentService', () => {
       await expect(
         commentService.createComment(request, member),
       ).rejects.toThrow(new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND));
+    });
+  });
+
+  describe('deleteComment', () => {
+    let comment: Comment;
+    let member: Member;
+
+    beforeEach(async () => {
+      member = new MemberBuilder().id(1).build();
+      const event = new EventBuilder().id(1).commentsCount(1).build();
+      comment = new CommentBuilder().id(1).member(member).event(event).build();
+    });
+
+    it('should delete a comment successfully', async () => {
+      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(comment);
+      jest.spyOn(eventsRepository, 'findOne').mockResolvedValue(comment.event);
+      jest.spyOn(eventsRepository, 'update').mockResolvedValue(undefined);
+      jest.spyOn(commentRepository, 'delete').mockResolvedValue(undefined);
+
+      await commentService.deleteComment(1, member);
+
+      expect(commentRepository.findOne).toHaveBeenCalledWith(1);
+      expect(eventsRepository.findOne).toHaveBeenCalledWith(1);
+      expect(eventsRepository.update).toHaveBeenCalledTimes(1);
+      expect(commentRepository.delete).toHaveBeenCalledWith(1);
+      expect(comment.event.commentsCount).toBe(0);
+    });
+
+    it('should throw COMMENT_NOT_FOUND if comment does not exist', async () => {
+      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(null);
+
+      await expect(commentService.deleteComment(1, member)).rejects.toThrow(
+        new ExceptionHandler(ErrorStatus.COMMENT_NOT_FOUND),
+      );
+    });
+
+    it('should throw COMMENT_NOT_MATCH if comment does not match', async () => {
+      const anotherMember = new MemberBuilder().id(2).build();
+      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(comment);
+
+      await expect(
+        commentService.deleteComment(1, anotherMember),
+      ).rejects.toThrow(new ExceptionHandler(ErrorStatus.COMMENT_NOT_MATCH));
+    });
+
+    it('should throw EVENT_NOT_FOUND if event does not exist', async () => {
+      jest.spyOn(commentRepository, 'findOne').mockResolvedValue(comment);
+      jest.spyOn(eventsRepository, 'findOne').mockResolvedValue(null);
+
+      await expect(commentService.deleteComment(1, member)).rejects.toThrow(
+        new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND),
+      );
     });
   });
 });

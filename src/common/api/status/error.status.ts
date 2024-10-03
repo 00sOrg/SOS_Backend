@@ -138,4 +138,16 @@ export class ErrorStatus implements BaseCode {
     400,
     '이미지 삭제에 실패했습니다.',
   );
+
+  static readonly COMMENT_NOT_FOUND = new ErrorStatus(
+    false,
+    400,
+    '해당 댓글이 존재하지 않습니다.',
+  );
+
+  static readonly COMMENT_NOT_MATCH = new ErrorStatus(
+    false,
+    400,
+    '댓글 작성자가 아닙니다.',
+  );
 }

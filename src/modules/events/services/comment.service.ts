@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { MembersRepository } from 'src/modules/members/repository/members.repository';
 import { CommentRepository } from '../repository/comment.repository';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
@@ -10,7 +9,6 @@ import { Member } from '../../members/entities';
 @Injectable()
 export class CommentService {
   constructor(
-    private readonly membersRepository: MembersRepository,
     private readonly eventsRepository: EventsRepository,
     private readonly commentRepository: CommentRepository,
   ) {}
@@ -27,5 +25,22 @@ export class CommentService {
     event.addCommentCount();
     await this.eventsRepository.update(event);
     await this.commentRepository.create(comment);
+  }
+
+  async deleteComment(commentId: number, member: Member): Promise<void> {
+    const comment = await this.commentRepository.findOne(commentId);
+    if (!comment) {
+      throw new ExceptionHandler(ErrorStatus.COMMENT_NOT_FOUND);
+    }
+    if (comment.member.id !== member.id) {
+      throw new ExceptionHandler(ErrorStatus.COMMENT_NOT_MATCH);
+    }
+    const event = await this.eventsRepository.findOne(comment.event.id);
+    if (!event) {
+      throw new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND);
+    }
+    event.subCommentCount();
+    await this.eventsRepository.update(event);
+    await this.commentRepository.delete(commentId);
   }
 }

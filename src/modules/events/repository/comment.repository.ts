@@ -12,4 +12,17 @@ export class CommentRepository {
   async create(comment: Comment): Promise<Comment> {
     return this.commentRepository.save(comment);
   }
+
+  async findOne(commentId: number): Promise<Comment | null> {
+    return this.commentRepository
+      .createQueryBuilder('comment')
+      .where('comment.id=:commentId', { commentId })
+      .leftJoinAndSelect('comment.member', 'member')
+      .leftJoinAndSelect('comment.event', 'event')
+      .getOne();
+  }
+
+  async delete(commentId: number): Promise<void> {
+    await this.commentRepository.delete(commentId);
+  }
 }
