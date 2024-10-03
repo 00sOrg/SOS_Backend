@@ -1,4 +1,8 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import {
+  DeleteObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ErrorStatus } from 'src/common/api/status/error.status';
@@ -42,5 +46,19 @@ export class S3Service {
     const bucketName = this.configService.get<string>('BUCKET_NAME');
     const region = this.configService.get<string>('BUCKET_REGION');
     return `https://${bucketName}.s3.${region}.amazonaws.com/${key}`;
+  }
+
+  async delete(key: string): Promise<void> {
+    const data = {
+      Bucket: this.configService.get<string>('BUCKET_NAME'),
+      Key: key,
+    };
+
+    try {
+      const command = new DeleteObjectCommand(data);
+      await this.s3Client.send(command);
+    } catch (error) {
+      throw new ExceptionHandler(ErrorStatus.S3_DELETE_FAILURE);
+    }
   }
 }

@@ -9,6 +9,7 @@ import {
   Query,
   UseInterceptors,
   UploadedFile,
+  Delete,
 } from '@nestjs/common';
 import { EventsService } from './services/events.service';
 import { CreateEventDto } from './dto/create-event.dto';
@@ -234,5 +235,18 @@ export class EventsController {
   async getEvents(@Request() req): Promise<GetEventsDto> {
     const member = req.user;
     return await this.eventsService.getEvents(member);
+  }
+
+  @Delete(':id(\\d+)')
+  @ApiOperation({ summary: '이벤트 삭제' })
+  @ApiSuccessResponse()
+  @ApiFailureResponse(
+    ErrorStatus.EVENT_NOT_FOUND,
+    ErrorStatus.INTERNAL_SERVER_ERROR,
+    ErrorStatus.S3_DELETE_FAILURE,
+  )
+  async deleteEvent(@Param('id') id: string, @Request() req) {
+    const member = req.user;
+    await this.eventsService.deleteEvent(Number(id), member);
   }
 }

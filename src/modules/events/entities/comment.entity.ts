@@ -14,11 +14,11 @@ export class Comment extends DefaultEntity {
   @PrimaryGeneratedColumn({ type: 'bigint' })
   id!: number;
 
-  @ManyToOne(() => Event)
+  @ManyToOne(() => Event, { onDelete: 'CASCADE' })
   @JoinColumn()
   event!: Event;
 
-  @ManyToOne(() => Member)
+  @ManyToOne(() => Member, { onDelete: 'CASCADE' })
   @JoinColumn()
   member!: Member;
 

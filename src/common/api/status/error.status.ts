@@ -97,6 +97,11 @@ export class ErrorStatus implements BaseCode {
     400,
     '주소를 찾을 수 없습니다.',
   );
+  static readonly EVENT_NOT_OWNER = new ErrorStatus(
+    false,
+    400,
+    '이벤트의 소유자가 아닙니다.',
+  );
 
   //S3 에러
   static readonly S3_UPLOAD_FAILURE = new ErrorStatus(
@@ -126,5 +131,11 @@ export class ErrorStatus implements BaseCode {
     false,
     400,
     'Push 메시지를 보내는데 실패했습니다',
+  );
+
+  static readonly S3_DELETE_FAILURE = new ErrorStatus(
+    false,
+    400,
+    '이미지 삭제에 실패했습니다.',
   );
 }

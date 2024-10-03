@@ -104,4 +104,8 @@ export class EventsRepository {
       .where('event.memberId = :memberId', { memberId })
       .getMany();
   }
+
+  async delete(event: Event): Promise<void> {
+    await this.eventRepository.delete({ id: event.id });
+  }
 }
