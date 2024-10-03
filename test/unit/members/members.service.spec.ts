@@ -14,6 +14,7 @@ import { MemberDetailBuilder } from '../../../src/modules/members/entities/build
 import { GetMemberInfoDto } from '../../../src/modules/members/dto/get-memberInfo.dto';
 import { GetMemberDetailInfoDto } from '../../../src/modules/members/dto/get-memberDetail-info.dto';
 import { UpdateMemberDetailDto } from '../../../src/modules/members/dto/update-member-detail.dto';
+import { UpdateMemberDto } from '../../../src/modules/members/dto/update-member.dto';
 
 describe('MembersService', () => {
   let service: MembersService;
@@ -74,49 +75,37 @@ describe('MembersService', () => {
   });
 
   describe('updateMember', () => {
-    it('should throw an error if member is not found', async () => {
-      jest.spyOn(membersRepository, 'findById').mockResolvedValue(null);
-
-      await expect(
-        service.updateMember(1, { nickname: 'newNickname' }),
-      ).rejects.toThrow(new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND));
+    let member: Member;
+    let request: UpdateMemberDto;
+    beforeEach(() => {
+      const memberDetail = new MemberDetailBuilder().build();
+      member = new MemberBuilder().id(1).memberDetail(memberDetail).build();
+      request = new UpdateMemberDto();
+      request.nickname = 'newNickname';
+      request.sex = '남자';
     });
-
-    it('should throw an error if nickname is already taken by another member', async () => {
-      const existingMember: Member = { id: 2 } as Member;
-      const member: Member = { id: 1 } as Member;
-
-      jest.spyOn(membersRepository, 'findById').mockResolvedValue(member);
-      jest
-        .spyOn(membersRepository, 'findByNickname')
-        .mockResolvedValue(existingMember);
-
-      await expect(
-        service.updateMember(1, { nickname: 'newNickname' }),
-      ).rejects.toThrow(
-        new ExceptionHandler(ErrorStatus.NICKNAME_ALREADY_TAKEN),
-      );
-    });
-
     it('should hash the password if provided', async () => {
-      const member: Member = { id: 1 } as Member;
-
+      request.password = 'newPassword';
       jest.spyOn(membersRepository, 'findById').mockResolvedValue(member);
       jest.spyOn(membersRepository, 'findByNickname').mockResolvedValue(null);
       const hashSpy = jest
         .spyOn(bcrypt, 'hash')
         .mockImplementation(async () => 'hashedPassword');
 
-      await service.updateMember(1, { password: 'newPassword' });
-
+      await service.updateMember(member, request);
+      const { memberDetail, ...memberUpdateData } = member;
       expect(hashSpy).toHaveBeenCalledWith('newPassword', 10);
-      expect(membersRepository.update).toHaveBeenCalledWith(1, {
-        password: 'hashedPassword',
-      });
+      expect(membersRepository.update).toHaveBeenCalledWith(
+        1,
+        memberUpdateData,
+      );
+      expect(membersDetailRepository.update).toHaveBeenCalledWith(
+        1,
+        memberDetail,
+      );
     });
 
     it('should upload a profile picture if media is provided', async () => {
-      const member: Member = { id: 1 } as Member;
       const mockFile = { originalname: 'profile.jpg' } as Express.Multer.File;
       const mockUrl = 'https://mock.url/profile-picture.jpg';
 
@@ -124,34 +113,36 @@ describe('MembersService', () => {
       jest.spyOn(membersRepository, 'findByNickname').mockResolvedValue(null);
       jest.spyOn(s3Service, 'upload').mockResolvedValue(mockUrl);
 
-      await service.updateMember(1, { nickname: 'newNickname' }, mockFile);
+      await service.updateMember(member, request, mockFile);
+      const { memberDetail, ...memberUpdateData } = member;
 
       expect(s3Service.upload).toHaveBeenCalledWith(mockFile);
-      expect(membersDetailRepository.update).toHaveBeenCalledWith(1, {
-        profilePicture: mockUrl,
-      });
+      expect(membersRepository.update).toHaveBeenCalledWith(
+        1,
+        memberUpdateData,
+      );
+      expect(membersDetailRepository.update).toHaveBeenCalledWith(
+        1,
+        memberDetail,
+      );
     });
 
-    it('should update Member and MemberDetail entities without errors', async () => {
-      const member: Member = { id: 1 } as Member;
-
+    it('should not update the profile picture if media is not provided', async () => {
       jest.spyOn(membersRepository, 'findById').mockResolvedValue(member);
       jest.spyOn(membersRepository, 'findByNickname').mockResolvedValue(null);
 
-      await service.updateMember(1, {
-        nickname: 'newNickname',
-        sex: 'F',
-        birthDate: new Date('1990-01-01'),
-      });
+      await service.updateMember(member, request);
+      const { memberDetail, ...memberUpdateData } = member;
 
-      expect(membersRepository.update).toHaveBeenCalledWith(1, {
-        nickname: 'newNickname',
-      });
-
-      expect(membersDetailRepository.update).toHaveBeenCalledWith(1, {
-        sex: 'F',
-        birthDate: new Date('1990-01-01'),
-      });
+      expect(s3Service.upload).not.toHaveBeenCalled();
+      expect(membersRepository.update).toHaveBeenCalledWith(
+        1,
+        memberUpdateData,
+      );
+      expect(membersDetailRepository.update).toHaveBeenCalledWith(
+        1,
+        memberDetail,
+      );
     });
   });
   describe('findMemberAndAddressByNickname', () => {

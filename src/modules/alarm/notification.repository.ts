@@ -18,11 +18,14 @@ export class NotificationRepository {
   }
 
   async getNotificationsByMember(memberId: number): Promise<Notification[]> {
-    return this.notificationRepository
-      .createQueryBuilder('notification')
-      .where('notification.member.id = :memberId', { memberId })
-      .addOrderBy('notification.createdAt', 'DESC')
-      .getMany();
+    return (
+      this.notificationRepository
+        .createQueryBuilder('notification')
+        .where('notification.member.id = :memberId', { memberId })
+        // .andWhere('notification.isRead = false')
+        .addOrderBy('notification.createdAt', 'DESC')
+        .getMany()
+    );
   }
 
   async markAsRead(notificationId: number, memberId: number): Promise<void> {

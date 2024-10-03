@@ -43,62 +43,33 @@ export class MembersService {
   }
 
   async updateMember(
-    memberId: number,
+    member: Member,
     updateData: UpdateMemberDto,
     media?: Express.Multer.File,
   ): Promise<void> {
-    const member = await this.membersRepository.findById(memberId);
-
-    if (!member) {
-      throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
-    }
-
     // 닉네임 중복 확인
-    if (updateData.nickname) {
-      const existingMember = await this.membersRepository.findByNickname(
-        updateData.nickname,
-      );
-      if (existingMember && existingMember.id !== memberId) {
-        throw new ExceptionHandler(ErrorStatus.NICKNAME_ALREADY_TAKEN);
-      }
-    }
+    member.nickname = updateData.nickname;
+    member.phoneNumber = updateData.phoneNumber;
+    member.memberDetail!.sex = updateData.sex;
 
-    // 비밀번호 해시화 (이전과 같은 비밀번호인지 처리해야하나?)
     if (updateData.password) {
       updateData.password = await bcrypt.hash(updateData.password, 10);
+      member.password = updateData.password;
     }
 
-    // 프로필 사진 업로드 및 업데이트 데이터에 추가
     if (media) {
       const profilePictureUrl = await this.s3Service.upload(media);
-      updateData.profilePicture = profilePictureUrl;
+      member.memberDetail!.profilePicture = profilePictureUrl;
+    } else {
+      member.memberDetail!.profilePicture = updateData.profilePicture;
     }
 
-    // Member 업데이트 처리
-    const memberUpdateData: Partial<Member> = {
-      ...(updateData.nickname && { nickname: updateData.nickname }),
-      ...(updateData.password && { password: updateData.password }),
-    };
-
-    if (Object.keys(memberUpdateData).length > 0) {
-      await this.membersRepository.update(memberId, memberUpdateData);
-    }
-
-    // MemberDetail 업데이트 처리
-    const memberDetailUpdateData: Partial<MemberDetail> = {
-      ...(updateData.sex && { sex: updateData.sex }),
-      ...(updateData.birthDate && { birthDate: updateData.birthDate }),
-      ...(updateData.profilePicture && {
-        profilePicture: updateData.profilePicture,
-      }),
-    };
-
-    if (Object.keys(memberDetailUpdateData).length > 0) {
-      await this.membersDetailRepository.update(
-        member.id,
-        memberDetailUpdateData,
-      );
-    }
+    const { memberDetail, ...memberUpdateData } = member;
+    await this.membersRepository.update(member.id, memberUpdateData as Member);
+    await this.membersDetailRepository.update(
+      member.id,
+      memberDetail as MemberDetail,
+    );
   }
 
   async findNearbyAndFavoritingMembers(

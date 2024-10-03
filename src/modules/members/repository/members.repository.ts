@@ -14,7 +14,7 @@ export class MembersRepository {
     return this.memberRepository.save(member);
   }
 
-  async update(memberId: number, updateData: Partial<Member>): Promise<void> {
+  async update(memberId: number, updateData: Member): Promise<void> {
     await this.memberRepository.update(memberId, updateData);
   }
 
