@@ -135,7 +135,7 @@ export class FavoritesService {
   async checkFavorite(
     memberId: number,
     favoritedMemberId: number,
-  ): Promise<void> {
+  ): Promise<Member> {
     const favorite = await this.favoritesRepository.findFavorite(
       memberId,
       favoritedMemberId,
@@ -143,5 +143,6 @@ export class FavoritesService {
     if (!favorite) {
       throw new ExceptionHandler(ErrorStatus.FAVORITE_NOT_FOUND);
     }
+    return favorite.favoritedMember;
   }
 }

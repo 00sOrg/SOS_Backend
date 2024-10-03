@@ -72,12 +72,17 @@ export class NotificationController {
   )
   async sendHelpRequestToNearFavorite(@Req() req, @Param('id') id: string) {
     const sender = req.user;
-    await this.favoriteService.checkFavorite(sender.id, Number(id));
-    const favoriteMember = await this.memberService.findMemberById(Number(id));
+    const favoriteMember = await this.favoriteService.checkFavorite(
+      sender.id,
+      Number(id),
+    );
     const receivers = await this.memberService.findNearbyAndFavoritingMembers(
       favoriteMember.latitude,
       favoriteMember.longitude,
     );
-    await this.notificationService.requestHelpToNearby(receivers, sender);
+    await this.notificationService.requestHelpToNearby(
+      receivers,
+      favoriteMember,
+    );
   }
 }
