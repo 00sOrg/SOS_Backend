@@ -34,6 +34,8 @@ export class FindEventDto {
   @ApiProperty()
   id!: number;
   @ApiProperty()
+  memberId!: number;
+  @ApiProperty()
   memberNickname!: string;
   @ApiProperty()
   memberProfile!: string;
@@ -68,6 +70,7 @@ export class FindEventDto {
       return new CommentDto(comment);
     });
     dto.id = event.id;
+    dto.memberId = event.member.id;
     dto.memberNickname = event.member.nickname;
     dto.memberProfile = event.member.memberDetail!.profilePicture!;
     dto.address = event.address;
