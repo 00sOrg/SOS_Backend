@@ -21,7 +21,6 @@ export class NotificationActionService {
 
   async getActionDetails(notification: Notification) {
     const handler = this.actionHandlers[notification.type];
-    console.log(notification.type);
     return handler(notification);
   }
 
@@ -48,14 +47,14 @@ export class NotificationActionService {
   }
 
   private async processNearbyEvent(notification: Notification) {
-    const event = await this.eventsRepository.findById(
-      notification.referenceId,
-    );
-    if (!event) {
-      throw new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND);
-    }
+    // const event = await this.eventsRepository.findById(
+    //   notification.referenceId,
+    // );
+    // if (!event) {
+    //   throw new ExceptionHandler(ErrorStatus.EVENT_NOT_FOUND);
+    // }
     return {
-      id: event.id,
+      id: notification.referenceId,
       message: formatNotificationMessage(NotificationMessage.NEARBY_EVENT, {}),
       url: '/events/{id}',
     };

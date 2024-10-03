@@ -64,8 +64,10 @@ export class MembersController {
       properties: {
         nickname: { type: 'string' },
         password: { type: 'string' },
+        phoneNumber: { type: 'string' },
         sex: { type: 'string' },
         birthDate: { type: 'string', format: 'date' },
+        profilePicture: { type: 'string' },
         media: {
           type: 'string',
           format: 'binary',
@@ -78,8 +80,8 @@ export class MembersController {
     @Body() request: UpdateMemberDto,
     @UploadedFile() media: Express.Multer.File,
   ): Promise<void> {
-    const memberId = req.user.id;
-    await this.membersService.updateMember(memberId, request, media);
+    const member = req.user;
+    await this.membersService.updateMember(member, request, media);
   }
 
   // <Favorites Service 메서드 호출 API>

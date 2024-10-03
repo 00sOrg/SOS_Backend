@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { MembersRepository } from '../repository/members.repository';
 import { ExceptionHandler } from 'src/common/filters/exception/exception.handler';
 import { ErrorStatus } from 'src/common/api/status/error.status';
+import { Member } from '../entities';
 
 @Injectable()
 export class LocationService {
@@ -20,11 +21,11 @@ export class LocationService {
     if (!member) {
       throw new ExceptionHandler(ErrorStatus.MEMBER_NOT_FOUND);
     }
+    member.longitude = lng;
+    member.latitude = lat;
+    const { memberDetail, ...updatedMember } = member;
 
     // 해당 멤버의 위치 정보 업데이트
-    await this.membersRepository.update(memberId, {
-      latitude: lat,
-      longitude: lng,
-    });
+    await this.membersRepository.update(memberId, updatedMember as Member);
   }
 }
