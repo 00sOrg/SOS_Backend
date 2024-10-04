@@ -61,7 +61,7 @@ export class EventsRepository {
     return (
       this.eventRepository
         .createQueryBuilder('event')
-        .where('event.address = :address', { address })
+        .where('event.address LIKE :address', { address: `%${address}%` })
         .leftJoinAndSelect('event.keywords', 'keywords')
         // .andWhere('event.createdAt > :yesterday', { yesterday })
         .addOrderBy('event.likesCount', 'DESC')

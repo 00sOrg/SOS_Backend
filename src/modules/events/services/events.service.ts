@@ -95,7 +95,11 @@ export class EventsService {
   async findNearbyAll(lat: number, lng: number): Promise<FindNearbyAllDto> {
     this.isValidLocation(lat, lng);
     const address = await this.naverService.getAddressFromCoordinate(lat, lng);
-    const events: Event[] = await this.eventsRepository.findNearbyAll(address);
+    const [city, gu, dong] = address.split(' ');
+    const searchAddress = `${city} ${gu}`;
+
+    const events: Event[] =
+      await this.eventsRepository.findNearbyAll(searchAddress);
     return FindNearbyAllDto.of(events);
   }
 
